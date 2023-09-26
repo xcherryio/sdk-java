@@ -19,7 +19,7 @@ public class Client {
 
     private DefaultApi buildDefaultApi() {
         final ApiClient apiClient = new ApiClient().setBasePath(clientOptions.getServerUrl());
-        //        apiClient.setObjectMapper(clientOptions.getObjectEncoder().getObjectMapper());
+        apiClient.setObjectMapper(clientOptions.getObjectEncoder().getObjectMapper());
 
         final Feign.Builder feignBuilder = apiClient
             .getFeignBuilder()
