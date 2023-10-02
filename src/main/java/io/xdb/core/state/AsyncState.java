@@ -1,6 +1,5 @@
 package io.xdb.core.state;
 
-import io.xdb.core.utils.ClassUtil;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.StateDecision;
 import java.lang.reflect.Method;
@@ -14,12 +13,11 @@ public interface AsyncState<I> {
     Class<I> getInputType();
 
     /**
-     * return a unique identifier of the state in any workflow definition.
      *
-     * @return the state id
+     * @return the state options
      */
-    default String getId() {
-        return ClassUtil.getClassSimpleName(this);
+    default StateOptions getOptions() {
+        return StateOptions.builder().build();
     }
 
     /**

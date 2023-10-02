@@ -3,6 +3,7 @@ package io.xdb.core.registry;
 import io.xdb.core.exception.ProcessDefinitionException;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
+import io.xdb.core.utils.ProcessUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class Registry {
     }
 
     private void registerProcess(final Process process) {
-        final String type = process.getType();
+        final String type = ProcessUtil.getProcessType(process);
 
         if (processStore.containsKey(type)) {
             throw new ProcessDefinitionException(
@@ -62,21 +63,25 @@ public class Registry {
     }
 
     private void registerProcessStates(final Process process) {
+        final String processType = ProcessUtil.getProcessType(process);
+
         final HashMap<String, AsyncState> stateMap = new HashMap<>();
 
         for (final AsyncState state : process.getStateSchema().getAllStates()) {
-            if (stateMap.containsKey(state.getId())) {
+            final String stateId = ProcessUtil.getStateId(state);
+
+            if (stateMap.containsKey(stateId)) {
                 throw new ProcessDefinitionException(
                     String.format(
                         "State id %s has previously been registered in process type %s.",
-                        state.getId(),
-                        process.getType()
+                        stateId,
+                        processType
                     )
                 );
             }
-            stateMap.put(state.getId(), state);
+            stateMap.put(stateId, state);
         }
 
-        processStatesStore.put(process.getType(), stateMap);
+        processStatesStore.put(processType, stateMap);
     }
 }

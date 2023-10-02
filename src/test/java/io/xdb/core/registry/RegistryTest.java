@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.xdb.core.common.process.ProcessNoStartingState;
 import io.xdb.core.common.process.ProcessWithStartingState;
+import io.xdb.core.utils.ProcessUtil;
 import org.junit.jupiter.api.Test;
 
 public class RegistryTest {
@@ -18,10 +19,13 @@ public class RegistryTest {
 
         registry.addProcesses(processWithStartingState, processNoStartingState);
 
-        assertEquals(processWithStartingState, registry.getProcess(processWithStartingState.getType()));
-        assertEquals(processNoStartingState, registry.getProcess(processNoStartingState.getType()));
+        assertEquals(
+            processWithStartingState,
+            registry.getProcess(ProcessUtil.getProcessType(processWithStartingState))
+        );
+        assertEquals(processNoStartingState, registry.getProcess(ProcessUtil.getProcessType(processNoStartingState)));
 
-        assertTrue(registry.getProcessStartingState(processWithStartingState.getType()).isPresent());
-        assertFalse(registry.getProcessStartingState(processNoStartingState.getType()).isPresent());
+        assertTrue(registry.getProcessStartingState(ProcessUtil.getProcessType(processWithStartingState)).isPresent());
+        assertFalse(registry.getProcessStartingState(ProcessUtil.getProcessType(processNoStartingState)).isPresent());
     }
 }

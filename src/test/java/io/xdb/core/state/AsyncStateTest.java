@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.xdb.core.common.state.StateNoWaitUntil;
 import io.xdb.core.common.state.StateWithWaitUntil;
+import io.xdb.core.utils.ProcessUtil;
 import org.junit.jupiter.api.Test;
 
 public class AsyncStateTest {
@@ -14,12 +15,12 @@ public class AsyncStateTest {
     void shouldSkipWaitUntilTest() {
         final StateNoWaitUntil stateNoWaitUntil = new StateNoWaitUntil();
         assertTrue(AsyncState.shouldSkipWaitUntil(stateNoWaitUntil));
-        assertEquals("StateNoWaitUntil", stateNoWaitUntil.getId());
+        assertEquals("StateNoWaitUntil", ProcessUtil.getStateId(stateNoWaitUntil));
         assertEquals(Void.class, stateNoWaitUntil.getInputType());
 
         final StateWithWaitUntil stateWithWaitUntil = new StateWithWaitUntil();
         assertFalse(AsyncState.shouldSkipWaitUntil(stateWithWaitUntil));
-        assertEquals("testStateId", stateWithWaitUntil.getId());
+        assertEquals("testStateId", ProcessUtil.getStateId(stateWithWaitUntil));
         assertEquals(Integer.class, stateWithWaitUntil.getInputType());
     }
 }
