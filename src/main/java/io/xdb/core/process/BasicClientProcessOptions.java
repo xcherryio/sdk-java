@@ -12,6 +12,6 @@ public class BasicClientProcessOptions {
 
     public BasicClientProcessOptions(final ProcessOptions processOptions, final AsyncStateConfig startStateConfig) {
         this.processOptionsOptional = Optional.ofNullable(processOptions);
-        this.startStateConfig = Optional.of(startStateConfig);
+        this.startStateConfig = Optional.ofNullable(startStateConfig);
     }
 }
