@@ -8,6 +8,6 @@ import lombok.Getter;
 @Getter
 public class ProcessOptions {
 
-    protected final ProcessIdReusePolicy processIdReusePolicy;
-    protected final Integer timeoutSeconds;
+    private final ProcessIdReusePolicy processIdReusePolicy;
+    private final Integer timeoutSeconds;
 }

@@ -2,6 +2,9 @@ package io.xdb.core.exception;
 
 import feign.FeignException;
 import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.exception.status.InvalidRequestException;
+import io.xdb.core.exception.status.ProcessAlreadyStartedException;
+import io.xdb.core.exception.status.ProcessNotFoundException;
 import io.xdb.gen.models.ApiErrorResponse;
 import io.xdb.gen.models.EncodedObject;
 import java.nio.ByteBuffer;
@@ -39,7 +42,16 @@ public abstract class XDBHttpException extends RuntimeException {
         final FeignException.FeignClientException exception
     ) {
         if (exception.status() >= 400 && exception.status() < 500) {
-            return new ClientSideException(objectEncoder, exception);
+            switch (exception.status()) {
+                case 400:
+                    return new InvalidRequestException(objectEncoder, exception);
+                case 404:
+                    return new ProcessNotFoundException(objectEncoder, exception);
+                case 409:
+                    return new ProcessAlreadyStartedException(objectEncoder, exception);
+                default:
+                    return new ClientSideException(objectEncoder, exception);
+            }
         } else {
             return new ServerSideException(objectEncoder, exception);
         }

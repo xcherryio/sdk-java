@@ -8,15 +8,10 @@ import lombok.Getter;
 public class BasicClientProcessOptions {
 
     private final Optional<ProcessOptions> processOptionsOptional;
-    private final AsyncStateConfig startStateConfig;
+    private final Optional<AsyncStateConfig> startStateConfig;
 
     public BasicClientProcessOptions(final ProcessOptions processOptions, final AsyncStateConfig startStateConfig) {
-        if (processOptions == null) {
-            this.processOptionsOptional = Optional.empty();
-        } else {
-            this.processOptionsOptional = Optional.of(processOptions);
-        }
-
-        this.startStateConfig = startStateConfig;
+        this.processOptionsOptional = Optional.ofNullable(processOptions);
+        this.startStateConfig = Optional.of(startStateConfig);
     }
 }

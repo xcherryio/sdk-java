@@ -11,8 +11,8 @@ import io.xdb.gen.models.StateDecision;
 
 public class WorkerService {
 
-    private static final String API_PATH_ASYNC_STATE_WAIT_UNTIL = "/api/v1/xdb/worker/async-state/wait-until";
-    private static final String API_PATH_ASYNC_STATE_EXECUTE = "/api/v1/xdb/worker/async-state/execute";
+    public static final String API_PATH_ASYNC_STATE_WAIT_UNTIL = "/api/v1/xdb/worker/async-state/wait-until";
+    public static final String API_PATH_ASYNC_STATE_EXECUTE = "/api/v1/xdb/worker/async-state/execute";
 
     private final Registry registry;
     private final WorkerServiceOptions workerServiceOptions;

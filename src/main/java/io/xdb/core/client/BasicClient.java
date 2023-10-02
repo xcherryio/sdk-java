@@ -18,7 +18,7 @@ import io.xdb.gen.models.ProcessStartConfig;
 /**
  * {@link BasicClient} serves as a foundational client without a process {@link io.xdb.core.registry}.
  * It represents the internal implementation of the {@link Client}.
- * However, it can also be utilized directly if there is a compelling reason, allowing you to invoke APIs on the xdb server with minimal type validation checks, such as process type, queue names, and so forth.
+ * However, it can also be utilized directly if there is a compelling reason, allowing you to invoke APIs on the xdb server with no type validation checks, such as process type, queue names, and so forth.
  */
 public class BasicClient {
 
@@ -42,8 +42,7 @@ public class BasicClient {
             .processId(processId)
             .workerUrl(clientOptions.getWorkerUrl())
             .startStateId(startStateId)
-            .startStateInput(clientOptions.getObjectEncoder().encode(input))
-            .startStateConfig(processOptions.getStartStateConfig());
+            .startStateInput(clientOptions.getObjectEncoder().encode(input));
 
         if (processOptions.getProcessOptionsOptional().isPresent()) {
             final ProcessOptions options = processOptions.getProcessOptionsOptional().get();
@@ -52,6 +51,10 @@ public class BasicClient {
                     .idReusePolicy(options.getProcessIdReusePolicy())
                     .timeoutSeconds(options.getTimeoutSeconds())
             );
+        }
+
+        if (processOptions.getStartStateConfig().isPresent()) {
+            request.startStateConfig(processOptions.getStartStateConfig().get());
         }
 
         final ProcessExecutionStartResponse response;

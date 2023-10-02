@@ -1,6 +1,7 @@
 package io.xdb.core.client;
 
 import io.xdb.core.process.BasicClientProcessOptions;
+import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
@@ -21,7 +22,7 @@ public class Client {
     }
 
     public String startProcess(
-        final String processType,
+        final Process process,
         final String processId,
         final Object input,
         final ProcessOptions processOptions
@@ -29,7 +30,7 @@ public class Client {
         AsyncStateConfig asyncStateConfig = null;
         String startingStateId = "";
 
-        final Optional<AsyncState> startingState = registry.getProcessStartingState(processType);
+        final Optional<AsyncState> startingState = registry.getProcessStartingState(process.getType());
         if (startingState.isPresent()) {
             asyncStateConfig =
                 new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(startingState.get()));
@@ -41,6 +42,12 @@ public class Client {
             asyncStateConfig
         );
 
-        return basicClient.startProcess(processType, processId, startingStateId, input, basicClientProcessOptions);
+        return basicClient.startProcess(
+            process.getType(),
+            processId,
+            startingStateId,
+            input,
+            basicClientProcessOptions
+        );
     }
 }

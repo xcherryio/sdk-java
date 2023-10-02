@@ -14,7 +14,7 @@ Java SDK for [xdb](https://github.com/xdblab/xdb)
 ## 1.0
 
 - [ ] StartProcessExecution API
-  - [] Basic
+  - [ ] Basic
   - [ ] ProcessIdReusePolicy
   - [ ] Process timeout
   - [ ] Retention policy after closed
@@ -24,9 +24,9 @@ Java SDK for [xdb](https://github.com/xdblab/xdb)
   - [ ] StateOption: WaitUntil/Execute API timeout and retry policy
   - [ ] AsyncState failure policy for recovery
 - [ ] StateDecision
-  - [x] Single next State
-  - [x] Multiple next states
-  - [x] Force completing process
+  - [ ] Single next State
+  - [ ] Multiple next states
+  - [ ] Force completing process
   - [ ] Graceful completing process
   - [ ] Force fail process
   - [ ] Dead end
