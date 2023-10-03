@@ -1,4 +1,4 @@
-package io.xdb.core;
+package io.xdb.core.encoder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xdb.gen.models.EncodedObject;
@@ -20,7 +20,7 @@ public interface ObjectEncoder {
     EncodedObject encode(final Object object);
 
     /**
-     * Decode an encoded object into a Java object with input type
+     * Decode an encoded object into a Java object with the Encoding Type
      * @param encodedObject encoded object to decode
      * @param type Java class to decode into
      * @param <T> Java class to decode into
