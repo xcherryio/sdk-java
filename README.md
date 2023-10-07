@@ -1,7 +1,7 @@
 # xdb-java-sdk
 
 [![Coverage Status](https://codecov.io/github/xdblab/xdb-java-sdk/coverage.svg?branch=main)](https://app.codecov.io/gh/xdblab/xdb-java-sdk/branch/main)
-[![Build status](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-test.yml/badge.svg?branch=main)](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-test.yml)
+[![Build status](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-integ-test.yml/badge.svg?branch=main)](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-integ-test.yml)
 
 Java SDK for [xdb](https://github.com/xdblab/xdb)
 

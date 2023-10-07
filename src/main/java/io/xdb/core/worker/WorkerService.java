@@ -2,12 +2,16 @@ package io.xdb.core.worker;
 
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
+import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.AsyncStateExecuteRequest;
 import io.xdb.gen.models.AsyncStateExecuteResponse;
 import io.xdb.gen.models.AsyncStateWaitUntilRequest;
 import io.xdb.gen.models.AsyncStateWaitUntilResponse;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.StateDecision;
+import io.xdb.gen.models.StateMovement;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorkerService {
 
@@ -41,8 +45,31 @@ public class WorkerService {
             .decode(request.getStateInput(), state.getInputType());
 
         // TODO
-        final StateDecision stateDecision = state.execute(input);
+        final io.xdb.core.state.StateDecision stateDecision = state.execute(input);
 
-        return new AsyncStateExecuteResponse().stateDecision(stateDecision);
+        return new AsyncStateExecuteResponse().stateDecision(toServerModel(request.getProcessType(), stateDecision));
+    }
+
+    private StateDecision toServerModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {
+        if (stateDecision.getStateDecision() != null) {
+            return stateDecision.getStateDecision();
+        }
+
+        final List<StateMovement> stateMovements = stateDecision
+            .getNextStates()
+            .stream()
+            .map(stateMovement ->
+                new StateMovement()
+                    .stateId(stateMovement.getStateId())
+                    .stateInput(workerServiceOptions.getObjectEncoder().encode(stateMovement.getStateInput()))
+                    .stateConfig(
+                        ProcessUtil.getAsyncStateConfig(
+                            registry.getProcessState(processType, stateMovement.getStateId())
+                        )
+                    )
+            )
+            .collect(Collectors.toList());
+
+        return new StateDecision().nextStates(stateMovements);
     }
 }

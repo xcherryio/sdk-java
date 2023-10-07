@@ -1,7 +1,6 @@
 package io.xdb.core.state;
 
 import io.xdb.gen.models.CommandRequest;
-import io.xdb.gen.models.StateDecision;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 

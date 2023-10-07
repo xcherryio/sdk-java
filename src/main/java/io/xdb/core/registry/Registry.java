@@ -5,9 +5,7 @@ import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
 
-@Getter
 public class Registry {
 
     // process type: process
@@ -36,6 +34,15 @@ public class Registry {
     }
 
     public AsyncState getProcessState(final String type, final String stateId) {
+        if (!processStatesStore.containsKey(type) || !processStatesStore.get(type).containsKey(stateId)) {
+            throw new ProcessDefinitionException(
+                String.format(
+                    "Process type %s or state id %s has not been registered in processStatesStore.",
+                    type,
+                    stateId
+                )
+            );
+        }
         return processStatesStore.get(type).get(stateId);
     }
 

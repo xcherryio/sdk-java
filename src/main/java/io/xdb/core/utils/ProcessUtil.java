@@ -1,9 +1,22 @@
 package io.xdb.core.utils;
 
-// mainly to return default values for null cases
+import io.xdb.core.process.Process;
+import io.xdb.core.state.AsyncState;
+import io.xdb.gen.models.AsyncStateConfig;
+
 public class ProcessUtil {
 
-    public static String getClassSimpleName(final Class<?> obejctClass) {
-        return obejctClass.getSimpleName();
+    public static final String DEFAULT_NAMESPACE = "default";
+
+    public static String getProcessType(final Class<? extends Process> processClass) {
+        return processClass.getSimpleName();
+    }
+
+    public static String getStateId(final Class<? extends AsyncState> stateClass) {
+        return stateClass.getSimpleName();
+    }
+
+    public static AsyncStateConfig getAsyncStateConfig(final AsyncState state) {
+        return new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
     }
 }

@@ -10,6 +10,6 @@ public class AsyncStateOptions {
     private final String id;
 
     public String getId(final Class<? extends AsyncState> stateClass) {
-        return Strings.isNullOrEmpty(id) ? ProcessUtil.getClassSimpleName(stateClass) : id;
+        return Strings.isNullOrEmpty(id) ? ProcessUtil.getStateId(stateClass) : id;
     }
 }
