@@ -3,6 +3,7 @@ package io.xdb.core.state;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.StateDecision;
 import java.lang.reflect.Method;
+import lombok.NonNull;
 
 public interface AsyncState<I> {
     /**
@@ -16,8 +17,9 @@ public interface AsyncState<I> {
      *
      * @return the state options
      */
-    default StateOptions getOptions() {
-        return StateOptions.builder().build();
+    @NonNull
+    default AsyncStateOptions getOptions() {
+        return AsyncStateOptions.builder().build();
     }
 
     /**

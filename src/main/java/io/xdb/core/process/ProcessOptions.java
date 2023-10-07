@@ -1,14 +1,27 @@
 package io.xdb.core.process;
 
-import io.xdb.gen.models.ProcessIdReusePolicy;
+import com.google.common.base.Strings;
+import io.xdb.core.utils.ProcessUtil;
+import io.xdb.gen.models.ProcessStartConfig;
 import lombok.Builder;
-import lombok.Getter;
 
 @Builder
-@Getter
 public class ProcessOptions {
 
+    // If not set, use the default value.
+    private final String namespace;
     private final String type;
-    private final ProcessIdReusePolicy processIdReusePolicy;
-    private final Integer timeoutSeconds;
+    private final ProcessStartConfig processStartConfig;
+
+    public String getNamespace() {
+        return Strings.isNullOrEmpty(namespace) ? "default" : namespace;
+    }
+
+    public String getType(final Class<? extends Process> processClass) {
+        return Strings.isNullOrEmpty(type) ? ProcessUtil.getClassSimpleName(processClass) : type;
+    }
+
+    public ProcessStartConfig getProcessStartConfig() {
+        return processStartConfig;
+    }
 }

@@ -1,13 +1,12 @@
 package io.xdb.core.client;
 
-import io.xdb.core.process.BasicClientProcessOptions;
 import io.xdb.core.process.Process;
-import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.AsyncStateConfig;
-import java.util.Optional;
+import io.xdb.gen.models.ProcessExecutionDescribeResponse;
+import io.xdb.gen.models.ProcessExecutionStartRequest;
 
 public class Client {
 
@@ -23,8 +22,8 @@ public class Client {
     }
 
     public String startProcess(final Process process, final String processId, final Object input) {
-        final String processType = ProcessUtil.getProcessType(process);
-        return startProcessInternal(processType, processId, input, process.getOptions());
+        final String processType = process.getOptions().getType(process.getClass());
+        return startProcessInternal(processType, processId, input);
     }
 
     /**
@@ -40,31 +39,35 @@ public class Client {
         final String processId,
         final Object input
     ) {
-        final String processType = ProcessUtil.getProcessType(processClass);
-        return startProcessInternal(processType, processId, input, null);
+        final String processType = ProcessUtil.getClassSimpleName(processClass);
+        return startProcessInternal(processType, processId, input);
     }
 
-    private String startProcessInternal(
-        final String processType,
-        final String processId,
-        final Object input,
-        final ProcessOptions processOptions
+    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(
+        final String namespace,
+        final String processId
     ) {
-        AsyncStateConfig asyncStateConfig = null;
-        String startingStateId = "";
+        return basicClient.describeCurrentProcessExecution(namespace, processId);
+    }
 
-        final Optional<AsyncState> startingState = registry.getProcessStartingState(processType);
-        if (startingState.isPresent()) {
-            asyncStateConfig =
-                new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(startingState.get()));
-            startingStateId = ProcessUtil.getStateId(startingState.get());
+    private String startProcessInternal(final String processType, final String processId, final Object input) {
+        final Process process = registry.getProcess(processType);
+
+        final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
+            .namespace(process.getOptions().getNamespace())
+            .processId(processId)
+            .processType(processType)
+            .workerUrl(clientOptions.getWorkerUrl())
+            .startStateInput(clientOptions.getObjectEncoder().encode(input))
+            .processStartConfig(process.getOptions().getProcessStartConfig());
+
+        final AsyncState startingState = process.getStateSchema().getStartingState();
+        if (startingState != null) {
+            request
+                .startStateId(startingState.getOptions().getId(startingState.getClass()))
+                .startStateConfig(new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(startingState)));
         }
 
-        final BasicClientProcessOptions basicClientProcessOptions = new BasicClientProcessOptions(
-            processOptions,
-            asyncStateConfig
-        );
-
-        return basicClient.startProcess(processType, processId, startingStateId, input, basicClientProcessOptions);
+        return basicClient.startProcess(request);
     }
 }
