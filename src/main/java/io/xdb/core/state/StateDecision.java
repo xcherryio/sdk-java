@@ -61,12 +61,7 @@ public class StateDecision {
 
     // TODO: option override
     public static StateDecision singleNextState(final Class<? extends AsyncState> stateClass, final Object stateInput) {
-        final StateMovement stateMovement = StateMovement
-            .builder()
-            .stateId(ProcessUtil.getStateId(stateClass))
-            .stateInput(stateInput)
-            .build();
-        return StateDecision.builder().nextStates(ImmutableList.of(stateMovement)).build();
+        return singleNextState(ProcessUtil.getStateId(stateClass), stateInput);
     }
 
     public static StateDecision singleNextState(final String stateId, final Object stateInput) {
@@ -75,11 +70,7 @@ public class StateDecision {
     }
 
     public static StateDecision multipleNextStates(final Class<? extends AsyncState>... stateClasses) {
-        final ArrayList<StateMovement> stateMovements = new ArrayList<>();
-        for (final Class<? extends AsyncState> stateClass : stateClasses) {
-            stateMovements.add(StateMovement.builder().stateId(ProcessUtil.getStateId(stateClass)).build());
-        }
-        return StateDecision.builder().nextStates(stateMovements).build();
+        return multipleNextStates(Arrays.stream(stateClasses).map(ProcessUtil::getStateId).toArray(String[]::new));
     }
 
     public static StateDecision multipleNextStates(final String... stateIds) {
@@ -87,10 +78,14 @@ public class StateDecision {
         for (final String stateId : stateIds) {
             stateMovements.add(StateMovement.builder().stateId(stateId).build());
         }
-        return StateDecision.builder().nextStates(stateMovements).build();
+        return multipleNextStates(stateMovements);
     }
 
     public static StateDecision multipleNextStates(final StateMovement... stateMovements) {
-        return StateDecision.builder().nextStates(Arrays.stream(stateMovements).collect(Collectors.toList())).build();
+        return multipleNextStates(Arrays.stream(stateMovements).collect(Collectors.toList()));
+    }
+
+    public static StateDecision multipleNextStates(final List<StateMovement> stateMovements) {
+        return StateDecision.builder().nextStates(stateMovements).build();
     }
 }
