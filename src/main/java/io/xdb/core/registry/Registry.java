@@ -6,10 +6,7 @@ import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import lombok.Getter;
 
-@Getter
 public class Registry {
 
     // process type: process
@@ -37,20 +34,24 @@ public class Registry {
         return processStore.get(type);
     }
 
-    public Optional<AsyncState> getProcessStartingState(final String type) {
-        final Process process = getProcess(type);
-        final AsyncState startingState = process.getStateSchema().getStartingState();
-        if (startingState == null) {
-            return Optional.empty();
-        }
-        return Optional.of(startingState);
-    }
-
     public AsyncState getProcessState(final String type, final String stateId) {
+        if (!processStatesStore.containsKey(type) || !processStatesStore.get(type).containsKey(stateId)) {
+            throw new ProcessDefinitionException(
+                String.format(
+                    "Process type %s or state id %s has not been registered in processStatesStore.",
+                    type,
+                    stateId
+                )
+            );
+        }
         return processStatesStore.get(type).get(stateId);
     }
 
     private void registerProcess(final Process process) {
+        if (process.getOptions() != null) {
+            process.getOptions().validate();
+        }
+
         final String type = ProcessUtil.getProcessType(process);
 
         if (processStore.containsKey(type)) {
@@ -63,11 +64,19 @@ public class Registry {
     }
 
     private void registerProcessStates(final Process process) {
+        if (process.getStateSchema() == null) {
+            return;
+        }
+
         final String processType = ProcessUtil.getProcessType(process);
 
         final HashMap<String, AsyncState> stateMap = new HashMap<>();
 
         for (final AsyncState state : process.getStateSchema().getAllStates()) {
+            if (state.getOptions() != null) {
+                state.getOptions().validate();
+            }
+
             final String stateId = ProcessUtil.getStateId(state);
 
             if (stateMap.containsKey(stateId)) {

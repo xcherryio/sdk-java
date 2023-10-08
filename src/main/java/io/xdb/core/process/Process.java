@@ -8,7 +8,7 @@ import io.xdb.core.state.StateSchema;
  */
 public interface Process {
     default ProcessOptions getOptions() {
-        return ProcessOptions.builder().build();
+        return ProcessOptions.builder(this.getClass()).build();
     }
 
     default StateSchema getStateSchema() {

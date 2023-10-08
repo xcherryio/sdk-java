@@ -1,4 +1,4 @@
-name: Test Build
+name: Integration Test
 on:
   pull_request:
   push:
@@ -7,10 +7,12 @@ on:
 
 jobs:
   tests:
-    name: "Test build"
+    name: "Integration Test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: "Set up xdb environment"
+        run: wget https://raw.githubusercontent.com/xdblab/xdb/main/docker-compose/docker-compose-postgres14-example.yaml && docker compose -f docker-compose-postgres14-example.yaml up -d
       - uses: actions/setup-java@v3
         with:
           distribution: zulu

@@ -19,13 +19,7 @@ public class StateSchema {
             states.add(startingState);
         }
 
-        final StateSchemaBuilder stateSchemaBuilder = StateSchema.builder().allStates(states);
-
-        if (startingState != null) {
-            stateSchemaBuilder.startingState(startingState);
-        }
-
-        return stateSchemaBuilder.build();
+        return StateSchema.builder().startingState(startingState).allStates(states).build();
     }
 
     public static StateSchema noStartingState(final AsyncState... nonStartingStates) {

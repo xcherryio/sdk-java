@@ -1,34 +1,37 @@
 package io.xdb.core.utils;
 
-import com.google.common.base.Strings;
 import io.xdb.core.process.Process;
-import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.state.AsyncState;
-import io.xdb.core.state.StateOptions;
+import io.xdb.gen.models.AsyncStateConfig;
 
 public class ProcessUtil {
 
-    public static String getProcessType(final Class<? extends Process> processClass) {
-        return processClass.getSimpleName();
+    /**
+     * The default method to get type/id from an objectClass.
+     * Only use it when there is no definition of the {@link Process} / {@link AsyncState}
+     *
+     * @param objectClass
+     * @return
+     */
+    public static String getClassSimpleName(final Class<?> objectClass) {
+        return objectClass.getSimpleName();
     }
 
     public static String getProcessType(final Process process) {
-        final ProcessOptions options = process.getOptions();
-        if (Strings.isNullOrEmpty(options.getType())) {
-            return getProcessType(process.getClass());
+        if (process.getOptions() == null) {
+            return getClassSimpleName(process.getClass());
         }
-        return options.getType();
-    }
-
-    public static String getStateId(final Class<? extends AsyncState> stateClass) {
-        return stateClass.getSimpleName();
+        return process.getOptions().getType();
     }
 
     public static String getStateId(final AsyncState state) {
-        final StateOptions options = state.getOptions();
-        if (Strings.isNullOrEmpty(options.getId())) {
-            return getStateId(state.getClass());
+        if (state.getOptions() == null) {
+            return getClassSimpleName(state.getClass());
         }
-        return options.getId();
+        return state.getOptions().getId();
+    }
+
+    public static AsyncStateConfig getAsyncStateConfig(final AsyncState state) {
+        return new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
     }
 }

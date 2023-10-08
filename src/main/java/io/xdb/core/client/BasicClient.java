@@ -5,15 +5,12 @@ import feign.FeignException;
 import feign.Retryer;
 import io.xdb.core.ServerErrorDecoder;
 import io.xdb.core.exception.XDBHttpException;
-import io.xdb.core.process.BasicClientProcessOptions;
-import io.xdb.core.process.ProcessOptions;
 import io.xdb.gen.api.ApiClient;
 import io.xdb.gen.api.DefaultApi;
 import io.xdb.gen.models.ProcessExecutionDescribeRequest;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStartResponse;
-import io.xdb.gen.models.ProcessStartConfig;
 
 /**
  * {@link BasicClient} serves as a foundational client without a process {@link io.xdb.core.registry}.
@@ -30,33 +27,7 @@ public class BasicClient {
         this.defaultApi = buildDefaultApi();
     }
 
-    public String startProcess(
-        final String processType,
-        final String processId,
-        final String startStateId,
-        final Object input,
-        final BasicClientProcessOptions processOptions
-    ) {
-        final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
-            .processType(processType)
-            .processId(processId)
-            .workerUrl(clientOptions.getWorkerUrl())
-            .startStateId(startStateId)
-            .startStateInput(clientOptions.getObjectEncoder().encode(input));
-
-        if (processOptions.getProcessOptionsOptional().isPresent()) {
-            final ProcessOptions options = processOptions.getProcessOptionsOptional().get();
-            request.processStartConfig(
-                new ProcessStartConfig()
-                    .idReusePolicy(options.getProcessIdReusePolicy())
-                    .timeoutSeconds(options.getTimeoutSeconds())
-            );
-        }
-
-        if (processOptions.getStartStateConfig().isPresent()) {
-            request.startStateConfig(processOptions.getStartStateConfig().get());
-        }
-
+    public String startProcess(final ProcessExecutionStartRequest request) {
         final ProcessExecutionStartResponse response;
         try {
             response = defaultApi.apiV1XdbServiceProcessExecutionStartPost(request);
@@ -67,8 +38,13 @@ public class BasicClient {
         return response.getProcessExecutionId();
     }
 
-    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
-        final ProcessExecutionDescribeRequest request = new ProcessExecutionDescribeRequest().processId(processId);
+    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(
+        final String namespace,
+        final String processId
+    ) {
+        final ProcessExecutionDescribeRequest request = new ProcessExecutionDescribeRequest()
+            .namespace(namespace)
+            .processId(processId);
 
         try {
             return defaultApi.apiV1XdbServiceProcessExecutionDescribePost(request);
