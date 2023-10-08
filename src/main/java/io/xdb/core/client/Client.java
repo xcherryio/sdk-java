@@ -3,6 +3,7 @@ package io.xdb.core.client;
 import static io.xdb.core.process.ProcessOptions.DEFAULT_NAMESPACE;
 
 import io.xdb.core.process.Process;
+import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
@@ -24,7 +25,7 @@ public class Client {
     }
 
     public String startProcess(final Process process, final String processId, final Object input) {
-        final String processType = process.getOptions().getType();
+        final String processType = ProcessUtil.getProcessType(process);
         return startProcessInternal(processType, processId, input);
     }
 
@@ -41,7 +42,7 @@ public class Client {
         final String processId,
         final Object input
     ) {
-        final String processType = ProcessUtil.getProcessType(processClass);
+        final String processType = ProcessUtil.getClassSimpleName(processClass);
         return startProcessInternal(processType, processId, input);
     }
 
@@ -68,19 +69,22 @@ public class Client {
 
     private String startProcessInternal(final String processType, final String processId, final Object input) {
         final Process process = registry.getProcess(processType);
+        final ProcessOptions processOptions = process.getOptions() == null
+            ? ProcessOptions.builder(process).build()
+            : process.getOptions();
 
         final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
-            .namespace(process.getOptions().getNamespace())
+            .namespace(processOptions.getNamespace())
             .processId(processId)
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
             .startStateInput(clientOptions.getObjectEncoder().encode(input))
-            .processStartConfig(process.getOptions().getProcessStartConfig());
+            .processStartConfig(processOptions.getProcessStartConfig());
 
-        final AsyncState startingState = process.getStateSchema().getStartingState();
-        if (startingState != null) {
+        if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
+            final AsyncState startingState = process.getStateSchema().getStartingState();
             request
-                .startStateId(startingState.getOptions().getId(startingState.getClass()))
+                .startStateId(ProcessUtil.getStateId(startingState))
                 .startStateConfig(ProcessUtil.getAsyncStateConfig(startingState));
         }
 

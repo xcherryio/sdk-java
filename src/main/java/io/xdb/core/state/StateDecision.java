@@ -61,7 +61,7 @@ public class StateDecision {
 
     // TODO: option override
     public static StateDecision singleNextState(final Class<? extends AsyncState> stateClass, final Object stateInput) {
-        return singleNextState(ProcessUtil.getStateId(stateClass), stateInput);
+        return singleNextState(ProcessUtil.getClassSimpleName(stateClass), stateInput);
     }
 
     public static StateDecision singleNextState(final String stateId, final Object stateInput) {
@@ -70,7 +70,9 @@ public class StateDecision {
     }
 
     public static StateDecision multipleNextStates(final Class<? extends AsyncState>... stateClasses) {
-        return multipleNextStates(Arrays.stream(stateClasses).map(ProcessUtil::getStateId).toArray(String[]::new));
+        return multipleNextStates(
+            Arrays.stream(stateClasses).map(ProcessUtil::getClassSimpleName).toArray(String[]::new)
+        );
     }
 
     public static StateDecision multipleNextStates(final String... stateIds) {

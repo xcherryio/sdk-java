@@ -6,12 +6,29 @@ import io.xdb.gen.models.AsyncStateConfig;
 
 public class ProcessUtil {
 
-    public static String getProcessType(final Class<? extends Process> processClass) {
-        return processClass.getSimpleName();
+    /**
+     * The default method to get type/id from an objectClass.
+     * Only use it when there is no definition of the {@link Process} / {@link AsyncState}
+     *
+     * @param objectClass
+     * @return
+     */
+    public static String getClassSimpleName(final Class<?> objectClass) {
+        return objectClass.getSimpleName();
     }
 
-    public static String getStateId(final Class<? extends AsyncState> stateClass) {
-        return stateClass.getSimpleName();
+    public static String getProcessType(final Process process) {
+        if (process.getOptions() == null) {
+            return getClassSimpleName(process.getClass());
+        }
+        return process.getOptions().getType();
+    }
+
+    public static String getStateId(final AsyncState state) {
+        if (state.getOptions() == null) {
+            return getClassSimpleName(state.getClass());
+        }
+        return state.getOptions().getId();
     }
 
     public static AsyncStateConfig getAsyncStateConfig(final AsyncState state) {

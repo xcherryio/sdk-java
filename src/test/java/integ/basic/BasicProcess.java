@@ -12,7 +12,6 @@ import io.xdb.core.state.StateMovement;
 import io.xdb.core.state.StateSchema;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandWaitingType;
-import lombok.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +23,7 @@ public class BasicProcess implements Process {
     public static final Integer INPUT = 11;
 
     @Override
-    public @NonNull StateSchema getStateSchema() {
+    public StateSchema getStateSchema() {
         return StateSchema.withStartingState(new BasicStartingState(), new NextState1(), new NextState2());
     }
 }
@@ -64,8 +63,8 @@ class NextState1 implements AsyncState<Integer> {
     }
 
     @Override
-    public @NonNull AsyncStateOptions getOptions() {
-        return AsyncStateOptions.builder(this.getClass()).id(STATE_ID_NEXT_1).build();
+    public AsyncStateOptions getOptions() {
+        return AsyncStateOptions.builder(this).id(STATE_ID_NEXT_1).build();
     }
 
     @Override
@@ -85,8 +84,8 @@ class NextState2 implements AsyncState<Integer> {
     }
 
     @Override
-    public @NonNull AsyncStateOptions getOptions() {
-        return AsyncStateOptions.builder(this.getClass()).id(STATE_ID_NEXT_2).build();
+    public AsyncStateOptions getOptions() {
+        return AsyncStateOptions.builder(this).id(STATE_ID_NEXT_2).build();
     }
 
     @Override
