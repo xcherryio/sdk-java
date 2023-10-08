@@ -70,7 +70,7 @@ public class Client {
     private String startProcessInternal(final String processType, final String processId, final Object input) {
         final Process process = registry.getProcess(processType);
         final ProcessOptions processOptions = process.getOptions() == null
-            ? ProcessOptions.builder(process).build()
+            ? ProcessOptions.builder(process.getClass()).build()
             : process.getOptions();
 
         final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()

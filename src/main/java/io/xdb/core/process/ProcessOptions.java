@@ -9,18 +9,18 @@ import lombok.Builder;
 @Builder
 public class ProcessOptions {
 
-    // either process or type must be set
-    private final Process process;
+    // either processClass or type must be set
+    private final Class<? extends Process> processClass;
     // If not set, use the default value.
     private final String namespace;
-    // either process or type must be set
+    // either processClass or type must be set
     private final String type;
     private final ProcessStartConfig processStartConfig;
 
     public static final String DEFAULT_NAMESPACE = "default";
 
-    public static ProcessOptionsBuilder builder(final Process process) {
-        return builder().process(process);
+    public static ProcessOptionsBuilder builder(final Class<? extends Process> processClass) {
+        return builder().processClass(processClass);
     }
 
     private static ProcessOptionsBuilder builder() {
@@ -32,7 +32,7 @@ public class ProcessOptions {
     }
 
     public String getType() {
-        return Strings.isNullOrEmpty(type) ? ProcessUtil.getProcessType(process) : type;
+        return Strings.isNullOrEmpty(type) ? ProcessUtil.getClassSimpleName(processClass) : type;
     }
 
     public ProcessStartConfig getProcessStartConfig() {
@@ -40,8 +40,8 @@ public class ProcessOptions {
     }
 
     public void validate() {
-        if (process == null && Strings.isNullOrEmpty(type)) {
-            throw new ProcessDefinitionException("ProcessOptions: either process or type must be set.");
+        if (processClass == null && Strings.isNullOrEmpty(type)) {
+            throw new ProcessDefinitionException("ProcessOptions: either processClass or type must be set.");
         }
     }
 }

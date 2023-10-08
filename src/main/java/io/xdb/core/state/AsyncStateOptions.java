@@ -8,12 +8,12 @@ import lombok.Builder;
 @Builder
 public class AsyncStateOptions {
 
-    // either state or id must be set
-    private final AsyncState state;
+    // either stateClass or id must be set
+    private final Class<? extends AsyncState> stateClass;
     private final String id;
 
-    public static AsyncStateOptionsBuilder builder(final AsyncState state) {
-        return builder().state(state);
+    public static AsyncStateOptionsBuilder builder(final Class<? extends AsyncState> stateClass) {
+        return builder().stateClass(stateClass);
     }
 
     private static AsyncStateOptionsBuilder builder() {
@@ -21,12 +21,12 @@ public class AsyncStateOptions {
     }
 
     public String getId() {
-        return Strings.isNullOrEmpty(id) ? ProcessUtil.getStateId(state) : id;
+        return Strings.isNullOrEmpty(id) ? ProcessUtil.getClassSimpleName(stateClass) : id;
     }
 
     public void validate() {
-        if (state == null && Strings.isNullOrEmpty(id)) {
-            throw new ProcessDefinitionException("AsyncStateOptions: either state or id must be set.");
+        if (stateClass == null && Strings.isNullOrEmpty(id)) {
+            throw new ProcessDefinitionException("AsyncStateOptions: either stateClass or id must be set.");
         }
     }
 }
