@@ -24,5 +24,7 @@ jobs:
       - name: Dump docker logs
         if: always()
         uses: jwalton/gh-docker-logs@v2
-      - name: Upload coverage to Codecov
+      - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
