@@ -10,7 +10,7 @@ import lombok.NonNull;
 public interface Process {
     @NonNull
     default ProcessOptions getOptions() {
-        return ProcessOptions.builder().build();
+        return ProcessOptions.builder(this.getClass()).build();
     }
 
     @NonNull

@@ -1,5 +1,7 @@
 package io.xdb.core.client;
 
+import static io.xdb.core.process.ProcessOptions.DEFAULT_NAMESPACE;
+
 import io.xdb.core.process.Process;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
@@ -22,7 +24,7 @@ public class Client {
     }
 
     public String startProcess(final Process process, final String processId, final Object input) {
-        final String processType = process.getOptions().getType(process.getClass());
+        final String processType = process.getOptions().getType();
         return startProcessInternal(processType, processId, input);
     }
 
@@ -44,7 +46,7 @@ public class Client {
     }
 
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
-        return describeCurrentProcessExecution(ProcessUtil.DEFAULT_NAMESPACE, processId);
+        return describeCurrentProcessExecution(DEFAULT_NAMESPACE, processId);
     }
 
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(

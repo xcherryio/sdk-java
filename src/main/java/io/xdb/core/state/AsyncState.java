@@ -18,7 +18,7 @@ public interface AsyncState<I> {
      */
     @NonNull
     default AsyncStateOptions getOptions() {
-        return AsyncStateOptions.builder().build();
+        return AsyncStateOptions.builder(this.getClass()).build();
     }
 
     /**

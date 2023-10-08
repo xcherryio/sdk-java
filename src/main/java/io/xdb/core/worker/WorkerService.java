@@ -47,10 +47,10 @@ public class WorkerService {
         // TODO
         final io.xdb.core.state.StateDecision stateDecision = state.execute(input);
 
-        return new AsyncStateExecuteResponse().stateDecision(toServerModel(request.getProcessType(), stateDecision));
+        return new AsyncStateExecuteResponse().stateDecision(toApiModel(request.getProcessType(), stateDecision));
     }
 
-    private StateDecision toServerModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {
+    private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {
         if (stateDecision.getStateDecision() != null) {
             return stateDecision.getStateDecision();
         }

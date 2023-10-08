@@ -65,7 +65,7 @@ class NextState1 implements AsyncState<Integer> {
 
     @Override
     public @NonNull AsyncStateOptions getOptions() {
-        return AsyncStateOptions.builder().id(STATE_ID_NEXT_1).build();
+        return AsyncStateOptions.builder(this.getClass()).id(STATE_ID_NEXT_1).build();
     }
 
     @Override
@@ -86,7 +86,7 @@ class NextState2 implements AsyncState<Integer> {
 
     @Override
     public @NonNull AsyncStateOptions getOptions() {
-        return AsyncStateOptions.builder().id(STATE_ID_NEXT_2).build();
+        return AsyncStateOptions.builder(this.getClass()).id(STATE_ID_NEXT_2).build();
     }
 
     @Override

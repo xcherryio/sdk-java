@@ -47,7 +47,7 @@ public class Registry {
     }
 
     private void registerProcess(final Process process) {
-        final String type = process.getOptions().getType(process.getClass());
+        final String type = process.getOptions().getType();
 
         if (processStore.containsKey(type)) {
             throw new ProcessDefinitionException(
@@ -59,7 +59,7 @@ public class Registry {
     }
 
     private void registerProcessStates(final Process process) {
-        final String processType = process.getOptions().getType(process.getClass());
+        final String processType = process.getOptions().getType();
 
         final HashMap<String, AsyncState> stateMap = new HashMap<>();
 

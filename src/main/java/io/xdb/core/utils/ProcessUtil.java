@@ -6,8 +6,6 @@ import io.xdb.gen.models.AsyncStateConfig;
 
 public class ProcessUtil {
 
-    public static final String DEFAULT_NAMESPACE = "default";
-
     public static String getProcessType(final Class<? extends Process> processClass) {
         return processClass.getSimpleName();
     }
