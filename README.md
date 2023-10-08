@@ -14,19 +14,19 @@ Java SDK for [xdb](https://github.com/xdblab/xdb)
 ## 1.0
 
 - [ ] StartProcessExecution API
-  - [ ] Basic
+  - [x] Basic
   - [ ] ProcessIdReusePolicy
   - [ ] Process timeout
   - [ ] Retention policy after closed
 - [ ] Executing `wait_until`/`execute` APIs
-  - [] Basic
-  - [] Parallel execution of multiple states
+  - [x] Basic
+  - [x] Parallel execution of multiple states
   - [ ] StateOption: WaitUntil/Execute API timeout and retry policy
   - [ ] AsyncState failure policy for recovery
 - [ ] StateDecision
-  - [ ] Single next State
-  - [ ] Multiple next states
-  - [ ] Force completing process
+  - [x] Single next State
+  - [x] Multiple next states
+  - [x] Force completing process
   - [ ] Graceful completing process
   - [ ] Force fail process
   - [ ] Dead end
@@ -53,3 +53,19 @@ Java SDK for [xdb](https://github.com/xdblab/xdb)
 - [ ] DescribeProcessExecution API
 - [ ] WaitForProcessCompletion API
 - [ ] History events for operation/debugging
+
+## Future
+
+- [ ] Skip timer API for testing/operation
+- [ ] Dynamic attributes and queue definition
+- [ ] State options overridden dynamically
+- [ ] Consume more than one messages in a single command with FIFO/BestMatch policies
+- [ ] WaitingType: AnyCombinationsOf
+- [ ] GlobalQueue
+- [ ] CronSchedule
+- [ ] Batch operation
+- [ ] DelayStart
+- [ ] Caching (with Redis, etc)
+- [ ] Custom Database Query
+- [ ] SearchAttribute (with ElasticSearch, etc)
+- [ ] ExternalAttribute (with S3, Snowflake, etc)
