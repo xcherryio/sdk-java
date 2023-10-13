@@ -8,8 +8,13 @@ import lombok.Builder;
 @Builder
 public class AsyncStateOptions {
 
-    // either stateClass or id must be set
+    /**
+     * Either stateClass or id must be set
+     */
     private final Class<? extends AsyncState> stateClass;
+    /**
+     * Either stateClass or id must be set
+     */
     private final String id;
 
     public static AsyncStateOptionsBuilder builder(final Class<? extends AsyncState> stateClass) {

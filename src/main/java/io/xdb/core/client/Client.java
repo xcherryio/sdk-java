@@ -1,7 +1,6 @@
 package io.xdb.core.client;
 
-import static io.xdb.core.process.ProcessOptions.DEFAULT_NAMESPACE;
-
+import com.google.common.base.Strings;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
@@ -62,7 +61,7 @@ public class Client {
      * @param processId a unique identifier used to differentiate between different executions of the same process type.
      */
     public void stopProcess(final String processId) {
-        stopProcess(DEFAULT_NAMESPACE, processId, ProcessExecutionStopType.TERMINATE);
+        stopProcess(clientOptions.getNamespace(), processId, ProcessExecutionStopType.TERMINATE);
     }
 
     /**
@@ -73,7 +72,7 @@ public class Client {
      *
      */
     public void stopProcess(final String processId, final ProcessExecutionStopType stopType) {
-        stopProcess(DEFAULT_NAMESPACE, processId, stopType);
+        stopProcess(clientOptions.getNamespace(), processId, stopType);
     }
 
     /**
@@ -95,7 +94,7 @@ public class Client {
      * @return          information about the process execution.
      */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
-        return describeCurrentProcessExecution(DEFAULT_NAMESPACE, processId);
+        return describeCurrentProcessExecution(clientOptions.getNamespace(), processId);
     }
 
     /**
@@ -129,7 +128,11 @@ public class Client {
             : process.getOptions();
 
         final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
-            .namespace(processOptions.getNamespace())
+            .namespace(
+                Strings.isNullOrEmpty(processOptions.getNamespace())
+                    ? clientOptions.getNamespace()
+                    : processOptions.getNamespace()
+            )
             .processId(processId)
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
