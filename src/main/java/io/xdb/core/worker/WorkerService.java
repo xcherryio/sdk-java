@@ -12,7 +12,9 @@ import io.xdb.gen.models.StateDecision;
 import io.xdb.gen.models.StateMovement;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class WorkerService {
 
     public static final String API_PATH_ASYNC_STATE_WAIT_UNTIL = "/api/v1/xdb/worker/async-state/wait-until";
@@ -20,11 +22,6 @@ public class WorkerService {
 
     private final Registry registry;
     private final WorkerServiceOptions workerServiceOptions;
-
-    public WorkerService(final Registry registry, final WorkerServiceOptions workerServiceOptions) {
-        this.registry = registry;
-        this.workerServiceOptions = workerServiceOptions;
-    }
 
     public AsyncStateWaitUntilResponse handleAsyncStateWaitUntil(final AsyncStateWaitUntilRequest request) {
         final AsyncState state = registry.getProcessState(request.getProcessType(), request.getStateId());

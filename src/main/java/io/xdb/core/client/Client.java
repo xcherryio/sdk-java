@@ -9,6 +9,7 @@ import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
+import io.xdb.gen.models.ProcessExecutionStopType;
 import java.time.Duration;
 
 public class Client {
@@ -24,6 +25,14 @@ public class Client {
         this.basicClient = new BasicClient(clientOptions);
     }
 
+    /**
+     * Start a new process execution.
+     *
+     * @param process       the target process to start.
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param input         the input data to be provided for the execution.
+     * @return              a unique identifier for the process execution.
+     */
     public String startProcess(final Process process, final String processId, final Object input) {
         final String processType = ProcessUtil.getProcessType(process);
         return startProcessInternal(processType, processId, input);
@@ -31,11 +40,12 @@ public class Client {
 
     /**
      * Caution: if you intend to override certain process options, utilize the {@link Client#startProcess(Process, String, Object)} method
+     * Start a new process execution.
      *
-     * @param processClass
-     * @param processId
-     * @param input
-     * @return
+     * @param processClass  the class of the target process to start.
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param input         the input data to be provided for the execution.
+     * @return              a unique identifier for the process execution.
      */
     public String startProcess(
         final Class<? extends Process> processClass,
@@ -46,10 +56,55 @@ public class Client {
         return startProcessInternal(processType, processId, input);
     }
 
+    /**
+     * Stop a process execution as TERMINATED within the default namespace.
+     *
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     */
+    public void stopProcess(final String processId) {
+        stopProcess(DEFAULT_NAMESPACE, processId, ProcessExecutionStopType.TERMINATE);
+    }
+
+    /**
+     * Stop a process execution within the default namespace.
+     *
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
+     *
+     */
+    public void stopProcess(final String processId, final ProcessExecutionStopType stopType) {
+        stopProcess(DEFAULT_NAMESPACE, processId, stopType);
+    }
+
+    /**
+     * Stop a process execution.
+     *
+     * @param namespace the namespace in which the operation should be performed.
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
+     *
+     */
+    public void stopProcess(final String namespace, final String processId, final ProcessExecutionStopType stopType) {
+        basicClient.stopProcess(namespace, processId, stopType);
+    }
+
+    /**
+     * Get information about a specific process execution within the default namespace.
+     *
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @return          information about the process execution.
+     */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
         return describeCurrentProcessExecution(DEFAULT_NAMESPACE, processId);
     }
 
+    /**
+     * Get information about a specific process execution.
+     *
+     * @param namespace the namespace in which the operation should be performed.
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @return          information about the process execution.
+     */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(
         final String namespace,
         final String processId

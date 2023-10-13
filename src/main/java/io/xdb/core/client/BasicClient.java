@@ -11,6 +11,8 @@ import io.xdb.gen.models.ProcessExecutionDescribeRequest;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStartResponse;
+import io.xdb.gen.models.ProcessExecutionStopRequest;
+import io.xdb.gen.models.ProcessExecutionStopType;
 
 /**
  * {@link BasicClient} serves as a foundational client without a process {@link io.xdb.core.registry}.
@@ -27,6 +29,12 @@ public class BasicClient {
         this.defaultApi = buildDefaultApi();
     }
 
+    /**
+     * Start a new process execution.
+     *
+     * @param request       the request sent to the server.
+     * @return              a unique identifier for the process execution.
+     */
     public String startProcess(final ProcessExecutionStartRequest request) {
         final ProcessExecutionStartResponse response;
         try {
@@ -38,6 +46,34 @@ public class BasicClient {
         return response.getProcessExecutionId();
     }
 
+    /**
+     * Stop a process execution.
+     *
+     * @param namespace the namespace in which the operation should be performed.
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
+     *
+     */
+    public void stopProcess(final String namespace, final String processId, final ProcessExecutionStopType stopType) {
+        final ProcessExecutionStopRequest request = new ProcessExecutionStopRequest()
+            .namespace(namespace)
+            .processId(processId)
+            .stopType(stopType);
+
+        try {
+            defaultApi.apiV1XdbServiceProcessExecutionStopPost(request);
+        } catch (final FeignException.FeignClientException e) {
+            throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
+        }
+    }
+
+    /**
+     * Get information about a specific process execution.
+     *
+     * @param namespace the namespace in which the operation should be performed.
+     * @param processId a unique identifier used to differentiate between different executions of the same process type.
+     * @return          information about the process execution.
+     */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(
         final String namespace,
         final String processId
