@@ -1,7 +1,6 @@
 package io.xdb.core.process;
 
 import com.google.common.base.Strings;
-import io.xdb.core.client.ClientOptions;
 import io.xdb.core.exception.ProcessDefinitionException;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.ProcessStartConfig;
@@ -16,11 +15,6 @@ public class ProcessOptions {
      * Either processClass or type must be set.
      */
     private final Class<? extends Process> processClass;
-    /**
-     * The namespace in which the process should be executed.
-     * If no namespace is defined here, default to using the one defined in {@link ClientOptions#getNamespace()}.
-     */
-    private final String namespace;
     /**
      * Either processClass or type must be set.
      */
