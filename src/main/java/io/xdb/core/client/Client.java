@@ -1,7 +1,5 @@
 package io.xdb.core.client;
 
-import static io.xdb.core.process.ProcessOptions.DEFAULT_NAMESPACE;
-
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
@@ -57,59 +55,33 @@ public class Client {
     }
 
     /**
-     * Stop a process execution as TERMINATED within the default namespace.
+     * Stop a process execution as TERMINATED.
      *
      * @param processId a unique identifier used to differentiate between different executions of the same process type.
      */
     public void stopProcess(final String processId) {
-        stopProcess(DEFAULT_NAMESPACE, processId, ProcessExecutionStopType.TERMINATE);
+        stopProcess(processId, ProcessExecutionStopType.TERMINATE);
     }
 
     /**
-     * Stop a process execution within the default namespace.
+     * Stop a process execution.
      *
      * @param processId a unique identifier used to differentiate between different executions of the same process type.
      * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
      *
      */
     public void stopProcess(final String processId, final ProcessExecutionStopType stopType) {
-        stopProcess(DEFAULT_NAMESPACE, processId, stopType);
-    }
-
-    /**
-     * Stop a process execution.
-     *
-     * @param namespace the namespace in which the operation should be performed.
-     * @param processId a unique identifier used to differentiate between different executions of the same process type.
-     * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
-     *
-     */
-    public void stopProcess(final String namespace, final String processId, final ProcessExecutionStopType stopType) {
-        basicClient.stopProcess(namespace, processId, stopType);
-    }
-
-    /**
-     * Get information about a specific process execution within the default namespace.
-     *
-     * @param processId a unique identifier used to differentiate between different executions of the same process type.
-     * @return          information about the process execution.
-     */
-    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
-        return describeCurrentProcessExecution(DEFAULT_NAMESPACE, processId);
+        basicClient.stopProcess(clientOptions.getNamespace(), processId, stopType);
     }
 
     /**
      * Get information about a specific process execution.
      *
-     * @param namespace the namespace in which the operation should be performed.
      * @param processId a unique identifier used to differentiate between different executions of the same process type.
      * @return          information about the process execution.
      */
-    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(
-        final String namespace,
-        final String processId
-    ) {
-        return basicClient.describeCurrentProcessExecution(namespace, processId);
+    public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
+        return basicClient.describeCurrentProcessExecution(clientOptions.getNamespace(), processId);
     }
 
     // TODO: placeholder to be used in integration test for now
@@ -129,7 +101,7 @@ public class Client {
             : process.getOptions();
 
         final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
-            .namespace(processOptions.getNamespace())
+            .namespace(clientOptions.getNamespace())
             .processId(processId)
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
