@@ -1,8 +1,8 @@
 package integ.state_decision;
 
-import static integ.state_decision.ForceFailProcess.INPUT;
 import static integ.state_decision.ForceFailProcess.STATE_ID_NEXT_1;
 import static integ.state_decision.ForceFailProcess.STATE_ID_NEXT_2;
+import static integ.state_decision.StateDecisionTest.INPUT;
 
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
@@ -20,7 +20,6 @@ public class ForceFailProcess implements Process {
 
     public static final String STATE_ID_NEXT_1 = "STATE_ID_NEXT_1";
     public static final String STATE_ID_NEXT_2 = "STATE_ID_NEXT_2";
-    public static final Integer INPUT = 11;
 
     @Override
     public StateSchema getStateSchema() {

@@ -1,7 +1,6 @@
 package integ.state_decision;
 
 import static integ.spring.WorkerForTesting.WORKER_PORT;
-import static integ.state_decision.GracefulCompleteProcess.INPUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import integ.spring.WorkerServiceForTesting;
@@ -13,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class StateDecisionTest {
+
+    public static final Integer INPUT = 11;
 
     @BeforeEach
     public void setup() {
