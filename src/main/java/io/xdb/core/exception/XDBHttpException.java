@@ -10,7 +10,11 @@ import io.xdb.gen.models.EncodedObject;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
 public abstract class XDBHttpException extends RuntimeException {
 
     private final int statusCode;

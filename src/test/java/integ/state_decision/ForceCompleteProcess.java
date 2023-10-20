@@ -2,7 +2,7 @@ package integ.state_decision;
 
 import static integ.state_decision.ForceCompleteProcess.STATE_ID_NEXT_1;
 import static integ.state_decision.ForceCompleteProcess.STATE_ID_NEXT_2;
-import static integ.state_decision.StateDecisionTest.INPUT;
+import static integ.state_decision.TestStateDecision.INPUT;
 
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;

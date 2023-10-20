@@ -85,7 +85,7 @@ public class Client {
     }
 
     // TODO: placeholder to be used in integration test for now
-    public void getProcessResultWithWait(final String processId) {
+    public void waitForProcessCompletion(final String processId) {
         System.out.println(processId);
         try {
             Thread.sleep(Duration.ofSeconds(2).toMillis());

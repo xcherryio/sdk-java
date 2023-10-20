@@ -11,7 +11,7 @@ import io.xdb.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StateDecisionTest {
+public class TestStateDecision {
 
     public static final Integer INPUT = 11;
 
@@ -28,7 +28,7 @@ public class StateDecisionTest {
 
         final String processExecutionId = client.startProcess(GracefulCompleteProcess.class, processId, INPUT);
 
-        client.getProcessResultWithWait(processExecutionId);
+        client.waitForProcessCompletion(processExecutionId);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -45,7 +45,7 @@ public class StateDecisionTest {
 
         final String processExecutionId = client.startProcess(ForceCompleteProcess.class, processId, INPUT);
 
-        client.getProcessResultWithWait(processExecutionId);
+        client.waitForProcessCompletion(processExecutionId);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -62,7 +62,7 @@ public class StateDecisionTest {
 
         final String processExecutionId = client.startProcess(ForceFailProcess.class, processId, INPUT);
 
-        client.getProcessResultWithWait(processExecutionId);
+        client.waitForProcessCompletion(processExecutionId);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());

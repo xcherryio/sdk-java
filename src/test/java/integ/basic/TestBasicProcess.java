@@ -13,7 +13,7 @@ import io.xdb.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BasicTest {
+public class TestBasicProcess {
 
     @BeforeEach
     public void setup() {
@@ -28,7 +28,7 @@ public class BasicTest {
 
         final String processExecutionId = client.startProcess(BasicProcess.class, processId, INPUT);
 
-        client.getProcessResultWithWait(processExecutionId);
+        client.waitForProcessCompletion(processExecutionId);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -49,7 +49,7 @@ public class BasicTest {
 
         final String processExecutionId = client.startProcess(BasicProcess.class, processId, INPUT);
 
-        client.getProcessResultWithWait(processExecutionId);
+        client.waitForProcessCompletion(processExecutionId);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
