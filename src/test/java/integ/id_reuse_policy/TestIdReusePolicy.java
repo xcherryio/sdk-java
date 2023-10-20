@@ -46,6 +46,7 @@ public class TestIdReusePolicy {
 
         final ProcessExecutionDescribeResponse response2 = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.RUNNING, response2.getStatus());
+        assertEquals(newProcessExecutionId, response2.getProcessExecutionId());
 
         client.stopProcess(processId);
     }
@@ -54,7 +55,8 @@ public class TestIdReusePolicy {
     public void testAllowIfPreviousExitAbnormallyProcessWhenProcessCompleted() {
         final Client client = XdbConfig.client;
 
-        final String processId = "allow-if-previous-exit-abnormally-process-" + System.currentTimeMillis() / 1000;
+        final String processId =
+            "allow-if-previous-exit-abnormally-process-completed-" + System.currentTimeMillis() / 1000;
 
         final String processExecutionId = client.startProcess(
             new AllowIfPreviousExitAbnormallyProcess(),
@@ -77,7 +79,8 @@ public class TestIdReusePolicy {
     public void testAllowIfPreviousExitAbnormallyProcessWhenProcessFailed() {
         final Client client = XdbConfig.client;
 
-        final String processId = "allow-if-previous-exit-abnormally-process-" + System.currentTimeMillis() / 1000;
+        final String processId =
+            "allow-if-previous-exit-abnormally-process-failed-" + System.currentTimeMillis() / 1000;
 
         final String processExecutionId = client.startProcess(
             new AllowIfPreviousExitAbnormallyProcess(),
