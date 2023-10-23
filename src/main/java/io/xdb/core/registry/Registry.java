@@ -3,6 +3,7 @@ package io.xdb.core.registry;
 import io.xdb.core.exception.ProcessDefinitionException;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
+import io.xdb.core.state.StateSchema;
 import io.xdb.core.utils.ProcessUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,15 +65,16 @@ public class Registry {
     }
 
     private void registerProcessStates(final Process process) {
-        if (process.getStateSchema() == null) {
-            return;
-        }
+        final StateSchema stateSchema = process.getStateSchema() == null ||
+            process.getStateSchema().getAllStates() == null
+            ? StateSchema.noStartingState()
+            : process.getStateSchema();
 
         final String processType = ProcessUtil.getProcessType(process);
 
         final HashMap<String, AsyncState> stateMap = new HashMap<>();
 
-        for (final AsyncState state : process.getStateSchema().getAllStates()) {
+        for (final AsyncState state : stateSchema.getAllStates()) {
             if (state.getOptions() != null) {
                 state.getOptions().validate();
             }
