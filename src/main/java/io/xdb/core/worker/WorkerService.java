@@ -1,5 +1,6 @@
 package io.xdb.core.worker;
 
+import io.xdb.core.communication.Communication;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
@@ -29,10 +30,13 @@ public class WorkerService {
             .getObjectEncoder()
             .decode(request.getStateInput(), state.getInputType());
 
-        // TODO
-        final CommandRequest commandRequest = state.waitUntil(input);
+        final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
-        return new AsyncStateWaitUntilResponse().commandRequest(commandRequest);
+        final CommandRequest commandRequest = state.waitUntil(input, communication);
+
+        return new AsyncStateWaitUntilResponse()
+            .commandRequest(commandRequest)
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
     }
 
     public AsyncStateExecuteResponse handleAsyncStateExecute(final AsyncStateExecuteRequest request) {
@@ -41,10 +45,13 @@ public class WorkerService {
             .getObjectEncoder()
             .decode(request.getStateInput(), state.getInputType());
 
-        // TODO
-        final io.xdb.core.state.StateDecision stateDecision = state.execute(input);
+        final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
-        return new AsyncStateExecuteResponse().stateDecision(toApiModel(request.getProcessType(), stateDecision));
+        final io.xdb.core.state.StateDecision stateDecision = state.execute(input, communication, request);
+
+        return new AsyncStateExecuteResponse()
+            .stateDecision(toApiModel(request.getProcessType(), stateDecision))
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
     }
 
     private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {

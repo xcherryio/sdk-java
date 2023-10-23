@@ -1,5 +1,7 @@
 package io.xdb.core.state;
 
+import io.xdb.core.communication.Communication;
+import io.xdb.gen.models.AsyncStateExecuteRequest;
 import io.xdb.gen.models.CommandRequest;
 import java.lang.reflect.Method;
 
@@ -26,7 +28,7 @@ public interface AsyncState<I> {
      * @param input
      * @return
      */
-    default CommandRequest waitUntil(final I input) {
+    default CommandRequest waitUntil(final I input, final Communication communication) {
         throw new IllegalStateException("this exception will never be thrown.");
     }
 
@@ -35,16 +37,17 @@ public interface AsyncState<I> {
      * It's called after the commands specified in {@link AsyncState#waitUntil} have been completed or, in the case where {@link AsyncState#waitUntil} is skipped, it is invoked directly.
      *
      * @param input
+     * @param request
      * @return
      */
-    StateDecision execute(final I input);
+    StateDecision execute(final I input, final Communication communication, final AsyncStateExecuteRequest request);
 
     static boolean shouldSkipWaitUntil(final AsyncState state) {
         final Class<? extends AsyncState> stateClass = state.getClass();
 
         final Method waitUntilMethod;
         try {
-            waitUntilMethod = stateClass.getMethod("waitUntil", Object.class);
+            waitUntilMethod = stateClass.getMethod("waitUntil", Object.class, Communication.class);
         } catch (final NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException(e);
         }
