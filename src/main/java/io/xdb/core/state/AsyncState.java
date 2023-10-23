@@ -26,6 +26,7 @@ public interface AsyncState<I> {
      * It's optional -- you have the option to skip overriding it in a subclass, in which case the {@link AsyncState#execute} API will be invoked directly instead.
      *
      * @param input
+     * @param communication
      * @return
      */
     default CommandRequest waitUntil(final I input, final Communication communication) {
@@ -37,6 +38,7 @@ public interface AsyncState<I> {
      * It's called after the commands specified in {@link AsyncState#waitUntil} have been completed or, in the case where {@link AsyncState#waitUntil} is skipped, it is invoked directly.
      *
      * @param input
+     * @param communication
      * @param request
      * @return
      */

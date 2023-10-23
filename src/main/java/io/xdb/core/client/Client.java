@@ -107,8 +107,8 @@ public class Client {
      * Publish a message to the local queue for consumption by the process execution.
      *
      * @param processId     a unique identifier used to differentiate between different executions of the same process type.
-     * @param dedupId       UUID to uniquely distinguish different messages. If not specified, the server will generate a UUID instead.
      * @param queueName     queue name for categorizing message types.
+     * @param dedupId       UUID to uniquely distinguish different messages. If not specified, the server will generate a UUID instead.
      * @param payload       payload of the message.
      */
     public void publishToLocalQueue(

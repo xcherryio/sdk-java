@@ -21,6 +21,8 @@ public class TestPublishToLocalQueueProcess {
 
     public static final String QUEUE_3 = "QUEUE_3";
 
+    public static final String DEDUP_ID = "6726c532-71a5-11ee-9e60-acde48001122";
+
     @BeforeEach
     public void setup() {
         WorkerServiceForTesting.startWorkerIfNotUp();
@@ -39,6 +41,7 @@ public class TestPublishToLocalQueueProcess {
         assertEquals(processExecutionId, response.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
+        // to trigger PublishToLocalQueueStartingState.execute
         client.publishToLocalQueue(processId, QUEUE_1, PAYLOAD_1_2);
         client.waitForProcessCompletion(processId);
 
@@ -46,11 +49,50 @@ public class TestPublishToLocalQueueProcess {
         assertEquals(processExecutionId, response2.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response2.getStatus());
 
+        // to complete the execution
         client.publishToLocalQueue(processId, QUEUE_1);
         client.waitForProcessCompletion(processId);
 
         final ProcessExecutionDescribeResponse response3 = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response3.getProcessExecutionId());
         assertEquals(ProcessStatus.COMPLETED, response3.getStatus());
+    }
+
+    @Test
+    public void testPublishToLocalQueueProcessWithDuplicatedDudupId() {
+        final Client client = XdbConfig.client;
+
+        final String processId = "publish-to-local-queue-dup-" + System.currentTimeMillis() / 1000;
+
+        final String processExecutionId = client.startProcess(PublishToLocalQueueProcess.class, processId, null);
+        client.waitForProcessCompletion(processId);
+
+        final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
+        assertEquals(processExecutionId, response.getProcessExecutionId());
+        assertEquals(ProcessStatus.RUNNING, response.getStatus());
+
+        // to trigger PublishToLocalQueueStartingState.execute
+        client.publishToLocalQueue(processId, QUEUE_1, PAYLOAD_1_2);
+        client.waitForProcessCompletion(processId);
+
+        final ProcessExecutionDescribeResponse response2 = client.describeCurrentProcessExecution(processId);
+        assertEquals(processExecutionId, response2.getProcessExecutionId());
+        assertEquals(ProcessStatus.RUNNING, response2.getStatus());
+
+        // to publish a message with duplicated dedupId, nothing changes
+        client.publishToLocalQueue(processId, QUEUE_1, DEDUP_ID, null);
+        client.waitForProcessCompletion(processId);
+
+        final ProcessExecutionDescribeResponse response3 = client.describeCurrentProcessExecution(processId);
+        assertEquals(processExecutionId, response3.getProcessExecutionId());
+        assertEquals(ProcessStatus.RUNNING, response3.getStatus());
+
+        // to complete the execution
+        client.publishToLocalQueue(processId, QUEUE_1);
+        client.waitForProcessCompletion(processId);
+
+        final ProcessExecutionDescribeResponse response4 = client.describeCurrentProcessExecution(processId);
+        assertEquals(processExecutionId, response4.getProcessExecutionId());
+        assertEquals(ProcessStatus.COMPLETED, response4.getStatus());
     }
 }

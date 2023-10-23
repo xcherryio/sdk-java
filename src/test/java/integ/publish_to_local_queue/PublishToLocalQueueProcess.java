@@ -1,5 +1,6 @@
 package integ.publish_to_local_queue;
 
+import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.DEDUP_ID;
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.PAYLOAD_1;
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.PAYLOAD_1_2;
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.PAYLOAD_2;
@@ -62,7 +63,7 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
         System.out.println("PublishToLocalQueueStartingState.execute: " + input);
 
         // will be consumed by PublishToLocalQueueState1
-        communication.publishToLocalQueue(QUEUE_1, PAYLOAD_1);
+        communication.publishToLocalQueue(QUEUE_1, DEDUP_ID, PAYLOAD_1);
 
         final List<LocalQueueMessage> localQueueResults = request.getCommandResults().getLocalQueueResults();
         Assertions.assertEquals(1, localQueueResults.size());
