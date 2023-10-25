@@ -118,15 +118,15 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
             new JacksonJsonObjectEncoder().decode(localQueueResults.get(0).getPayload(), String.class)
         );
 
-        Assertions.assertEquals(QUEUE_1, localQueueResults.get(1).getQueueName());
+        Assertions.assertEquals(QUEUE_2, localQueueResults.get(1).getQueueName());
         Assertions.assertEquals(
-            PAYLOAD_1,
+            null,
             new JacksonJsonObjectEncoder().decode(localQueueResults.get(1).getPayload(), String.class)
         );
 
-        Assertions.assertEquals(QUEUE_2, localQueueResults.get(2).getQueueName());
+        Assertions.assertEquals(QUEUE_1, localQueueResults.get(2).getQueueName());
         Assertions.assertEquals(
-            null,
+            PAYLOAD_1,
             new JacksonJsonObjectEncoder().decode(localQueueResults.get(2).getPayload(), String.class)
         );
 
