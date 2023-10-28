@@ -1,7 +1,7 @@
 package io.xdb.core.state;
 
-import io.xdb.core.communication.Communication;
-import io.xdb.gen.models.AsyncStateExecuteRequest;
+import io.xdb.core.state.input.AsyncStateExecuteFeatures;
+import io.xdb.core.state.input.AsyncStateWaitUntilFeatures;
 import io.xdb.gen.models.CommandRequest;
 import java.lang.reflect.Method;
 
@@ -26,10 +26,10 @@ public interface AsyncState<I> {
      * It's optional -- you have the option to skip overriding it in a subclass, in which case the {@link AsyncState#execute} API will be invoked directly instead.
      *
      * @param input
-     * @param communication
+     * @param features
      * @return
      */
-    default CommandRequest waitUntil(final I input, final Communication communication) {
+    default CommandRequest waitUntil(final I input, final AsyncStateWaitUntilFeatures features) {
         throw new IllegalStateException("this exception will never be thrown.");
     }
 
@@ -38,18 +38,17 @@ public interface AsyncState<I> {
      * It's called after the commands specified in {@link AsyncState#waitUntil} have been completed or, in the case where {@link AsyncState#waitUntil} is skipped, it is invoked directly.
      *
      * @param input
-     * @param communication
-     * @param request
+     * @param features
      * @return
      */
-    StateDecision execute(final I input, final Communication communication, final AsyncStateExecuteRequest request);
+    StateDecision execute(final I input, final AsyncStateExecuteFeatures features);
 
     static boolean shouldSkipWaitUntil(final AsyncState state) {
         final Class<? extends AsyncState> stateClass = state.getClass();
 
         final Method waitUntilMethod;
         try {
-            waitUntilMethod = stateClass.getMethod("waitUntil", Object.class, Communication.class);
+            waitUntilMethod = stateClass.getMethod("waitUntil", Object.class, AsyncStateWaitUntilFeatures.class);
         } catch (final NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException(e);
         }

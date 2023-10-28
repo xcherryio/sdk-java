@@ -3,6 +3,8 @@ package io.xdb.core.worker;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
+import io.xdb.core.state.input.AsyncStateExecuteFeatures;
+import io.xdb.core.state.input.AsyncStateWaitUntilFeatures;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.AsyncStateExecuteRequest;
 import io.xdb.gen.models.AsyncStateExecuteResponse;
@@ -32,7 +34,7 @@ public class WorkerService {
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
-        final CommandRequest commandRequest = state.waitUntil(input, communication);
+        final CommandRequest commandRequest = state.waitUntil(input, new AsyncStateWaitUntilFeatures(communication));
 
         return new AsyncStateWaitUntilResponse()
             .commandRequest(commandRequest)
@@ -47,7 +49,10 @@ public class WorkerService {
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
-        final io.xdb.core.state.StateDecision stateDecision = state.execute(input, communication, request);
+        final io.xdb.core.state.StateDecision stateDecision = state.execute(
+            input,
+            new AsyncStateExecuteFeatures(communication, request.getCommandResults())
+        );
 
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))

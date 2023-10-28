@@ -4,14 +4,14 @@ import static integ.state_decision.ForceCompleteProcess.STATE_ID_NEXT_1;
 import static integ.state_decision.ForceCompleteProcess.STATE_ID_NEXT_2;
 import static integ.state_decision.TestStateDecision.INPUT;
 
-import io.xdb.core.communication.Communication;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateMovement;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.AsyncStateExecuteRequest;
+import io.xdb.core.state.input.AsyncStateExecuteFeatures;
+import io.xdb.core.state.input.AsyncStateWaitUntilFeatures;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandWaitingType;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +37,7 @@ class FCStartingState implements AsyncState<Integer> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Integer input, final Communication communication) {
+    public CommandRequest waitUntil(final Integer input, final AsyncStateWaitUntilFeatures features) {
         System.out.println("FCStartingState.waitUntil: " + input);
         Assertions.assertEquals(INPUT, input);
 
@@ -45,11 +45,7 @@ class FCStartingState implements AsyncState<Integer> {
     }
 
     @Override
-    public StateDecision execute(
-        final Integer input,
-        final Communication communication,
-        final AsyncStateExecuteRequest request
-    ) {
+    public StateDecision execute(final Integer input, final AsyncStateExecuteFeatures features) {
         System.out.println("FCStartingState.execute: " + input);
         Assertions.assertEquals(INPUT, input);
 
@@ -73,11 +69,7 @@ class FCNextState1 implements AsyncState<Integer> {
     }
 
     @Override
-    public StateDecision execute(
-        final Integer input,
-        final Communication communication,
-        final AsyncStateExecuteRequest request
-    ) {
+    public StateDecision execute(final Integer input, final AsyncStateExecuteFeatures features) {
         System.out.println("FCNextState1.execute: " + input);
         Assertions.assertEquals(INPUT + 1, input);
 
@@ -98,7 +90,7 @@ class FCNextState2 implements AsyncState<Integer> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Integer input, final Communication communication) {
+    public CommandRequest waitUntil(final Integer input, final AsyncStateWaitUntilFeatures features) {
         System.out.println("FCNextState2.waitUntil: " + input);
         Assertions.assertEquals(INPUT + 2, input);
 
@@ -106,11 +98,7 @@ class FCNextState2 implements AsyncState<Integer> {
     }
 
     @Override
-    public StateDecision execute(
-        final Integer input,
-        final Communication communication,
-        final AsyncStateExecuteRequest request
-    ) {
+    public StateDecision execute(final Integer input, final AsyncStateExecuteFeatures features) {
         System.out.println("FCNextState2.execute: " + input);
         Assertions.assertEquals(INPUT + 2, input);
 

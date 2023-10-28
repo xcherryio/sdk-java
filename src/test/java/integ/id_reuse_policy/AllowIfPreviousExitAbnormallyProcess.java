@@ -1,12 +1,11 @@
 package integ.id_reuse_policy;
 
-import io.xdb.core.communication.Communication;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.AsyncStateExecuteRequest;
+import io.xdb.core.state.input.AsyncStateExecuteFeatures;
 import io.xdb.gen.models.ProcessIdReusePolicy;
 import io.xdb.gen.models.ProcessStartConfig;
 import java.time.Duration;
@@ -39,11 +38,7 @@ class AllowIfPreviousExitAbnormallyStartingState implements AsyncState<Void> {
     }
 
     @Override
-    public StateDecision execute(
-        final Void input,
-        final Communication communication,
-        final AsyncStateExecuteRequest request
-    ) {
+    public StateDecision execute(final Void input, final AsyncStateExecuteFeatures features) {
         try {
             Thread.sleep(Duration.ofSeconds(1).toMillis());
         } catch (final InterruptedException e) {
