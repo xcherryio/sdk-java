@@ -1,7 +1,7 @@
 package io.xdb.core.state;
 
-import io.xdb.core.state.input.AsyncStateExecuteFeatures;
-import io.xdb.core.state.input.AsyncStateWaitUntilFeatures;
+import io.xdb.core.state.feature.AsyncStateExecuteFeatures;
+import io.xdb.core.state.feature.AsyncStateWaitUntilFeatures;
 import io.xdb.gen.models.CommandRequest;
 import java.lang.reflect.Method;
 

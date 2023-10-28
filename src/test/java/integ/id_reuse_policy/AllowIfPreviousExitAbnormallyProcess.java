@@ -5,7 +5,7 @@ import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.core.state.input.AsyncStateExecuteFeatures;
+import io.xdb.core.state.feature.AsyncStateExecuteFeatures;
 import io.xdb.gen.models.ProcessIdReusePolicy;
 import io.xdb.gen.models.ProcessStartConfig;
 import java.time.Duration;
