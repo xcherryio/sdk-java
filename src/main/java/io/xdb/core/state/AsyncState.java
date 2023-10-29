@@ -1,8 +1,10 @@
 package io.xdb.core.state;
 
-import io.xdb.core.state.feature.AsyncStateExecuteFeatures;
-import io.xdb.core.state.feature.AsyncStateWaitUntilFeatures;
+import io.xdb.core.communication.Communication;
+import io.xdb.core.persistence.Persistence;
 import io.xdb.gen.models.CommandRequest;
+import io.xdb.gen.models.CommandResults;
+import io.xdb.gen.models.Context;
 import java.lang.reflect.Method;
 
 public interface AsyncState<I> {
@@ -29,7 +31,7 @@ public interface AsyncState<I> {
      * @param features
      * @return
      */
-    default CommandRequest waitUntil(final I input, final AsyncStateWaitUntilFeatures features) {
+    default CommandRequest waitUntil(final Context context, final I input, final Communication communication) {
         throw new IllegalStateException("this exception will never be thrown.");
     }
 
@@ -41,14 +43,20 @@ public interface AsyncState<I> {
      * @param features
      * @return
      */
-    StateDecision execute(final I input, final AsyncStateExecuteFeatures features);
+    StateDecision execute(
+        final Context context,
+        final I input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    );
 
     static boolean shouldSkipWaitUntil(final AsyncState state) {
         final Class<? extends AsyncState> stateClass = state.getClass();
 
         final Method waitUntilMethod;
         try {
-            waitUntilMethod = stateClass.getMethod("waitUntil", Object.class, AsyncStateWaitUntilFeatures.class);
+            waitUntilMethod = stateClass.getMethod("waitUntil", Context.class, Object.class, Communication.class);
         } catch (final NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException(e);
         }

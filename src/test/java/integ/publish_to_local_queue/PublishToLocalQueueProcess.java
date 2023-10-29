@@ -9,15 +9,17 @@ import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.QUEUE_
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.QUEUE_3;
 
 import com.google.common.collect.ImmutableList;
+import io.xdb.core.communication.Communication;
 import io.xdb.core.encoder.JacksonJsonObjectEncoder;
+import io.xdb.core.persistence.Persistence;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.core.state.feature.AsyncStateExecuteFeatures;
-import io.xdb.core.state.feature.AsyncStateWaitUntilFeatures;
 import io.xdb.gen.models.CommandRequest;
+import io.xdb.gen.models.CommandResults;
 import io.xdb.gen.models.CommandWaitingType;
+import io.xdb.gen.models.Context;
 import io.xdb.gen.models.LocalQueueCommand;
 import io.xdb.gen.models.LocalQueueMessage;
 import java.util.List;
@@ -41,11 +43,11 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Void input, final AsyncStateWaitUntilFeatures features) {
+    public CommandRequest waitUntil(final Context context, final Void input, final Communication communication) {
         System.out.println("PublishToLocalQueueStartingState.waitUntil: " + input);
 
         // will be consumed by PublishToLocalQueueState1
-        features.getCommunication().publishToLocalQueue(QUEUE_2, PAYLOAD_2);
+        communication.publishToLocalQueue(QUEUE_2, PAYLOAD_2);
 
         return new CommandRequest()
             .waitingType(CommandWaitingType.ANYOFCOMPLETION)
@@ -55,13 +57,19 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
     }
 
     @Override
-    public StateDecision execute(final Void input, final AsyncStateExecuteFeatures features) {
+    public StateDecision execute(
+        final Context context,
+        final Void input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
         System.out.println("PublishToLocalQueueStartingState.execute: " + input);
 
         // will be consumed by PublishToLocalQueueState1
-        features.getCommunication().publishToLocalQueue(QUEUE_1, DEDUP_ID, PAYLOAD_1);
+        communication.publishToLocalQueue(QUEUE_1, DEDUP_ID, PAYLOAD_1);
 
-        final List<LocalQueueMessage> localQueueResults = features.getCommandResults().getLocalQueueResults();
+        final List<LocalQueueMessage> localQueueResults = commandResults.getLocalQueueResults();
         Assertions.assertEquals(1, localQueueResults.size());
         Assertions.assertEquals(QUEUE_1, localQueueResults.get(0).getQueueName());
         Assertions.assertEquals(
@@ -81,11 +89,11 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Void input, final AsyncStateWaitUntilFeatures features) {
+    public CommandRequest waitUntil(final Context context, final Void input, final Communication communication) {
         System.out.println("PublishToLocalQueueState1.waitUntil: " + input);
 
         // will be consumed by itself
-        features.getCommunication().publishToLocalQueue(QUEUE_2);
+        communication.publishToLocalQueue(QUEUE_2);
 
         return new CommandRequest()
             .waitingType(CommandWaitingType.ALLOFCOMPLETION)
@@ -98,10 +106,16 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
     }
 
     @Override
-    public StateDecision execute(final Void input, final AsyncStateExecuteFeatures features) {
+    public StateDecision execute(
+        final Context context,
+        final Void input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
         System.out.println("PublishToLocalQueueState1.execute: " + input);
 
-        final List<LocalQueueMessage> localQueueResults = features.getCommandResults().getLocalQueueResults();
+        final List<LocalQueueMessage> localQueueResults = commandResults.getLocalQueueResults();
         Assertions.assertEquals(4, localQueueResults.size());
 
         Assertions.assertEquals(QUEUE_2, localQueueResults.get(0).getQueueName());
