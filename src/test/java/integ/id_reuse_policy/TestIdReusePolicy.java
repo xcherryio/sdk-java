@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import integ.TestUtils;
 import integ.spring.WorkerServiceForTesting;
 import integ.spring.XdbConfig;
 import io.xdb.core.client.Client;
@@ -29,7 +30,7 @@ public class TestIdReusePolicy {
 
         final String processExecutionId = client.startProcess(AllowIfNoRunningProcess.class, processId, null);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
@@ -64,7 +65,7 @@ public class TestIdReusePolicy {
             null
         );
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.COMPLETED, response.getStatus());
@@ -115,7 +116,7 @@ public class TestIdReusePolicy {
 
         final String processExecutionId = client.startProcess(new DisallowReuseProcess(), processId, null);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
@@ -141,7 +142,7 @@ public class TestIdReusePolicy {
 
         final String processExecutionId = client.startProcess(new TerminateIfRunningProcess(), processId, null);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.RUNNING, response.getStatus());

@@ -3,6 +3,7 @@ package integ.state_decision;
 import static integ.spring.WorkerForTesting.WORKER_PORT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import integ.TestUtils;
 import integ.spring.WorkerServiceForTesting;
 import integ.spring.XdbConfig;
 import io.xdb.core.client.Client;
@@ -28,7 +29,7 @@ public class TestStateDecision {
 
         final String processExecutionId = client.startProcess(GracefulCompleteProcess.class, processId, INPUT);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -45,7 +46,7 @@ public class TestStateDecision {
 
         final String processExecutionId = client.startProcess(ForceCompleteProcess.class, processId, INPUT);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -62,7 +63,7 @@ public class TestStateDecision {
 
         final String processExecutionId = client.startProcess(ForceFailProcess.class, processId, INPUT);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());

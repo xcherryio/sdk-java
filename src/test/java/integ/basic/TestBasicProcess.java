@@ -4,6 +4,7 @@ import static integ.basic.BasicProcess.INPUT;
 import static integ.spring.WorkerForTesting.WORKER_PORT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import integ.TestUtils;
 import integ.spring.WorkerServiceForTesting;
 import integ.spring.XdbConfig;
 import io.xdb.core.client.Client;
@@ -28,7 +29,7 @@ public class TestBasicProcess {
 
         final String processExecutionId = client.startProcess(BasicProcess.class, processId, INPUT);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -49,7 +50,7 @@ public class TestBasicProcess {
 
         final String processExecutionId = client.startProcess(BasicProcess.class, processId, INPUT);
 
-        client.waitForProcessCompletion(processExecutionId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
