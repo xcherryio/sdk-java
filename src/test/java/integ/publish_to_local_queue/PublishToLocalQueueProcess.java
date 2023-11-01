@@ -8,7 +8,8 @@ import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.QUEUE_
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.QUEUE_2;
 import static integ.publish_to_local_queue.TestPublishToLocalQueueProcess.QUEUE_3;
 
-import com.google.common.collect.ImmutableList;
+import io.xdb.core.command.CommandRequest;
+import io.xdb.core.command.LocalQueueCommand;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.encoder.JacksonJsonObjectEncoder;
 import io.xdb.core.persistence.Persistence;
@@ -16,12 +17,9 @@ import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandResults;
 import io.xdb.gen.models.CommandStatus;
-import io.xdb.gen.models.CommandWaitingType;
 import io.xdb.gen.models.Context;
-import io.xdb.gen.models.LocalQueueCommand;
 import io.xdb.gen.models.LocalQueueResult;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -50,11 +48,7 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
         // will be consumed by PublishToLocalQueueState1
         communication.publishToLocalQueue(QUEUE_2, PAYLOAD_2);
 
-        return new CommandRequest()
-            .waitingType(CommandWaitingType.ANYOFCOMPLETION)
-            .localQueueCommands(
-                ImmutableList.of(new LocalQueueCommand().queueName(QUEUE_1), new LocalQueueCommand().queueName(QUEUE_3))
-            );
+        return CommandRequest.anyCommandComplete(new LocalQueueCommand(QUEUE_1), new LocalQueueCommand(QUEUE_3));
     }
 
     @Override
@@ -105,14 +99,7 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
         // will be consumed by itself
         communication.publishToLocalQueue(QUEUE_2);
 
-        return new CommandRequest()
-            .waitingType(CommandWaitingType.ALLOFCOMPLETION)
-            .localQueueCommands(
-                ImmutableList.of(
-                    new LocalQueueCommand().queueName(QUEUE_1).count(2),
-                    new LocalQueueCommand().queueName(QUEUE_2).count(2)
-                )
-            );
+        return CommandRequest.allCommandsComplete(new LocalQueueCommand(QUEUE_1, 2), new LocalQueueCommand(QUEUE_2, 2));
     }
 
     @Override

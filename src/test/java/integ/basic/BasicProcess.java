@@ -4,6 +4,7 @@ import static integ.basic.BasicProcess.INPUT;
 import static integ.basic.BasicProcess.STATE_ID_NEXT_1;
 import static integ.basic.BasicProcess.STATE_ID_NEXT_2;
 
+import io.xdb.core.command.CommandRequest;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.process.Process;
@@ -12,9 +13,7 @@ import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateMovement;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandResults;
-import io.xdb.gen.models.CommandWaitingType;
 import io.xdb.gen.models.Context;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ class BasicStartingState implements AsyncState<Integer> {
         System.out.println("BasicStartingState.waitUntil: " + input);
         Assertions.assertEquals(INPUT, input);
 
-        return new CommandRequest().waitingType(CommandWaitingType.EMPTYCOMMAND);
+        return CommandRequest.EMPTY;
     }
 
     @Override
@@ -109,7 +108,7 @@ class NextState2 implements AsyncState<Integer> {
         System.out.println("NextState2.waitUntil: " + input);
         Assertions.assertEquals(INPUT + 2, input);
 
-        return new CommandRequest().waitingType(CommandWaitingType.EMPTYCOMMAND);
+        return CommandRequest.EMPTY;
     }
 
     @Override

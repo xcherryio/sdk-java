@@ -1,8 +1,8 @@
 package io.xdb.core.state;
 
+import io.xdb.core.command.CommandRequest;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.persistence.Persistence;
-import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandResults;
 import io.xdb.gen.models.Context;
 import java.lang.reflect.Method;
@@ -27,8 +27,9 @@ public interface AsyncState<I> {
      * {@link AsyncState#waitUntil} is used to configure commands to wait for before invoking the {@link AsyncState#execute} API.
      * It's optional -- you have the option to skip overriding it in a subclass, in which case the {@link AsyncState#execute} API will be invoked directly instead.
      *
+     * @param context
      * @param input
-     * @param features
+     * @param communication
      * @return
      */
     default CommandRequest waitUntil(final Context context, final I input, final Communication communication) {
@@ -39,8 +40,11 @@ public interface AsyncState<I> {
      * {@link AsyncState#execute} is used to perform an action and determine the next steps to take.
      * It's called after the commands specified in {@link AsyncState#waitUntil} have been completed or, in the case where {@link AsyncState#waitUntil} is skipped, it is invoked directly.
      *
+     * @param context
      * @param input
-     * @param features
+     * @param commandResults
+     * @param persistence
+     * @param communication
      * @return
      */
     StateDecision execute(
