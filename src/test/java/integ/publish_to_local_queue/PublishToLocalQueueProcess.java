@@ -18,10 +18,11 @@ import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
 import io.xdb.gen.models.CommandRequest;
 import io.xdb.gen.models.CommandResults;
+import io.xdb.gen.models.CommandStatus;
 import io.xdb.gen.models.CommandWaitingType;
 import io.xdb.gen.models.Context;
 import io.xdb.gen.models.LocalQueueCommand;
-import io.xdb.gen.models.LocalQueueMessage;
+import io.xdb.gen.models.LocalQueueResult;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
@@ -69,13 +70,22 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
         // will be consumed by PublishToLocalQueueState1
         communication.publishToLocalQueue(QUEUE_1, DEDUP_ID, PAYLOAD_1);
 
-        final List<LocalQueueMessage> localQueueResults = commandResults.getLocalQueueResults();
-        Assertions.assertEquals(1, localQueueResults.size());
+        final List<LocalQueueResult> localQueueResults = commandResults.getLocalQueueResults();
+
+        Assertions.assertEquals(2, localQueueResults.size());
+
         Assertions.assertEquals(QUEUE_1, localQueueResults.get(0).getQueueName());
+        Assertions.assertEquals(CommandStatus.COMPLETED_COMMAND, localQueueResults.get(0).getStatus());
+        Assertions.assertEquals(1, localQueueResults.get(0).getMessages().size());
         Assertions.assertEquals(
             PAYLOAD_1_2,
-            new JacksonJsonObjectEncoder().decode(localQueueResults.get(0).getPayload(), String.class)
+            new JacksonJsonObjectEncoder()
+                .decode(localQueueResults.get(0).getMessages().get(0).getPayload(), String.class)
         );
+
+        Assertions.assertEquals(QUEUE_3, localQueueResults.get(1).getQueueName());
+        Assertions.assertEquals(CommandStatus.WAITING_COMMAND, localQueueResults.get(1).getStatus());
+        Assertions.assertNull(localQueueResults.get(1).getMessages());
 
         return StateDecision.singleNextState(PublishToLocalQueueState1.class, null);
     }
@@ -115,31 +125,33 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
     ) {
         System.out.println("PublishToLocalQueueState1.execute: " + input);
 
-        final List<LocalQueueMessage> localQueueResults = commandResults.getLocalQueueResults();
-        Assertions.assertEquals(4, localQueueResults.size());
+        final List<LocalQueueResult> localQueueResults = commandResults.getLocalQueueResults();
+        Assertions.assertEquals(2, localQueueResults.size());
 
-        Assertions.assertEquals(QUEUE_2, localQueueResults.get(0).getQueueName());
+        Assertions.assertEquals(QUEUE_1, localQueueResults.get(0).getQueueName());
+        Assertions.assertEquals(CommandStatus.COMPLETED_COMMAND, localQueueResults.get(0).getStatus());
+        Assertions.assertEquals(2, localQueueResults.get(0).getMessages().size());
         Assertions.assertEquals(
-            PAYLOAD_2,
-            new JacksonJsonObjectEncoder().decode(localQueueResults.get(0).getPayload(), String.class)
+            PAYLOAD_1,
+            new JacksonJsonObjectEncoder()
+                .decode(localQueueResults.get(0).getMessages().get(0).getPayload(), String.class)
+        );
+        Assertions.assertNull(
+            new JacksonJsonObjectEncoder()
+                .decode(localQueueResults.get(0).getMessages().get(1).getPayload(), String.class)
         );
 
         Assertions.assertEquals(QUEUE_2, localQueueResults.get(1).getQueueName());
+        Assertions.assertEquals(CommandStatus.COMPLETED_COMMAND, localQueueResults.get(1).getStatus());
+        Assertions.assertEquals(2, localQueueResults.get(1).getMessages().size());
         Assertions.assertEquals(
-            null,
-            new JacksonJsonObjectEncoder().decode(localQueueResults.get(1).getPayload(), String.class)
+            PAYLOAD_2,
+            new JacksonJsonObjectEncoder()
+                .decode(localQueueResults.get(1).getMessages().get(0).getPayload(), String.class)
         );
-
-        Assertions.assertEquals(QUEUE_1, localQueueResults.get(2).getQueueName());
-        Assertions.assertEquals(
-            PAYLOAD_1,
-            new JacksonJsonObjectEncoder().decode(localQueueResults.get(2).getPayload(), String.class)
-        );
-
-        Assertions.assertEquals(QUEUE_1, localQueueResults.get(3).getQueueName());
-        Assertions.assertEquals(
-            null,
-            new JacksonJsonObjectEncoder().decode(localQueueResults.get(3).getPayload(), String.class)
+        Assertions.assertNull(
+            new JacksonJsonObjectEncoder()
+                .decode(localQueueResults.get(1).getMessages().get(1).getPayload(), String.class)
         );
 
         return StateDecision.gracefulCompleteProcess();
