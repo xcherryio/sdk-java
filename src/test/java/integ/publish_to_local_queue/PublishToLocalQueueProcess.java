@@ -48,7 +48,10 @@ class PublishToLocalQueueStartingState implements AsyncState<Void> {
         // will be consumed by PublishToLocalQueueState1
         communication.publishToLocalQueue(QUEUE_2, PAYLOAD_2);
 
-        return CommandRequest.anyCommandComplete(new LocalQueueCommand(QUEUE_1), new LocalQueueCommand(QUEUE_3));
+        return CommandRequest.anyOfCommandsComplete(
+            LocalQueueCommand.create(QUEUE_1),
+            LocalQueueCommand.create(QUEUE_3)
+        );
     }
 
     @Override
@@ -99,7 +102,10 @@ class PublishToLocalQueueState1 implements AsyncState<Void> {
         // will be consumed by itself
         communication.publishToLocalQueue(QUEUE_2);
 
-        return CommandRequest.allCommandsComplete(new LocalQueueCommand(QUEUE_1, 2), new LocalQueueCommand(QUEUE_2, 2));
+        return CommandRequest.allOfCommandsComplete(
+            LocalQueueCommand.create(QUEUE_1, 2),
+            LocalQueueCommand.create(QUEUE_2, 2)
+        );
     }
 
     @Override

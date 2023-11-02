@@ -29,7 +29,7 @@ public class CommandRequest {
      * @param commands  a list of commands to wait
      * @return
      */
-    public static CommandRequest anyCommandComplete(final BaseCommand... commands) {
+    public static CommandRequest anyOfCommandsComplete(final BaseCommand... commands) {
         return CommandRequest
             .builder()
             .waitingType(CommandWaitingType.ANYOFCOMPLETION)
@@ -43,7 +43,7 @@ public class CommandRequest {
      * @param commands a list of commands to wait
      * @return
      */
-    public static CommandRequest allCommandsComplete(final BaseCommand... commands) {
+    public static CommandRequest allOfCommandsComplete(final BaseCommand... commands) {
         return CommandRequest
             .builder()
             .waitingType(CommandWaitingType.ALLOFCOMPLETION)

@@ -13,6 +13,7 @@ import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
 import io.xdb.gen.models.CommandResults;
 import io.xdb.gen.models.Context;
+import java.time.Duration;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +36,10 @@ class CommandRequestAnyCompleteProcessStartingState implements AsyncState<Void> 
     public CommandRequest waitUntil(final Context context, final Void input, final Communication communication) {
         System.out.println("CommandRequestAnyCompleteProcessStartingState.waitUntil: " + input);
 
-        return CommandRequest.anyCommandComplete(new TimerCommand(10), new LocalQueueCommand(QUEUE_1));
+        return CommandRequest.anyOfCommandsComplete(
+            TimerCommand.byDuration(Duration.ofSeconds(10)),
+            LocalQueueCommand.create(QUEUE_1)
+        );
     }
 
     @Override
