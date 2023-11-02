@@ -1,5 +1,9 @@
 package io.xdb.core.worker;
 
+import com.google.common.collect.ImmutableList;
+import io.xdb.core.command.BaseCommand;
+import io.xdb.core.communication.Communication;
+import io.xdb.core.persistence.Persistence;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
@@ -8,8 +12,10 @@ import io.xdb.gen.models.AsyncStateExecuteResponse;
 import io.xdb.gen.models.AsyncStateWaitUntilRequest;
 import io.xdb.gen.models.AsyncStateWaitUntilResponse;
 import io.xdb.gen.models.CommandRequest;
+import io.xdb.gen.models.LocalQueueCommand;
 import io.xdb.gen.models.StateDecision;
 import io.xdb.gen.models.StateMovement;
+import io.xdb.gen.models.TimerCommand;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +35,17 @@ public class WorkerService {
             .getObjectEncoder()
             .decode(request.getStateInput(), state.getInputType());
 
-        // TODO
-        final CommandRequest commandRequest = state.waitUntil(input);
+        final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
-        return new AsyncStateWaitUntilResponse().commandRequest(commandRequest);
+        final io.xdb.core.command.CommandRequest commandRequest = state.waitUntil(
+            request.getContext(),
+            input,
+            communication
+        );
+
+        return new AsyncStateWaitUntilResponse()
+            .commandRequest(toApiModel(commandRequest))
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
     }
 
     public AsyncStateExecuteResponse handleAsyncStateExecute(final AsyncStateExecuteRequest request) {
@@ -41,10 +54,20 @@ public class WorkerService {
             .getObjectEncoder()
             .decode(request.getStateInput(), state.getInputType());
 
-        // TODO
-        final io.xdb.core.state.StateDecision stateDecision = state.execute(input);
+        final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
+        final Persistence persistence = new Persistence();
 
-        return new AsyncStateExecuteResponse().stateDecision(toApiModel(request.getProcessType(), stateDecision));
+        final io.xdb.core.state.StateDecision stateDecision = state.execute(
+            request.getContext(),
+            input,
+            request.getCommandResults(),
+            persistence,
+            communication
+        );
+
+        return new AsyncStateExecuteResponse()
+            .stateDecision(toApiModel(request.getProcessType(), stateDecision))
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
     }
 
     private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {
@@ -68,5 +91,28 @@ public class WorkerService {
             .collect(Collectors.toList());
 
         return new StateDecision().nextStates(stateMovements);
+    }
+
+    private CommandRequest toApiModel(final io.xdb.core.command.CommandRequest commandRequest) {
+        final CommandRequest apiCommandRequest = new CommandRequest().waitingType(commandRequest.getWaitingType());
+
+        final List<BaseCommand> commands = commandRequest.getCommands() == null
+            ? ImmutableList.of()
+            : commandRequest.getCommands();
+        for (final BaseCommand command : commands) {
+            if (command instanceof io.xdb.core.command.TimerCommand) {
+                apiCommandRequest.addTimerCommandsItem(
+                    new TimerCommand().delayInSeconds(((io.xdb.core.command.TimerCommand) command).getDelayInSeconds())
+                );
+            } else if (command instanceof io.xdb.core.command.LocalQueueCommand) {
+                apiCommandRequest.addLocalQueueCommandsItem(
+                    new LocalQueueCommand()
+                        .queueName(((io.xdb.core.command.LocalQueueCommand) command).getQueueName())
+                        .count(((io.xdb.core.command.LocalQueueCommand) command).getCount())
+                );
+            }
+        }
+
+        return apiCommandRequest;
     }
 }

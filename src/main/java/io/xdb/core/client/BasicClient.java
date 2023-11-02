@@ -13,6 +13,7 @@ import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStartResponse;
 import io.xdb.gen.models.ProcessExecutionStopRequest;
 import io.xdb.gen.models.ProcessExecutionStopType;
+import io.xdb.gen.models.PublishToLocalQueueRequest;
 
 /**
  * {@link BasicClient} serves as a foundational client without a process {@link io.xdb.core.registry}.
@@ -84,6 +85,19 @@ public class BasicClient {
 
         try {
             return defaultApi.apiV1XdbServiceProcessExecutionDescribePost(request);
+        } catch (final FeignException.FeignClientException e) {
+            throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
+        }
+    }
+
+    /**
+     * Publish message(s) to the local queue for consumption by the process execution.
+     *
+     * @param request   the request sent to the server.
+     */
+    public void publishToLocalQueue(final PublishToLocalQueueRequest request) {
+        try {
+            defaultApi.apiV1XdbServiceProcessExecutionPublishToLocalQueuePost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }

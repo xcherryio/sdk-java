@@ -5,10 +5,14 @@ import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
+import io.xdb.gen.models.LocalQueueMessage;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStopType;
+import io.xdb.gen.models.PublishToLocalQueueRequest;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Client {
 
@@ -68,10 +72,57 @@ public class Client {
      *
      * @param processId a unique identifier used to differentiate between different executions of the same process type.
      * @param stopType  specify how the process execution should be stopped, either as TERMINATED or FAILED.
-     *
      */
     public void stopProcess(final String processId, final ProcessExecutionStopType stopType) {
         basicClient.stopProcess(clientOptions.getNamespace(), processId, stopType);
+    }
+
+    /**
+     * Publish message(s) to the local queue for consumption by the process execution.
+     *
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param queueNames    queue names for categorizing message types.
+     */
+    public void publishToLocalQueue(final String processId, final String... queueNames) {
+        final LocalQueueMessage[] messages = Arrays
+            .stream(queueNames)
+            .map(queueName -> new LocalQueueMessage().queueName(queueName))
+            .toArray(LocalQueueMessage[]::new);
+
+        publishToLocalQueue(processId, messages);
+    }
+
+    /**
+     * Publish a message to the local queue for consumption by the process execution.
+     *
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param queueName     queue name for categorizing message types.
+     * @param payload       payload of the message.
+     */
+    public void publishToLocalQueue(final String processId, final String queueName, final Object payload) {
+        publishToLocalQueue(processId, queueName, "", payload);
+    }
+
+    /**
+     * Publish a message to the local queue for consumption by the process execution.
+     *
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param queueName     queue name for categorizing message types.
+     * @param dedupId       UUID to uniquely distinguish different messages. If not specified, the server will generate a UUID instead.
+     * @param payload       payload of the message.
+     */
+    public void publishToLocalQueue(
+        final String processId,
+        final String queueName,
+        final String dedupId,
+        final Object payload
+    ) {
+        final LocalQueueMessage message = new LocalQueueMessage()
+            .queueName(queueName)
+            .dedupId(dedupId)
+            .payload(clientOptions.getObjectEncoder().encode(payload));
+
+        publishToLocalQueue(processId, message);
     }
 
     /**
@@ -116,5 +167,20 @@ public class Client {
         }
 
         return basicClient.startProcess(request);
+    }
+
+    /**
+     * Publish message(s) to the local queue for consumption by the process execution.
+     *
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param messages      messages.
+     */
+    private void publishToLocalQueue(final String processId, final LocalQueueMessage... messages) {
+        final PublishToLocalQueueRequest request = new PublishToLocalQueueRequest()
+            .namespace(clientOptions.getNamespace())
+            .processId(processId)
+            .messages(Arrays.stream(messages).collect(Collectors.toList()));
+
+        basicClient.publishToLocalQueue(request);
     }
 }

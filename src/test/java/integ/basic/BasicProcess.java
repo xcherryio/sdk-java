@@ -4,14 +4,17 @@ import static integ.basic.BasicProcess.INPUT;
 import static integ.basic.BasicProcess.STATE_ID_NEXT_1;
 import static integ.basic.BasicProcess.STATE_ID_NEXT_2;
 
+import io.xdb.core.command.CommandRequest;
+import io.xdb.core.communication.Communication;
+import io.xdb.core.persistence.Persistence;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateMovement;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.CommandRequest;
-import io.xdb.gen.models.CommandWaitingType;
+import io.xdb.gen.models.CommandResults;
+import io.xdb.gen.models.Context;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
 
@@ -36,15 +39,21 @@ class BasicStartingState implements AsyncState<Integer> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Integer input) {
+    public CommandRequest waitUntil(final Context context, final Integer input, final Communication communication) {
         System.out.println("BasicStartingState.waitUntil: " + input);
         Assertions.assertEquals(INPUT, input);
 
-        return new CommandRequest().waitingType(CommandWaitingType.EMPTYCOMMAND);
+        return CommandRequest.EMPTY;
     }
 
     @Override
-    public StateDecision execute(final Integer input) {
+    public StateDecision execute(
+        final Context context,
+        final Integer input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
         System.out.println("BasicStartingState.execute: " + input);
         Assertions.assertEquals(INPUT, input);
 
@@ -68,7 +77,13 @@ class NextState1 implements AsyncState<Integer> {
     }
 
     @Override
-    public StateDecision execute(final Integer input) {
+    public StateDecision execute(
+        final Context context,
+        final Integer input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
         System.out.println("NextState1.execute: " + input);
         Assertions.assertEquals(INPUT + 1, input);
 
@@ -89,15 +104,21 @@ class NextState2 implements AsyncState<Integer> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Integer input) {
+    public CommandRequest waitUntil(final Context context, final Integer input, final Communication communication) {
         System.out.println("NextState2.waitUntil: " + input);
         Assertions.assertEquals(INPUT + 2, input);
 
-        return new CommandRequest().waitingType(CommandWaitingType.EMPTYCOMMAND);
+        return CommandRequest.EMPTY;
     }
 
     @Override
-    public StateDecision execute(final Integer input) {
+    public StateDecision execute(
+        final Context context,
+        final Integer input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
         System.out.println("NextState2.execute: " + input);
         Assertions.assertEquals(INPUT + 2, input);
 
