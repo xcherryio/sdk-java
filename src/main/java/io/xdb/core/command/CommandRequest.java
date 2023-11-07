@@ -19,7 +19,7 @@ public class CommandRequest {
     private final List<BaseCommand> commands;
 
     /**
-     * EMPTY command request will trigger {{@link io.xdb.core.state.AsyncState#execute(Context, Object, CommandResults, Persistence, Communication)}} immediately.
+     * EMPTY command request will trigger {@link io.xdb.core.state.AsyncState#execute(Context, Object, CommandResults, Persistence, Communication)} immediately.
      */
     public static CommandRequest EMPTY = CommandRequest.builder().waitingType(CommandWaitingType.EMPTYCOMMAND).build();
 
@@ -38,7 +38,7 @@ public class CommandRequest {
     }
 
     /**
-     * To trigger {{@link io.xdb.core.state.AsyncState#execute(Context, Object, CommandResults, Persistence, Communication)}} after ALL the commands have completed.
+     * To trigger {@link io.xdb.core.state.AsyncState#execute(Context, Object, CommandResults, Persistence, Communication)} after ALL the commands have completed.
      *
      * @param commands a list of commands to wait
      * @return

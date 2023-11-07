@@ -17,7 +17,7 @@ public class TestPublishToLocalQueueProcess {
     public static final String PAYLOAD_1_2 = "PAYLOAD_1_2";
 
     public static final String QUEUE_2 = "QUEUE_2";
-    public static final String PAYLOAD_2 = "PAYLOAD_2";
+    public static final int PAYLOAD_2 = 2;
 
     public static final String QUEUE_3 = "QUEUE_3";
 

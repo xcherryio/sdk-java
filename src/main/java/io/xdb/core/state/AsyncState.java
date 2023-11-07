@@ -1,10 +1,10 @@
 package io.xdb.core.state;
 
 import io.xdb.core.command.CommandRequest;
+import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
+import io.xdb.core.context.Context;
 import io.xdb.core.persistence.Persistence;
-import io.xdb.gen.models.CommandResults;
-import io.xdb.gen.models.Context;
 import java.lang.reflect.Method;
 
 public interface AsyncState<I> {
