@@ -26,9 +26,9 @@ public interface Process {
 
     /**
      * defines all the communication methods for this process, which includes:
-     * <p/>
+     * <p>
      * 1. {@link io.xdb.core.command.LocalQueueCommand}
-     * <p/>
+     * <p>
      *
      * @return the communication schema defined for this process.
      */

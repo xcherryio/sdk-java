@@ -1,10 +1,9 @@
 package io.xdb.core.command;
 
 import io.xdb.core.communication.Communication;
+import io.xdb.core.context.Context;
 import io.xdb.core.persistence.Persistence;
-import io.xdb.gen.models.CommandResults;
 import io.xdb.gen.models.CommandWaitingType;
-import io.xdb.gen.models.Context;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
