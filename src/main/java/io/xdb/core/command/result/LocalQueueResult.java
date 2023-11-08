@@ -1,7 +1,6 @@
 package io.xdb.core.command.result;
 
 import com.google.common.collect.ImmutableList;
-import io.xdb.core.communication.LocalQueueDef;
 import io.xdb.core.encoder.ObjectEncoder;
 import io.xdb.gen.models.CommandStatus;
 import java.util.List;
@@ -21,7 +20,6 @@ public class LocalQueueResult {
 
     public static LocalQueueResult fromApiModel(
         final io.xdb.gen.models.LocalQueueResult localQueueResult,
-        final LocalQueueDef localQueueDef,
         final ObjectEncoder objectEncoder
     ) {
         final List<LocalQueueMessageResult> localQueueMessageResults;
@@ -31,7 +29,7 @@ public class LocalQueueResult {
                 localQueueResult
                     .getMessages()
                     .stream()
-                    .map(m -> LocalQueueMessageResult.fromApiModel(m, localQueueDef, objectEncoder))
+                    .map(m -> LocalQueueMessageResult.fromApiModel(m, objectEncoder))
                     .collect(Collectors.toList());
         } else {
             localQueueMessageResults = ImmutableList.of();

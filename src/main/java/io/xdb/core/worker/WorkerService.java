@@ -62,11 +62,7 @@ public class WorkerService {
         final io.xdb.core.state.StateDecision stateDecision = state.execute(
             Context.fromApiModel(request.getContext()),
             input,
-            CommandResults.fromApiModel(
-                request.getCommandResults(),
-                registry.getProcessLocalQueueDefs(request.getProcessType()),
-                workerServiceOptions.getObjectEncoder()
-            ),
+            CommandResults.fromApiModel(request.getCommandResults(), workerServiceOptions.getObjectEncoder()),
             persistence,
             communication
         );

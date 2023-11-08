@@ -1,6 +1,5 @@
 package io.xdb.core.process;
 
-import io.xdb.core.communication.CommunicationSchema;
 import io.xdb.core.state.StateSchema;
 
 /**
@@ -22,17 +21,5 @@ public interface Process {
      */
     default StateSchema getStateSchema() {
         return StateSchema.builder().build();
-    }
-
-    /**
-     * defines all the communication methods for this process, which includes:
-     * <p>
-     * 1. {@link io.xdb.core.command.LocalQueueCommand}
-     * <p>
-     *
-     * @return the communication schema defined for this process.
-     */
-    default CommunicationSchema getCommunicationSchema() {
-        return CommunicationSchema.builder().build();
     }
 }

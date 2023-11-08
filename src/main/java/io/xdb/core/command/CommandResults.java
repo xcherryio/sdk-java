@@ -3,10 +3,8 @@ package io.xdb.core.command;
 import com.google.common.collect.ImmutableList;
 import io.xdb.core.command.result.LocalQueueResult;
 import io.xdb.core.command.result.TimerResult;
-import io.xdb.core.communication.LocalQueueDef;
 import io.xdb.core.encoder.ObjectEncoder;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +20,6 @@ public class CommandResults {
 
     public static CommandResults fromApiModel(
         final io.xdb.gen.models.CommandResults commandResults,
-        final Map<String, LocalQueueDef> localQueueDefMap,
         final ObjectEncoder objectEncoder
     ) {
         final List<TimerResult> timerResults;
@@ -40,7 +37,7 @@ public class CommandResults {
                 commandResults
                     .getLocalQueueResults()
                     .stream()
-                    .map(r -> LocalQueueResult.fromApiModel(r, localQueueDefMap.get(r.getQueueName()), objectEncoder))
+                    .map(r -> LocalQueueResult.fromApiModel(r, objectEncoder))
                     .collect(Collectors.toList());
         } else {
             localQueueResults = ImmutableList.of();
