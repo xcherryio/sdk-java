@@ -2,7 +2,9 @@ package io.xdb.core.worker;
 
 import com.google.common.collect.ImmutableList;
 import io.xdb.core.command.BaseCommand;
+import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
+import io.xdb.core.context.Context;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
@@ -38,7 +40,7 @@ public class WorkerService {
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
         final io.xdb.core.command.CommandRequest commandRequest = state.waitUntil(
-            request.getContext(),
+            Context.fromApiModel(request.getContext()),
             input,
             communication
         );
@@ -58,9 +60,9 @@ public class WorkerService {
         final Persistence persistence = new Persistence();
 
         final io.xdb.core.state.StateDecision stateDecision = state.execute(
-            request.getContext(),
+            Context.fromApiModel(request.getContext()),
             input,
-            request.getCommandResults(),
+            CommandResults.fromApiModel(request.getCommandResults(), workerServiceOptions.getObjectEncoder()),
             persistence,
             communication
         );

@@ -35,17 +35,17 @@ public class Registry {
         return processStore.get(type);
     }
 
-    public AsyncState getProcessState(final String type, final String stateId) {
-        if (!processStatesStore.containsKey(type) || !processStatesStore.get(type).containsKey(stateId)) {
+    public AsyncState getProcessState(final String processType, final String stateId) {
+        if (!processStatesStore.containsKey(processType) || !processStatesStore.get(processType).containsKey(stateId)) {
             throw new ProcessDefinitionException(
                 String.format(
                     "Process type %s or state id %s has not been registered in processStatesStore.",
-                    type,
+                    processType,
                     stateId
                 )
             );
         }
-        return processStatesStore.get(type).get(stateId);
+        return processStatesStore.get(processType).get(stateId);
     }
 
     private void registerProcess(final Process process) {

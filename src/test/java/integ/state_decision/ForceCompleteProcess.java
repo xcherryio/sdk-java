@@ -5,7 +5,9 @@ import static integ.state_decision.ForceCompleteProcess.STATE_ID_NEXT_2;
 import static integ.state_decision.TestStateDecision.INPUT;
 
 import io.xdb.core.command.CommandRequest;
+import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
+import io.xdb.core.context.Context;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
@@ -13,8 +15,6 @@ import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateMovement;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.CommandResults;
-import io.xdb.gen.models.Context;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
 

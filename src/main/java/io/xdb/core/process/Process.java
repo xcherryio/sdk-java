@@ -7,10 +7,18 @@ import io.xdb.core.state.StateSchema;
  * It represents a fundamental concept at the top level in XDB.
  */
 public interface Process {
+    /**
+     *
+     * @return the process options.
+     */
     default ProcessOptions getOptions() {
         return ProcessOptions.builder(this.getClass()).build();
     }
 
+    /**
+     *
+     * @return the state schema of all {@link io.xdb.core.state.AsyncState} defined for this process.
+     */
     default StateSchema getStateSchema() {
         return StateSchema.builder().build();
     }
