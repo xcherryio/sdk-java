@@ -14,12 +14,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.xdb.core.command.CommandRequest;
 import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
 import io.xdb.core.exception.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
+import io.xdb.core.persistence.PersistenceSchema;
+import io.xdb.core.persistence.PersistenceTableSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.state.AsyncState;
@@ -29,12 +32,8 @@ import io.xdb.core.state.StateSchema;
 import io.xdb.gen.models.AttributeWriteConflictMode;
 import io.xdb.gen.models.GlobalAttributeConfig;
 import io.xdb.gen.models.GlobalAttributeTableConfig;
-import io.xdb.gen.models.LoadGlobalAttributesRequest;
 import io.xdb.gen.models.ProcessStartConfig;
-import io.xdb.gen.models.TableColumnDef;
 import io.xdb.gen.models.TableColumnValue;
-import io.xdb.gen.models.TableReadLockingPolicy;
-import io.xdb.gen.models.TableReadRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -55,7 +54,15 @@ public class GlobalAttributeProcess implements Process {
     public StateSchema getStateSchema() {
         return StateSchema.withStartingState(
             new GlobalAttributeProcessStartingState(),
-            new GlobalAttributeProcessNextState1()
+            new GlobalAttributeProcessNextState1(),
+            new GlobalAttributeProcessNextState2()
+        );
+    }
+
+    @Override
+    public PersistenceSchema getPersistenceSchema() {
+        return PersistenceSchema.withGlobalAttributes(
+            PersistenceTableSchema.withPrimaryKey(TABLE_NAME, PK_KEY, ImmutableSet.of(COL_KEY_1, COL_KEY_2))
         );
     }
 
@@ -95,30 +102,6 @@ class GlobalAttributeProcessStartingState implements AsyncState<Void> {
     }
 
     @Override
-    public AsyncStateOptions getOptions() {
-        return AsyncStateOptions
-            .builder(GlobalAttributeProcessStartingState.class)
-            .loadGlobalAttributesRequest(
-                new LoadGlobalAttributesRequest()
-                    .tableRequests(
-                        ImmutableList.of(
-                            new TableReadRequest()
-                                .tableName(TABLE_NAME)
-                                .lockingPolicy(TableReadLockingPolicy.NO_LOCKING)
-                                .columns(
-                                    ImmutableList.of(
-                                        new TableColumnDef().dbColumn(PK_KEY),
-                                        new TableColumnDef().dbColumn(COL_KEY_1),
-                                        new TableColumnDef().dbColumn(COL_KEY_2)
-                                    )
-                                )
-                        )
-                    )
-            )
-            .build();
-    }
-
-    @Override
     public CommandRequest waitUntil(final Context context, final Void input, final Communication communication) {
         System.out.println("GlobalAttributeProcessStartingState.waitUntil: " + input);
 
@@ -138,6 +121,10 @@ class GlobalAttributeProcessStartingState implements AsyncState<Void> {
         assertEquals(PK_VALUE, persistence.getGlobalAttribute(TABLE_NAME, PK_KEY));
         assertEquals(COL_VALUE_1, persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_1));
         assertEquals(COL_VALUE_2, persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_2));
+        assertThrows(
+            GlobalAttributeNotFoundException.class,
+            () -> persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_3)
+        );
 
         persistence.upsertGlobalAttribute(TABLE_NAME, COL_KEY_1, COL_VALUE_1_2);
         persistence.upsertGlobalAttribute(TABLE_NAME, COL_KEY_3, COL_VALUE_3);
@@ -157,21 +144,10 @@ class GlobalAttributeProcessNextState1 implements AsyncState<Void> {
     public AsyncStateOptions getOptions() {
         return AsyncStateOptions
             .builder(GlobalAttributeProcessNextState1.class)
-            .loadGlobalAttributesRequest(
-                new LoadGlobalAttributesRequest()
-                    .tableRequests(
-                        ImmutableList.of(
-                            new TableReadRequest()
-                                .tableName(TABLE_NAME)
-                                .lockingPolicy(TableReadLockingPolicy.NO_LOCKING)
-                                .columns(
-                                    ImmutableList.of(
-                                        new TableColumnDef().dbColumn(COL_KEY_1),
-                                        new TableColumnDef().dbColumn(COL_KEY_3)
-                                    )
-                                )
-                        )
-                    )
+            .persistenceSchemaToLoad(
+                PersistenceSchema.withGlobalAttributes(
+                    PersistenceTableSchema.noPrimaryKey(TABLE_NAME, ImmutableSet.of(COL_KEY_1, COL_KEY_3))
+                )
             )
             .build();
     }
@@ -193,6 +169,49 @@ class GlobalAttributeProcessNextState1 implements AsyncState<Void> {
             () -> persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_2)
         );
         assertEquals(COL_VALUE_3, persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_3));
+
+        return StateDecision.singleNextState(GlobalAttributeProcessNextState2.class, null);
+    }
+}
+
+class GlobalAttributeProcessNextState2 implements AsyncState<Void> {
+
+    @Override
+    public Class<Void> getInputType() {
+        return Void.class;
+    }
+
+    @Override
+    public AsyncStateOptions getOptions() {
+        return AsyncStateOptions
+            .builder(GlobalAttributeProcessNextState2.class)
+            .persistenceSchemaToLoad(PersistenceSchema.EMPTY())
+            .build();
+    }
+
+    @Override
+    public StateDecision execute(
+        final Context context,
+        final Void input,
+        final CommandResults commandResults,
+        final Persistence persistence,
+        final Communication communication
+    ) {
+        System.out.println("GlobalAttributeProcessNextState2.execute: " + input);
+
+        assertThrows(GlobalAttributeNotFoundException.class, () -> persistence.getGlobalAttribute(TABLE_NAME, PK_KEY));
+        assertThrows(
+            GlobalAttributeNotFoundException.class,
+            () -> persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_1)
+        );
+        assertThrows(
+            GlobalAttributeNotFoundException.class,
+            () -> persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_2)
+        );
+        assertThrows(
+            GlobalAttributeNotFoundException.class,
+            () -> persistence.getGlobalAttribute(TABLE_NAME, COL_KEY_3)
+        );
 
         return StateDecision.forceCompleteProcess();
     }

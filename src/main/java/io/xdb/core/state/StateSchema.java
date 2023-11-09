@@ -3,15 +3,18 @@ package io.xdb.core.state;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class StateSchema {
 
     private final AsyncState startingState;
     private final List<AsyncState> allStates;
+
+    private StateSchema(final AsyncState startingState, final List<AsyncState> allStates) {
+        this.startingState = startingState;
+        this.allStates = allStates;
+    }
 
     public static StateSchema withStartingState(final AsyncState startingState, final AsyncState... nonStartingStates) {
         final List<AsyncState> states = Arrays.stream(nonStartingStates).collect(Collectors.toList());
@@ -19,7 +22,7 @@ public class StateSchema {
             states.add(startingState);
         }
 
-        return StateSchema.builder().startingState(startingState).allStates(states).build();
+        return new StateSchema(startingState, states);
     }
 
     public static StateSchema noStartingState(final AsyncState... nonStartingStates) {

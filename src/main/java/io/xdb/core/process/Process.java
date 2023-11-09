@@ -1,5 +1,6 @@
 package io.xdb.core.process;
 
+import io.xdb.core.persistence.PersistenceSchema;
 import io.xdb.core.state.StateSchema;
 
 /**
@@ -20,6 +21,16 @@ public interface Process {
      * @return the state schema of all {@link io.xdb.core.state.AsyncState} defined for this process.
      */
     default StateSchema getStateSchema() {
-        return StateSchema.builder().build();
+        return StateSchema.noStartingState();
+    }
+
+    /**
+     * The default persistence schema to load in each {@link io.xdb.core.state.AsyncState}.
+     * Users can override this loading setting in each state's {@link io.xdb.core.state.AsyncStateOptions}.
+     *
+     * @return the persistence schema defined for this process.
+     */
+    default PersistenceSchema getPersistenceSchema() {
+        return PersistenceSchema.EMPTY();
     }
 }

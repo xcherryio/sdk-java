@@ -87,7 +87,8 @@ public class WorkerService {
                     .stateInput(workerServiceOptions.getObjectEncoder().encode(stateMovement.getStateInput()))
                     .stateConfig(
                         ProcessUtil.getAsyncStateConfig(
-                            registry.getProcessState(processType, stateMovement.getStateId())
+                            registry.getProcessState(processType, stateMovement.getStateId()),
+                            registry.getProcess(processType)
                         )
                     )
             )

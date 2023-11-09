@@ -19,7 +19,7 @@ public class TestGlobalAttributeProcess {
     public void setup() {
         WorkerServiceForTesting.startWorkerIfNotUp();
     }
-    
+
     @Test
     public void testGlobalAttributeProcess() {
         final Client client = XdbConfig.client;

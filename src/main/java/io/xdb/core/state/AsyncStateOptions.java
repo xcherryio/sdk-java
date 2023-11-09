@@ -2,8 +2,8 @@ package io.xdb.core.state;
 
 import com.google.common.base.Strings;
 import io.xdb.core.exception.ProcessDefinitionException;
+import io.xdb.core.persistence.PersistenceSchema;
 import io.xdb.core.utils.ProcessUtil;
-import io.xdb.gen.models.LoadGlobalAttributesRequest;
 import io.xdb.gen.models.RetryPolicy;
 import io.xdb.gen.models.StateFailureRecoveryOptions;
 import lombok.Builder;
@@ -27,7 +27,7 @@ public class AsyncStateOptions {
     private RetryPolicy waitUntilApiRetryPolicy;
     private RetryPolicy executeApiRetryPolicy;
     private StateFailureRecoveryOptions stateFailureRecoveryOptions;
-    private final LoadGlobalAttributesRequest loadGlobalAttributesRequest;
+    private PersistenceSchema persistenceSchemaToLoad;
 
     public static AsyncStateOptionsBuilder builder(final Class<? extends AsyncState> stateClass) {
         return builder().stateClass(stateClass);

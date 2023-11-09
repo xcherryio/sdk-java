@@ -152,7 +152,7 @@ public class Client {
             final AsyncState startingState = process.getStateSchema().getStartingState();
             request
                 .startStateId(ProcessUtil.getStateId(startingState))
-                .startStateConfig(ProcessUtil.getAsyncStateConfig(startingState));
+                .startStateConfig(ProcessUtil.getAsyncStateConfig(startingState, process));
         }
 
         return basicClient.startProcess(request);
