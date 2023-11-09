@@ -64,7 +64,7 @@ public class PersistenceTableSchema {
     }
 
     /**
-     * Create a table schema to be used in {@link PersistenceSchema} with the default NO_LOCKING reading policy.
+     * Create a table schema to be used in {@link PersistenceSchema} without the primary key, and with the default NO_LOCKING reading policy.
      *
      * @param tableName                 table name.
      * @param otherColumnNames          other non-primary-key column names.
@@ -75,7 +75,7 @@ public class PersistenceTableSchema {
     }
 
     /**
-     * Create a table schema to be used in {@link PersistenceSchema}.
+     * Create a table schema to be used in {@link PersistenceSchema} without the primary key.
      *
      * @param tableName                 table name.
      * @param otherColumnNames          other non-primary-key column names.

@@ -58,7 +58,7 @@ public class GlobalAttributeProcess implements Process {
     }
 
     @Override
-    public PersistenceSchema getPersistenceSchema() {
+    public PersistenceSchema getPersistenceSchemaToLoad() {
         return PersistenceSchema.withGlobalAttributes(
             PersistenceTableSchema.withPrimaryKey(TABLE_NAME, PK_KEY, ImmutableSet.of(COL_KEY_1, COL_KEY_2))
         );

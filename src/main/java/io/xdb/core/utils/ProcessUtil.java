@@ -39,16 +39,22 @@ public class ProcessUtil {
     }
 
     public static AsyncStateConfig getAsyncStateConfig(final AsyncState state, final Process process) {
-        AsyncStateConfig asyncStateConfig = new AsyncStateConfig()
-            .skipWaitUntil(AsyncState.shouldSkipWaitUntil(state))
-            .waitUntilApiTimeoutSeconds(state.getOptions().getWaitUntilApiTimeoutSeconds())
-            .executeApiTimeoutSeconds(state.getOptions().getExecuteApiTimeoutSeconds())
-            .waitUntilApiRetryPolicy(state.getOptions().getWaitUntilApiRetryPolicy())
-            .executeApiRetryPolicy(state.getOptions().getExecuteApiRetryPolicy())
-            .stateFailureRecoveryOptions(state.getOptions().getStateFailureRecoveryOptions());
+        AsyncStateConfig asyncStateConfig = new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
+
+        if (state.getOptions() == null) {
+            return asyncStateConfig;
+        }
+
+        asyncStateConfig =
+            asyncStateConfig
+                .waitUntilApiTimeoutSeconds(state.getOptions().getWaitUntilApiTimeoutSeconds())
+                .executeApiTimeoutSeconds(state.getOptions().getExecuteApiTimeoutSeconds())
+                .waitUntilApiRetryPolicy(state.getOptions().getWaitUntilApiRetryPolicy())
+                .executeApiRetryPolicy(state.getOptions().getExecuteApiRetryPolicy())
+                .stateFailureRecoveryOptions(state.getOptions().getStateFailureRecoveryOptions());
 
         final PersistenceSchema persistenceSchema = state.getOptions().getPersistenceSchemaToLoad() == null
-            ? process.getPersistenceSchema()
+            ? process.getPersistenceSchemaToLoad()
             : state.getOptions().getPersistenceSchemaToLoad();
         asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchema));
 

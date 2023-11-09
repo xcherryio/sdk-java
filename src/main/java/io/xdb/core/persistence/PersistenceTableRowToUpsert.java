@@ -1,7 +1,5 @@
 package io.xdb.core.persistence;
 
-import com.google.common.base.Strings;
-import io.xdb.core.exception.ProcessDefinitionException;
 import io.xdb.gen.models.AttributeWriteConflictMode;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +24,11 @@ public class PersistenceTableRowToUpsert {
     }
 
     /**
-     * Create a table row to be upserted in persistence.
+     * Create a table row to upsert in persistence.
      *
      * @param tableName             the name of the table.
-     * @param writeConflictMode     the mode to choose when there is a conflict in updating.
-     * @return  the table row to be upserted.
+     * @param writeConflictMode     the mode to choose when there is a conflict in upsert.
+     * @return  the table row to upsert.
      */
     public static PersistenceTableRowToUpsert create(
         final String tableName,
@@ -40,14 +38,14 @@ public class PersistenceTableRowToUpsert {
     }
 
     /**
-     * Create a table row to be upserted in persistence with the primary key.
+     * Create a table row to upsert in persistence with the primary key.
      *
      * @param tableName             the name of the table.
      * @param columnName            the column name of the primary key.
      * @param columnValue           the column value of the primary key.
-     * @param writeConflictMode     the mode to choose when there is a conflict in updating.
+     * @param writeConflictMode     the mode to choose when there is a conflict in upsert.
      *
-     * @return  the table row to be upserted.
+     * @return  the table row to upsert.
      */
     public static PersistenceTableRowToUpsert createWithPrimaryKeyColumn(
         final String tableName,
@@ -56,28 +54,24 @@ public class PersistenceTableRowToUpsert {
         final AttributeWriteConflictMode writeConflictMode
     ) {
         return new PersistenceTableRowToUpsert(tableName, writeConflictMode)
-            .addPrimaryKeyColumn(columnName, columnValue);
+            .setPrimaryKeyColumn(columnName, columnValue);
     }
 
     /**
-     * Set the primary key of the table row to be upserted.
+     * Set the primary key of the table row to upsert.
      *
      * @param columnName    the name of the primary key column.
      * @param value         the value of the primary key column.
      * @return  the updated table row.
      */
-    public PersistenceTableRowToUpsert addPrimaryKeyColumn(final String columnName, final String value) {
-        if (!Strings.isNullOrEmpty(primaryKeyColumnName)) {
-            throw new ProcessDefinitionException("There can only be one primary key in a table.");
-        }
-
+    public PersistenceTableRowToUpsert setPrimaryKeyColumn(final String columnName, final String value) {
         primaryKeyColumnName = columnName;
         primaryKeyColumnValue = value;
         return this;
     }
 
     /**
-     * Set a non-primary key of the table row to be upserted.
+     * Add a non-primary-key column of the table row to upsert.
      *
      * @param columnName    the name of the column.
      * @param value         the value of the column.

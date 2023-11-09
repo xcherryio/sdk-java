@@ -30,7 +30,7 @@ public interface Process {
      *
      * @return the persistence schema defined for this process.
      */
-    default PersistenceSchema getPersistenceSchema() {
+    default PersistenceSchema getPersistenceSchemaToLoad() {
         return PersistenceSchema.EMPTY();
     }
 }
