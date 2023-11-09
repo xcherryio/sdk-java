@@ -57,7 +57,7 @@ public class WorkerService {
             .decode(request.getStateInput(), state.getInputType());
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
-        final Persistence persistence = new Persistence();
+        final Persistence persistence = new Persistence(request.getLoadedGlobalAttributes());
 
         final io.xdb.core.state.StateDecision stateDecision = state.execute(
             Context.fromApiModel(request.getContext()),
@@ -69,7 +69,8 @@ public class WorkerService {
 
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
+            .writeToGlobalAttributes(persistence.getGlobalAttributesToUpsert());
     }
 
     private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {

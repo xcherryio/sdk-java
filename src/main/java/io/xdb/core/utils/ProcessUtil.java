@@ -32,6 +32,13 @@ public class ProcessUtil {
     }
 
     public static AsyncStateConfig getAsyncStateConfig(final AsyncState state) {
-        return new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
+        return new AsyncStateConfig()
+            .skipWaitUntil(AsyncState.shouldSkipWaitUntil(state))
+            .waitUntilApiTimeoutSeconds(state.getOptions().getWaitUntilApiTimeoutSeconds())
+            .executeApiTimeoutSeconds(state.getOptions().getExecuteApiTimeoutSeconds())
+            .waitUntilApiRetryPolicy(state.getOptions().getWaitUntilApiRetryPolicy())
+            .executeApiRetryPolicy(state.getOptions().getExecuteApiRetryPolicy())
+            .stateFailureRecoveryOptions(state.getOptions().getStateFailureRecoveryOptions())
+            .loadGlobalAttributesRequest(state.getOptions().getLoadGlobalAttributesRequest());
     }
 }

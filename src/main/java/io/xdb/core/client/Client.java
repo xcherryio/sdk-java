@@ -10,7 +10,6 @@ import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStopType;
 import io.xdb.gen.models.PublishToLocalQueueRequest;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -133,16 +132,6 @@ public class Client {
      */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
         return basicClient.describeCurrentProcessExecution(clientOptions.getNamespace(), processId);
-    }
-
-    // TODO: placeholder to be used in integration test for now
-    public void waitForProcessCompletion(final String processId) {
-        System.out.println(processId);
-        try {
-            Thread.sleep(Duration.ofSeconds(2).toMillis());
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String startProcessInternal(final String processType, final String processId, final Object input) {

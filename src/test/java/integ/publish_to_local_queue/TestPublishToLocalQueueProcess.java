@@ -2,6 +2,7 @@ package integ.publish_to_local_queue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import integ.TestUtils;
 import integ.spring.WorkerServiceForTesting;
 import integ.spring.XdbConfig;
 import io.xdb.core.client.Client;
@@ -35,7 +36,7 @@ public class TestPublishToLocalQueueProcess {
         final String processId = "publish-to-local-queue-" + System.currentTimeMillis() / 1000;
 
         final String processExecutionId = client.startProcess(PublishToLocalQueueProcess.class, processId, null);
-        client.waitForProcessCompletion(processId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response.getProcessExecutionId());
@@ -43,7 +44,7 @@ public class TestPublishToLocalQueueProcess {
 
         // to trigger PublishToLocalQueueStartingState.execute
         client.publishToLocalQueue(processId, QUEUE_1, PAYLOAD_1_2);
-        client.waitForProcessCompletion(processId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response2 = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response2.getProcessExecutionId());
@@ -51,7 +52,7 @@ public class TestPublishToLocalQueueProcess {
 
         // to publish a message with duplicated dedupId, nothing changes
         client.publishToLocalQueue(processId, QUEUE_1, DEDUP_ID, null);
-        client.waitForProcessCompletion(processId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response3 = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response3.getProcessExecutionId());
@@ -59,7 +60,7 @@ public class TestPublishToLocalQueueProcess {
 
         // to complete the execution
         client.publishToLocalQueue(processId, QUEUE_1);
-        client.waitForProcessCompletion(processId);
+        TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response4 = client.describeCurrentProcessExecution(processId);
         assertEquals(processExecutionId, response4.getProcessExecutionId());
