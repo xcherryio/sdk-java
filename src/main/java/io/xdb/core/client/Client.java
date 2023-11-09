@@ -1,16 +1,23 @@
 package io.xdb.core.client;
 
+import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
+import io.xdb.gen.models.GlobalAttributeConfig;
+import io.xdb.gen.models.GlobalAttributeTableConfig;
 import io.xdb.gen.models.LocalQueueMessage;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStopType;
+import io.xdb.gen.models.ProcessStartConfig;
 import io.xdb.gen.models.PublishToLocalQueueRequest;
+import io.xdb.gen.models.TableColumnValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Client {
@@ -146,7 +153,7 @@ public class Client {
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
             .startStateInput(clientOptions.getObjectEncoder().encode(input))
-            .processStartConfig(processOptions.getProcessStartConfig());
+            .processStartConfig(toApiModel(processOptions.getProcessStartConfig()));
 
         if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
             final AsyncState startingState = process.getStateSchema().getStartingState();
@@ -156,6 +163,45 @@ public class Client {
         }
 
         return basicClient.startProcess(request);
+    }
+
+    private ProcessStartConfig toApiModel(final io.xdb.core.process.ProcessStartConfig processStartConfig) {
+        if (processStartConfig == null) {
+            return null;
+        }
+
+        final GlobalAttributeConfig globalAttributeConfig;
+        if (processStartConfig.getGlobalAttributesToUpsert() == null) {
+            globalAttributeConfig = null;
+        } else {
+            globalAttributeConfig = new GlobalAttributeConfig();
+
+            for (final PersistenceTableRowToUpsert tableRowToUpsert : processStartConfig.getGlobalAttributesToUpsert()) {
+                final List<TableColumnValue> otherColumns = new ArrayList<>();
+                tableRowToUpsert
+                    .getOtherColumns()
+                    .forEach((k, v) -> {
+                        otherColumns.add(new TableColumnValue().dbColumn(k).dbQueryValue(v));
+                    });
+
+                globalAttributeConfig.addTableConfigsItem(
+                    new GlobalAttributeTableConfig()
+                        .tableName(tableRowToUpsert.getTableName())
+                        .primaryKey(
+                            new TableColumnValue()
+                                .dbColumn(tableRowToUpsert.getPrimaryKeyColumnName())
+                                .dbQueryValue(tableRowToUpsert.getPrimaryKeyColumnValue())
+                        )
+                        .initialWrite(otherColumns)
+                        .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
+                );
+            }
+        }
+
+        return new ProcessStartConfig()
+            .timeoutSeconds(processStartConfig.getTimeoutSeconds())
+            .idReusePolicy(processStartConfig.getProcessIdReusePolicy())
+            .globalAttributeConfig(globalAttributeConfig);
     }
 
     /**

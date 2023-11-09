@@ -22,18 +22,16 @@ import io.xdb.core.context.Context;
 import io.xdb.core.exception.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.persistence.PersistenceSchema;
+import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.PersistenceTableSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
+import io.xdb.core.process.ProcessStartConfig;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
 import io.xdb.gen.models.AttributeWriteConflictMode;
-import io.xdb.gen.models.GlobalAttributeConfig;
-import io.xdb.gen.models.GlobalAttributeTableConfig;
-import io.xdb.gen.models.ProcessStartConfig;
-import io.xdb.gen.models.TableColumnValue;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -71,24 +69,22 @@ public class GlobalAttributeProcess implements Process {
         return ProcessOptions
             .builder(GlobalAttributeProcess.class)
             .processStartConfig(
-                new ProcessStartConfig()
-                    .globalAttributeConfig(
-                        new GlobalAttributeConfig()
-                            .tableConfigs(
-                                ImmutableList.of(
-                                    new GlobalAttributeTableConfig()
-                                        .tableName(TABLE_NAME)
-                                        .primaryKey(new TableColumnValue().dbColumn(PK_KEY).dbQueryValue(PK_VALUE))
-                                        .initialWrite(
-                                            ImmutableList.of(
-                                                new TableColumnValue().dbColumn(COL_KEY_1).dbQueryValue(COL_VALUE_1),
-                                                new TableColumnValue().dbColumn(COL_KEY_2).dbQueryValue(COL_VALUE_2)
-                                            )
-                                        )
-                                        .initialWriteMode(AttributeWriteConflictMode.RETURNERRORONCONFLICT)
+                ProcessStartConfig
+                    .builder()
+                    .globalAttributesToUpsert(
+                        ImmutableList.of(
+                            PersistenceTableRowToUpsert
+                                .createWithPrimaryKeyColumn(
+                                    TABLE_NAME,
+                                    PK_KEY,
+                                    PK_VALUE,
+                                    AttributeWriteConflictMode.RETURNERRORONCONFLICT
                                 )
-                            )
+                                .addNonPrimaryKeyColumn(COL_KEY_1, COL_VALUE_1)
+                                .addNonPrimaryKeyColumn(COL_KEY_2, COL_VALUE_2)
+                        )
                     )
+                    .build()
             )
             .build();
     }
