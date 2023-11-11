@@ -25,12 +25,11 @@ public interface Process {
     }
 
     /**
-     * The default persistence schema to load in each {@link io.xdb.core.state.AsyncState}.
-     * Users can override this loading setting in each state's {@link io.xdb.core.state.AsyncStateOptions}.
+     * The persistence schema defines the data to read/write in the process.
      *
      * @return the persistence schema defined for this process.
      */
-    default PersistenceSchema getPersistenceSchemaToLoad() {
+    default PersistenceSchema getPersistenceSchema() {
         return PersistenceSchema.EMPTY();
     }
 }

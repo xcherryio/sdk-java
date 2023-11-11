@@ -1,7 +1,7 @@
 package io.xdb.core.utils;
 
-import io.xdb.core.persistence.PersistenceSchema;
-import io.xdb.core.persistence.PersistenceTableSchema;
+import io.xdb.core.persistence.to_load.PersistenceSchemaToLoad;
+import io.xdb.core.persistence.to_load.PersistenceTableSchemaToLoad;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.gen.models.AsyncStateConfig;
@@ -53,30 +53,27 @@ public class ProcessUtil {
                 .executeApiRetryPolicy(state.getOptions().getExecuteApiRetryPolicy())
                 .stateFailureRecoveryOptions(state.getOptions().getStateFailureRecoveryOptions());
 
-        final PersistenceSchema persistenceSchema = state.getOptions().getPersistenceSchemaToLoad() == null
-            ? process.getPersistenceSchemaToLoad()
+        final PersistenceSchemaToLoad persistenceSchemaToLoad = state.getOptions().getPersistenceSchemaToLoad() == null
+            ? process.getPersistenceSchema().getPersistenceSchemaToLoad()
             : state.getOptions().getPersistenceSchemaToLoad();
-        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchema));
+
+        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoad));
 
         return asyncStateConfig;
     }
 
-    private static LoadGlobalAttributesRequest toApiModel(final PersistenceSchema persistenceSchema) {
-        if (persistenceSchema == null || persistenceSchema.getGlobalAttributes().isEmpty()) {
+    private static LoadGlobalAttributesRequest toApiModel(final PersistenceSchemaToLoad persistenceSchemaToLoad) {
+        if (persistenceSchemaToLoad == null || persistenceSchemaToLoad.getGlobalAttributes().isEmpty()) {
             return null;
         }
 
         final LoadGlobalAttributesRequest loadGlobalAttributesRequest = new LoadGlobalAttributesRequest();
 
-        for (final PersistenceTableSchema globalAttribute : persistenceSchema.getGlobalAttributes()) {
+        for (final PersistenceTableSchemaToLoad globalAttribute : persistenceSchemaToLoad.getGlobalAttributes()) {
             final List<TableColumnDef> columns = new ArrayList<>();
 
-            if (globalAttribute.getPrimaryKeyColumnName() != null) {
-                columns.add(new TableColumnDef().dbColumn(globalAttribute.getPrimaryKeyColumnName()));
-            }
-
-            for (final String otherColumnName : globalAttribute.getOtherColumnNames()) {
-                columns.add(new TableColumnDef().dbColumn(otherColumnName));
+            for (final String columnName : globalAttribute.getColumnNames()) {
+                columns.add(new TableColumnDef().dbColumn(columnName));
             }
 
             loadGlobalAttributesRequest.addTableRequestsItem(

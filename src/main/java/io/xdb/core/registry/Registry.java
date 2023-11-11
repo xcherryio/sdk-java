@@ -1,6 +1,7 @@
 package io.xdb.core.registry;
 
 import io.xdb.core.exception.ProcessDefinitionException;
+import io.xdb.core.persistence.PersistenceSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateSchema;
@@ -46,6 +47,16 @@ public class Registry {
             );
         }
         return processStatesStore.get(processType).get(stateId);
+    }
+
+    public PersistenceSchema getPersistenceSchema(final String processType) {
+        if (!processStore.containsKey(processType)) {
+            throw new ProcessDefinitionException(
+                String.format("Process type %s has not been registered in processStore.", processType)
+            );
+        }
+
+        return processStore.get(processType).getPersistenceSchema();
     }
 
     private void registerProcess(final Process process) {

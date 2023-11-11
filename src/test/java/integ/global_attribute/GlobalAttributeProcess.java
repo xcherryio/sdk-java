@@ -14,16 +14,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.xdb.core.command.CommandRequest;
 import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
-import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.global_attribute.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.persistence.PersistenceSchema;
+import io.xdb.core.persistence.PersistenceTableColumnSchema;
 import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.PersistenceTableSchema;
+import io.xdb.core.persistence.to_load.PersistenceSchemaToLoad;
+import io.xdb.core.persistence.to_load.PersistenceTableSchemaToLoad;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.process.ProcessStartConfig;
@@ -46,7 +48,7 @@ public class GlobalAttributeProcess implements Process {
     public static final String COL_KEY_2 = "last_name";
     public static final String COL_VALUE_2 = "col_2_value";
     public static final String COL_KEY_3 = "create_timestamp";
-    public static final String COL_VALUE_3 = "111";
+    public static final int COL_VALUE_3 = 111;
 
     @Override
     public StateSchema getStateSchema() {
@@ -58,9 +60,13 @@ public class GlobalAttributeProcess implements Process {
     }
 
     @Override
-    public PersistenceSchema getPersistenceSchemaToLoad() {
+    public PersistenceSchema getPersistenceSchema() {
         return PersistenceSchema.withGlobalAttributes(
-            PersistenceTableSchema.withPrimaryKey(TABLE_NAME, PK_KEY, ImmutableSet.of(COL_KEY_1, COL_KEY_2))
+            PersistenceTableSchema
+                .withSingleColumnPrimaryKey(TABLE_NAME, PersistenceTableColumnSchema.create(PK_KEY, String.class, true))
+                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_1, String.class, true))
+                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_2, String.class, true))
+                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_3, Integer.class, false))
         );
     }
 
@@ -74,12 +80,8 @@ public class GlobalAttributeProcess implements Process {
                     .globalAttributesToUpsert(
                         ImmutableList.of(
                             PersistenceTableRowToUpsert
-                                .createWithPrimaryKeyColumn(
-                                    TABLE_NAME,
-                                    PK_KEY,
-                                    PK_VALUE,
-                                    AttributeWriteConflictMode.RETURNERRORONCONFLICT
-                                )
+                                .create(TABLE_NAME, AttributeWriteConflictMode.RETURN_ERROR_ON_CONFLICT)
+                                .addPrimaryKeyColumn(PK_KEY, PK_VALUE)
                                 .addNonPrimaryKeyColumn(COL_KEY_1, COL_VALUE_1)
                                 .addNonPrimaryKeyColumn(COL_KEY_2, COL_VALUE_2)
                         )
@@ -141,8 +143,8 @@ class GlobalAttributeProcessNextState1 implements AsyncState<Void> {
         return AsyncStateOptions
             .builder(GlobalAttributeProcessNextState1.class)
             .persistenceSchemaToLoad(
-                PersistenceSchema.withGlobalAttributes(
-                    PersistenceTableSchema.noPrimaryKey(TABLE_NAME, ImmutableSet.of(COL_KEY_1, COL_KEY_3))
+                PersistenceSchemaToLoad.withGlobalAttributes(
+                    PersistenceTableSchemaToLoad.create(TABLE_NAME, COL_KEY_1, COL_KEY_3)
                 )
             )
             .build();
@@ -181,7 +183,7 @@ class GlobalAttributeProcessNextState2 implements AsyncState<Void> {
     public AsyncStateOptions getOptions() {
         return AsyncStateOptions
             .builder(GlobalAttributeProcessNextState2.class)
-            .persistenceSchemaToLoad(PersistenceSchema.EMPTY())
+            .persistenceSchemaToLoad(PersistenceSchemaToLoad.EMPTY())
             .build();
     }
 

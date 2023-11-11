@@ -57,7 +57,10 @@ public class WorkerService {
             .decode(request.getStateInput(), state.getInputType());
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
-        final Persistence persistence = new Persistence(request.getLoadedGlobalAttributes());
+        final Persistence persistence = new Persistence(
+            request.getLoadedGlobalAttributes(),
+            registry.getPersistenceSchema(request.getProcessType())
+        );
 
         final io.xdb.core.state.StateDecision stateDecision = state.execute(
             Context.fromApiModel(request.getContext()),
