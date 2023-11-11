@@ -1,4 +1,4 @@
-package io.xdb.core.exception.global_attribute;
+package io.xdb.core.exception;
 
 public class GlobalAttributeNotFoundException extends RuntimeException {
 

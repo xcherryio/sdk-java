@@ -1,10 +1,8 @@
 package io.xdb.core.persistence;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import io.xdb.core.exception.global_attribute.GlobalAttributeDecodeException;
-import io.xdb.core.exception.global_attribute.GlobalAttributeEncodeException;
-import io.xdb.core.exception.global_attribute.GlobalAttributeNotFoundException;
+import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.exception.GlobalAttributeNotFoundException;
 import io.xdb.gen.models.GlobalAttributeTableRowUpdate;
 import io.xdb.gen.models.LoadGlobalAttributeResponse;
 import io.xdb.gen.models.TableColumnValue;
@@ -21,12 +19,15 @@ public class Persistence {
     // table: { columnKey: columnValue }
     private final Map<String, Map<String, Object>> globalAttributesToUpdate = new HashMap<>();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectEncoder objectEncoder;
 
     public Persistence(
         final LoadGlobalAttributeResponse loadGlobalAttributeResponse,
-        final PersistenceSchema persistenceSchema
+        final PersistenceSchema persistenceSchema,
+        final ObjectEncoder objectEncoder
     ) {
+        this.objectEncoder = objectEncoder;
+
         if (loadGlobalAttributeResponse == null) {
             return;
         }
@@ -50,21 +51,12 @@ public class Persistence {
                     column.getDbColumn()
                 );
 
-                final Object columnValue;
-                try {
-                    columnValue = objectMapper.readValue(column.getDbQueryValue(), columnValueType);
-                } catch (final Exception e) {
-                    throw new GlobalAttributeDecodeException(
-                        String.format(
-                            "Failed to decode the global attribute column value %s of column %s with the type %s",
-                            column.getDbQueryValue(),
-                            column.getDbColumn(),
-                            columnValueType.getName()
-                        )
+                globalAttributes
+                    .get(tableResponse.getTableName())
+                    .put(
+                        column.getDbColumn(),
+                        objectEncoder.decodeFromString(column.getDbQueryValue(), columnValueType)
                     );
-                }
-
-                globalAttributes.get(tableResponse.getTableName()).put(column.getDbColumn(), columnValue);
             }
         }
     }
@@ -111,27 +103,14 @@ public class Persistence {
         globalAttributesToUpdate.get(tableName).put(columnName, columnValue);
     }
 
-    public List<GlobalAttributeTableRowUpdate> getGlobalAttributesToUpsert(final PersistenceSchema persistenceSchema) {
+    public List<GlobalAttributeTableRowUpdate> getGlobalAttributesToUpsert() {
         final List<GlobalAttributeTableRowUpdate> globalAttributes = new ArrayList<>();
 
         globalAttributesToUpdate.forEach((table, columnsToUpdate) -> {
             final List<TableColumnValue> columns = new ArrayList<>();
 
             columnsToUpdate.forEach((key, value) -> {
-                final String stringValue;
-                try {
-                    stringValue = objectMapper.writeValueAsString(value);
-                } catch (final Exception e) {
-                    throw new GlobalAttributeEncodeException(
-                        String.format(
-                            "Failed to encode the global attribute column value %s of column %s to a string",
-                            value,
-                            key
-                        )
-                    );
-                }
-
-                columns.add(new TableColumnValue().dbColumn(key).dbQueryValue(stringValue));
+                columns.add(new TableColumnValue().dbColumn(key).dbQueryValue(objectEncoder.encodeToString(value)));
             });
 
             globalAttributes.add(new GlobalAttributeTableRowUpdate().tableName(table).updateColumns(columns));

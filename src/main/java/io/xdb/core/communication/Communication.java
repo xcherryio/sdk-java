@@ -46,7 +46,7 @@ public class Communication {
         final LocalQueueMessage message = new LocalQueueMessage()
             .queueName(queueName)
             .dedupId(dedupId)
-            .payload(objectEncoder.encode(payload));
+            .payload(objectEncoder.encodeToEncodedObject(payload));
 
         localQueueMessagesToPublish.add(message);
     }

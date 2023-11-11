@@ -29,7 +29,8 @@ public abstract class XDBHttpException extends RuntimeException {
         if (respBody.isPresent()) {
             final String data = StandardCharsets.UTF_8.decode(respBody.get()).toString();
             try {
-                apiErrorResponse = objectEncoder.decode(new EncodedObject().data(data), ApiErrorResponse.class);
+                apiErrorResponse =
+                    objectEncoder.decodeFromEncodedObject(new EncodedObject().data(data), ApiErrorResponse.class);
                 return;
             } catch (final Exception e) {
                 decodeErrorMessage = e.getMessage();

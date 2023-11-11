@@ -18,7 +18,7 @@ import io.xdb.core.command.CommandRequest;
 import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
-import io.xdb.core.exception.global_attribute.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.persistence.PersistenceSchema;
 import io.xdb.core.persistence.PersistenceTableColumnSchema;

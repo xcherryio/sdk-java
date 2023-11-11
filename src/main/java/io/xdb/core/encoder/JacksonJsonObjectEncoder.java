@@ -20,7 +20,6 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
         this.objectMapper = new ObjectMapper();
         // preserve the original value of timezone coming from the server in Payload
         // without adjusting to the host timezone
-        // may be important if the replay is happening on a host in another timezone
         this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
         this.objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -29,12 +28,17 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
     }
 
     @Override
+    public ObjectMapper getObjectMapper() {
+        return this.objectMapper;
+    }
+
+    @Override
     public String getEncodingType() {
         return "BuiltinJacksonJson";
     }
 
     @Override
-    public EncodedObject encode(final Object object) {
+    public String encodeToString(final Object object) {
         if (object == null) {
             return null;
         }
@@ -46,30 +50,35 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
             throw new ObjectEncoderException(e);
         }
 
-        return new EncodedObject().encoding(getEncodingType()).data(data);
+        return data;
     }
 
     @Override
-    public <T> T decode(final EncodedObject encodedObject, final Class<T> type) {
-        if (encodedObject == null) {
+    public <T> T decodeFromString(final String encodedString, final Class<T> type) {
+        if (Strings.isNullOrEmpty(encodedString)) {
             return null;
         }
 
-        final String data = encodedObject.getData();
-        if (Strings.isNullOrEmpty(data)) {
-            return null;
-        }
+        final JavaType reference = objectMapper.getTypeFactory().constructType(type, type);
 
         try {
-            final JavaType reference = objectMapper.getTypeFactory().constructType(type, type);
-            return objectMapper.readValue(data, reference);
+            return objectMapper.readValue(encodedString, reference);
         } catch (final Exception e) {
             throw new ObjectEncoderException(e);
         }
     }
 
     @Override
-    public ObjectMapper getObjectMapper() {
-        return this.objectMapper;
+    public EncodedObject encodeToEncodedObject(final Object object) {
+        return new EncodedObject().encoding(getEncodingType()).data(encodeToString(object));
+    }
+
+    @Override
+    public <T> T decodeFromEncodedObject(final EncodedObject encodedObject, final Class<T> type) {
+        if (encodedObject == null) {
+            return null;
+        }
+
+        return decodeFromString(encodedObject.getData(), type);
     }
 }

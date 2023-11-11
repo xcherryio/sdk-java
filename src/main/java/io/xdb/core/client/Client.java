@@ -18,6 +18,7 @@ import io.xdb.gen.models.TableColumnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Client {
@@ -126,7 +127,7 @@ public class Client {
         final LocalQueueMessage message = new LocalQueueMessage()
             .queueName(queueName)
             .dedupId(dedupId)
-            .payload(clientOptions.getObjectEncoder().encode(payload));
+            .payload(clientOptions.getObjectEncoder().encodeToEncodedObject(payload));
 
         publishToLocalQueue(processId, message);
     }
@@ -152,7 +153,7 @@ public class Client {
             .processId(processId)
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
-            .startStateInput(clientOptions.getObjectEncoder().encode(input))
+            .startStateInput(clientOptions.getObjectEncoder().encodeToEncodedObject(input))
             .processStartConfig(toApiModel(processOptions.getProcessStartConfig()));
 
         if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
@@ -177,22 +178,11 @@ public class Client {
             globalAttributeConfig = new GlobalAttributeConfig();
 
             for (final PersistenceTableRowToUpsert tableRowToUpsert : processStartConfig.getGlobalAttributesToUpsert()) {
-                final List<TableColumnValue> otherColumns = new ArrayList<>();
-                tableRowToUpsert
-                    .getOtherColumns()
-                    .forEach((k, v) -> {
-                        otherColumns.add(new TableColumnValue().dbColumn(k).dbQueryValue(v));
-                    });
-
                 globalAttributeConfig.addTableConfigsItem(
                     new GlobalAttributeTableConfig()
                         .tableName(tableRowToUpsert.getTableName())
-                        .primaryKey(
-                            new TableColumnValue()
-                                .dbColumn(tableRowToUpsert.getPrimaryKeyColumnName())
-                                .dbQueryValue(tableRowToUpsert.getPrimaryKeyColumnValue())
-                        )
-                        .initialWrite(otherColumns)
+                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
+                        .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
                         .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
                 );
             }
@@ -202,6 +192,18 @@ public class Client {
             .timeoutSeconds(processStartConfig.getTimeoutSeconds())
             .idReusePolicy(processStartConfig.getProcessIdReusePolicy())
             .globalAttributeConfig(globalAttributeConfig);
+    }
+
+    private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {
+        final List<TableColumnValue> columns = new ArrayList<>();
+
+        columnNameToValueMap.forEach((k, v) -> {
+            columns.add(
+                new TableColumnValue().dbColumn(k).dbQueryValue(clientOptions.getObjectEncoder().encodeToString(v))
+            );
+        });
+
+        return columns;
     }
 
     /**

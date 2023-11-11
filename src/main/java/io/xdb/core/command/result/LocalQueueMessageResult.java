@@ -30,6 +30,6 @@ public class LocalQueueMessageResult<T> {
     }
 
     public T getPayload(final Class<T> tClass) {
-        return objectEncoder.decode(payload, tClass);
+        return objectEncoder.decodeFromEncodedObject(payload, tClass);
     }
 }
