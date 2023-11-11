@@ -1,8 +1,8 @@
-package io.xdb.core.persistence;
+package io.xdb.core.persistence.schema;
 
 import com.google.common.collect.ImmutableMap;
 import io.xdb.core.exception.GlobalAttributeNotFoundException;
-import io.xdb.core.persistence.to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
 import io.xdb.gen.models.TableReadLockingPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,11 +166,7 @@ public class PersistenceTableSchema {
         }
 
         throw new GlobalAttributeNotFoundException(
-            String.format(
-                "Column %s does not exist in the table %s within the global attributes",
-                columnName,
-                tableName
-            )
+            String.format("Column %s does not exist in the table %s", columnName, tableName)
         );
     }
 

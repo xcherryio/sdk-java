@@ -3,6 +3,7 @@ package io.xdb.core.persistence;
 import com.google.common.collect.ImmutableList;
 import io.xdb.core.encoder.ObjectEncoder;
 import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.gen.models.GlobalAttributeTableRowUpdate;
 import io.xdb.gen.models.LoadGlobalAttributeResponse;
 import io.xdb.gen.models.TableColumnValue;
@@ -14,9 +15,13 @@ import java.util.Map;
 
 public class Persistence {
 
-    // table: { columnKey: columnValue }
+    /**
+     * table: { columnName: columnValue }
+     */
     private final Map<String, Map<String, Object>> globalAttributes = new HashMap<>();
-    // table: { columnKey: columnValue }
+    /**
+     * table: { columnName: columnValue }
+     */
     private final Map<String, Map<String, Object>> globalAttributesToUpdate = new HashMap<>();
 
     private final ObjectEncoder objectEncoder;

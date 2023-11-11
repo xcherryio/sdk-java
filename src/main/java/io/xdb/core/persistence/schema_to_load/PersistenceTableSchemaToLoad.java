@@ -1,4 +1,4 @@
-package io.xdb.core.persistence.to_load;
+package io.xdb.core.persistence.schema_to_load;
 
 import io.xdb.gen.models.TableReadLockingPolicy;
 import java.util.Arrays;
@@ -24,11 +24,7 @@ public class PersistenceTableSchemaToLoad {
      * @return  the created table schema to load.
      */
     public static PersistenceTableSchemaToLoad create(final String tableName, final String... columnNames) {
-        return PersistenceTableSchemaToLoad.create(
-            tableName,
-            Arrays.stream(columnNames).collect(Collectors.toList()),
-            TableReadLockingPolicy.NO_LOCKING
-        );
+        return PersistenceTableSchemaToLoad.create(tableName, Arrays.stream(columnNames).collect(Collectors.toList()));
     }
 
     /**

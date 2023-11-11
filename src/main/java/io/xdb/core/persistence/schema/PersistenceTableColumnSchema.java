@@ -1,4 +1,4 @@
-package io.xdb.core.persistence;
+package io.xdb.core.persistence.schema;
 
 import lombok.AccessLevel;
 import lombok.Getter;

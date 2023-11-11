@@ -1,7 +1,7 @@
 package io.xdb.core.utils;
 
-import io.xdb.core.persistence.to_load.PersistenceSchemaToLoad;
-import io.xdb.core.persistence.to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.gen.models.AsyncStateConfig;
@@ -41,6 +41,13 @@ public class ProcessUtil {
     public static AsyncStateConfig getAsyncStateConfig(final AsyncState state, final Process process) {
         AsyncStateConfig asyncStateConfig = new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
 
+        final PersistenceSchemaToLoad persistenceSchemaToLoad = state.getOptions() == null ||
+            state.getOptions().getPersistenceSchemaToLoad() == null
+            ? process.getPersistenceSchema().getPersistenceSchemaToLoad()
+            : state.getOptions().getPersistenceSchemaToLoad();
+
+        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoad));
+
         if (state.getOptions() == null) {
             return asyncStateConfig;
         }
@@ -52,12 +59,6 @@ public class ProcessUtil {
                 .waitUntilApiRetryPolicy(state.getOptions().getWaitUntilApiRetryPolicy())
                 .executeApiRetryPolicy(state.getOptions().getExecuteApiRetryPolicy())
                 .stateFailureRecoveryOptions(state.getOptions().getStateFailureRecoveryOptions());
-
-        final PersistenceSchemaToLoad persistenceSchemaToLoad = state.getOptions().getPersistenceSchemaToLoad() == null
-            ? process.getPersistenceSchema().getPersistenceSchemaToLoad()
-            : state.getOptions().getPersistenceSchemaToLoad();
-
-        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoad));
 
         return asyncStateConfig;
     }

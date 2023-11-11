@@ -1,4 +1,4 @@
-package io.xdb.core.persistence.to_load;
+package io.xdb.core.persistence.schema_to_load;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,9 +15,9 @@ public class PersistenceSchemaToLoad {
     private final List<PersistenceTableSchemaToLoad> globalAttributes = new ArrayList<>();
 
     /**
-     * Return an empty persistence schema to load.
+     * Create and return an empty persistence schema to load.
      *
-     * @return  a new persistence schema to load.
+     * @return  the created persistence schema to load.
      */
     public static PersistenceSchemaToLoad EMPTY() {
         return new PersistenceSchemaToLoad();
@@ -27,24 +27,24 @@ public class PersistenceSchemaToLoad {
      * Create and return a persistence schema to load with global attributes.
      *
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
-     * @return a new persistence schema to load.
+     * @return  the created persistence schema to load.
      */
     public static PersistenceSchemaToLoad withGlobalAttributes(
         final PersistenceTableSchemaToLoad... persistenceTableSchemasToLoad
     ) {
-        return new PersistenceSchemaToLoad().addGlobalAttributes(persistenceTableSchemasToLoad);
+        return PersistenceSchemaToLoad.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
     }
 
     /**
      * Create and return a persistence schema to load with global attributes.
      *
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
-     * @return a new persistence schema to load.
+     * @return  the created persistence schema to load.
      */
     public static PersistenceSchemaToLoad withGlobalAttributes(
         final List<PersistenceTableSchemaToLoad> persistenceTableSchemasToLoad
     ) {
-        return new PersistenceSchemaToLoad().addGlobalAttributes(persistenceTableSchemasToLoad);
+        return PersistenceSchemaToLoad.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
     }
 
     /**

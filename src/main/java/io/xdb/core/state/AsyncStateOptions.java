@@ -2,7 +2,7 @@ package io.xdb.core.state;
 
 import com.google.common.base.Strings;
 import io.xdb.core.exception.ProcessDefinitionException;
-import io.xdb.core.persistence.to_load.PersistenceSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.RetryPolicy;
 import io.xdb.gen.models.StateFailureRecoveryOptions;

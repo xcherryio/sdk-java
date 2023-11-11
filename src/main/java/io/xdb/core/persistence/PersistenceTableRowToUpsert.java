@@ -13,19 +13,17 @@ public class PersistenceTableRowToUpsert {
 
     private final String tableName;
     /**
-     * key: column name
-     * value: column value
+     * column name: column value
      */
     private final Map<String, Object> primaryKeyColumns = new HashMap<>();
     /**
-     * key: column name
-     * value: column value
+     * column name: column value
      */
     private final Map<String, Object> otherColumns = new HashMap<>();
     private final AttributeWriteConflictMode writeConflictMode;
 
     /**
-     * Create a table row to upsert in persistence.
+     * Create a table row to upsert.
      *
      * @param tableName             the name of the table.
      * @param writeConflictMode     the mode to choose when there is a conflict in upsert.
@@ -39,7 +37,7 @@ public class PersistenceTableRowToUpsert {
     }
 
     /**
-     * Add a primary key column of the table row to upsert.
+     * Add a primary key column into the table row to upsert.
      *
      * @param columnName    the name of the primary key column.
      * @param value         the value of the primary key column.
@@ -51,7 +49,7 @@ public class PersistenceTableRowToUpsert {
     }
 
     /**
-     * Add a non-primary-key column of the table row to upsert.
+     * Add a non-primary-key column into the table row to upsert.
      *
      * @param columnName    the name of the column.
      * @param value         the value of the column.

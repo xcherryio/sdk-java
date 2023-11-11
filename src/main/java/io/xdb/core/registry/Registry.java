@@ -1,7 +1,7 @@
 package io.xdb.core.registry;
 
 import io.xdb.core.exception.ProcessDefinitionException;
-import io.xdb.core.persistence.PersistenceSchema;
+import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateSchema;

@@ -1,6 +1,6 @@
 package io.xdb.core.process;
 
-import io.xdb.core.persistence.PersistenceSchema;
+import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.core.state.StateSchema;
 
 /**
@@ -25,7 +25,9 @@ public interface Process {
     }
 
     /**
-     * The persistence schema defines the data to read/write in the process.
+     * The persistence schema defines the global attributes to read/write in the process.
+     * <p>
+     * Global attribute: is the value of a specified database table row column.
      *
      * @return the persistence schema defined for this process.
      */
