@@ -3,14 +3,15 @@ package io.xdb.core.persistence;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersistenceSchema {
 
     private final List<PersistenceTableSchema> globalAttributes = new ArrayList<>();
-
-    private PersistenceSchema() {}
 
     /**
      * Return an empty persistence schema.

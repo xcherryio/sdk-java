@@ -3,9 +3,12 @@ package io.xdb.core.persistence;
 import io.xdb.gen.models.AttributeWriteConflictMode;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersistenceTableRowToUpsert {
 
     private final String tableName;
@@ -17,11 +20,6 @@ public class PersistenceTableRowToUpsert {
      */
     private final Map<String, String> otherColumns = new HashMap<>();
     private final AttributeWriteConflictMode writeConflictMode;
-
-    private PersistenceTableRowToUpsert(final String tableName, final AttributeWriteConflictMode writeConflictMode) {
-        this.tableName = tableName;
-        this.writeConflictMode = writeConflictMode;
-    }
 
     /**
      * Create a table row to upsert in persistence.

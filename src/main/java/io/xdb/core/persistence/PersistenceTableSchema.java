@@ -2,27 +2,18 @@ package io.xdb.core.persistence;
 
 import io.xdb.gen.models.TableReadLockingPolicy;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersistenceTableSchema {
 
     private final String tableName;
     private final String primaryKeyColumnName;
     private final Set<String> otherColumnNames;
     private final TableReadLockingPolicy tableReadLockingPolicy;
-
-    private PersistenceTableSchema(
-        final String tableName,
-        final String primaryKeyColumnName,
-        final Set<String> otherColumnNames,
-        final TableReadLockingPolicy tableReadLockingPolicy
-    ) {
-        this.tableName = tableName;
-        this.primaryKeyColumnName = primaryKeyColumnName;
-        this.otherColumnNames = otherColumnNames;
-        this.tableReadLockingPolicy = tableReadLockingPolicy;
-    }
 
     /**
      * Create a table schema to be used in {@link PersistenceSchema} with the default NO_LOCKING reading policy.
