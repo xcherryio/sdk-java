@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.base.Strings;
 import io.xdb.core.exception.ObjectEncoderException;
 import io.xdb.gen.models.EncodedObject;
 
@@ -51,7 +52,7 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
 
     @Override
     public <T> T decodeFromString(final String encodedString, final Class<T> type) {
-        if (encodedString == null) {
+        if (Strings.isNullOrEmpty(encodedString)) {
             return null;
         }
 
