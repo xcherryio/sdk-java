@@ -1,6 +1,10 @@
 package io.xdb.core.client;
 
+import com.google.common.collect.ImmutableMap;
+import io.xdb.core.exception.persistence.GlobalAttributeSchemaNotMatchException;
 import io.xdb.core.persistence.PersistenceTableRowToUpsert;
+import io.xdb.core.persistence.schema.PersistenceSchema;
+import io.xdb.core.persistence.schema.PersistenceTableSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.registry.Registry;
@@ -154,7 +158,7 @@ public class Client {
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
             .startStateInput(clientOptions.getObjectEncoder().encodeToEncodedObject(input))
-            .processStartConfig(toApiModel(processOptions.getProcessStartConfig()));
+            .processStartConfig(toApiModel(process.getPersistenceSchema(), processOptions.getProcessStartConfig()));
 
         if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
             final AsyncState startingState = process.getStateSchema().getStartingState();
@@ -166,18 +170,27 @@ public class Client {
         return basicClient.startProcess(request);
     }
 
-    private ProcessStartConfig toApiModel(final io.xdb.core.process.ProcessStartConfig processStartConfig) {
+    private ProcessStartConfig toApiModel(
+        final PersistenceSchema persistenceSchema,
+        final io.xdb.core.process.ProcessStartConfig processStartConfig
+    ) {
+        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert = processStartConfig == null
+            ? ImmutableMap.of()
+            : processStartConfig.getGlobalAttributesToUpsert();
+
+        validateThePersistenceSchema(persistenceSchema, globalAttributesToUpsert);
+
         if (processStartConfig == null) {
             return null;
         }
 
         final GlobalAttributeConfig globalAttributeConfig;
-        if (processStartConfig.getGlobalAttributesToUpsert() == null) {
+        if (globalAttributesToUpsert.isEmpty()) {
             globalAttributeConfig = null;
         } else {
             globalAttributeConfig = new GlobalAttributeConfig();
 
-            for (final PersistenceTableRowToUpsert tableRowToUpsert : processStartConfig.getGlobalAttributesToUpsert()) {
+            for (final PersistenceTableRowToUpsert tableRowToUpsert : globalAttributesToUpsert.values()) {
                 globalAttributeConfig.addTableConfigsItem(
                     new GlobalAttributeTableConfig()
                         .tableName(tableRowToUpsert.getTableName())
@@ -192,6 +205,83 @@ public class Client {
             .timeoutSeconds(processStartConfig.getTimeoutSeconds())
             .idReusePolicy(processStartConfig.getProcessIdReusePolicy())
             .globalAttributeConfig(globalAttributeConfig);
+    }
+
+    private void validateThePersistenceSchema(
+        final PersistenceSchema persistenceSchema,
+        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert
+    ) {
+        final PersistenceSchema schema = persistenceSchema == null ? PersistenceSchema.EMPTY() : persistenceSchema;
+
+        schema
+            .getGlobalAttributes()
+            .forEach((tableName, tableSchema) -> {
+                if (!globalAttributesToUpsert.containsKey(tableName)) {
+                    throw new GlobalAttributeSchemaNotMatchException(
+                        String.format(
+                            "The table %s in the persistence schema is not defined in the ProcessStartConfig",
+                            tableName
+                        )
+                    );
+                }
+
+                final PersistenceTableRowToUpsert tableRowToUpsert = globalAttributesToUpsert.get(tableName);
+
+                tableSchema
+                    .getPrimaryKeyColumns()
+                    .forEach((columnName, columnSchema) -> {
+                        if (!tableRowToUpsert.getPrimaryKeyColumns().containsKey(columnName)) {
+                            throw new GlobalAttributeSchemaNotMatchException(
+                                String.format(
+                                    "The primary key column %s of the table %s in the persistence schema is not defined in the ProcessStartConfig",
+                                    columnName,
+                                    tableName
+                                )
+                            );
+                        }
+                    });
+            });
+
+        globalAttributesToUpsert.forEach((tableName, tableRowToUpsert) -> {
+            if (!schema.getGlobalAttributes().containsKey(tableName)) {
+                throw new GlobalAttributeSchemaNotMatchException(
+                    String.format(
+                        "The table %s defined in the ProcessStartConfig does not exist in the persistence schema",
+                        tableName
+                    )
+                );
+            }
+
+            final PersistenceTableSchema tableSchema = schema.getGlobalAttributes().get(tableName);
+
+            tableRowToUpsert
+                .getPrimaryKeyColumns()
+                .forEach((columnName, value) -> {
+                    if (!tableSchema.getPrimaryKeyColumns().containsKey(columnName)) {
+                        throw new GlobalAttributeSchemaNotMatchException(
+                            String.format(
+                                "The primary key column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
+                                columnName,
+                                tableName
+                            )
+                        );
+                    }
+                });
+
+            tableRowToUpsert
+                .getOtherColumns()
+                .forEach((columnName, value) -> {
+                    if (!tableSchema.getOtherColumns().containsKey(columnName)) {
+                        throw new GlobalAttributeSchemaNotMatchException(
+                            String.format(
+                                "The column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
+                                columnName,
+                                tableName
+                            )
+                        );
+                    }
+                });
+        });
     }
 
     private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {

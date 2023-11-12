@@ -1,6 +1,6 @@
 package io.xdb.core.persistence.schema;
 
-import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
 import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
 import java.util.ArrayList;

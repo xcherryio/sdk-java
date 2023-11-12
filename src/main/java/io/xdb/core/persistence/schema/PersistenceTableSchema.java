@@ -1,7 +1,7 @@
 package io.xdb.core.persistence.schema;
 
 import com.google.common.collect.ImmutableMap;
-import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
 import io.xdb.gen.models.TableReadLockingPolicy;
 import java.util.ArrayList;

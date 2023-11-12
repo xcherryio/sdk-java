@@ -74,7 +74,9 @@ public class WorkerService {
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
             .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
-            .writeToGlobalAttributes(persistence.getGlobalAttributesToUpsert());
+            .writeToGlobalAttributes(
+                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
+            );
     }
 
     private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {

@@ -2,7 +2,7 @@ package io.xdb.core.persistence;
 
 import com.google.common.collect.ImmutableList;
 import io.xdb.core.encoder.ObjectEncoder;
-import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.gen.models.GlobalAttributeTableRowUpdate;
 import io.xdb.gen.models.LoadGlobalAttributeResponse;
@@ -108,17 +108,22 @@ public class Persistence {
         globalAttributesToUpdate.get(tableName).put(columnName, columnValue);
     }
 
-    public List<GlobalAttributeTableRowUpdate> getGlobalAttributesToUpsert() {
+    public List<GlobalAttributeTableRowUpdate> getGlobalAttributesToUpsert(final PersistenceSchema schema) {
         final List<GlobalAttributeTableRowUpdate> globalAttributes = new ArrayList<>();
 
-        globalAttributesToUpdate.forEach((table, columnsToUpdate) -> {
+        globalAttributesToUpdate.forEach((tableName, columnsToUpdate) -> {
             final List<TableColumnValue> columns = new ArrayList<>();
 
-            columnsToUpdate.forEach((key, value) -> {
-                columns.add(new TableColumnValue().dbColumn(key).dbQueryValue(objectEncoder.encodeToString(value)));
+            columnsToUpdate.forEach((columnName, value) -> {
+                // Just trying to get the value type to make sure this is a valid column defined in the schema
+                final Class<?> columnValueType = schema.getGlobalAttributeColumnValueType(tableName, columnName);
+
+                columns.add(
+                    new TableColumnValue().dbColumn(columnName).dbQueryValue(objectEncoder.encodeToString(value))
+                );
             });
 
-            globalAttributes.add(new GlobalAttributeTableRowUpdate().tableName(table).updateColumns(columns));
+            globalAttributes.add(new GlobalAttributeTableRowUpdate().tableName(tableName).updateColumns(columns));
         });
 
         return globalAttributes;

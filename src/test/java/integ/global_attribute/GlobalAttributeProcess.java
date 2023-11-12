@@ -13,12 +13,11 @@ import static integ.global_attribute.GlobalAttributeProcess.TABLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.google.common.collect.ImmutableList;
 import io.xdb.core.command.CommandRequest;
 import io.xdb.core.command.CommandResults;
 import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
-import io.xdb.core.exception.GlobalAttributeNotFoundException;
+import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.schema.PersistenceSchema;
@@ -77,16 +76,14 @@ public class GlobalAttributeProcess implements Process {
             .processStartConfig(
                 ProcessStartConfig
                     .builder()
-                    .globalAttributesToUpsert(
-                        ImmutableList.of(
-                            PersistenceTableRowToUpsert
-                                .create(TABLE_NAME, AttributeWriteConflictMode.RETURN_ERROR_ON_CONFLICT)
-                                .addPrimaryKeyColumn(PK_KEY, PK_VALUE)
-                                .addNonPrimaryKeyColumn(COL_KEY_1, COL_VALUE_1)
-                                .addNonPrimaryKeyColumn(COL_KEY_2, COL_VALUE_2)
-                        )
-                    )
                     .build()
+                    .addGlobalAttributesToUpsert(
+                        PersistenceTableRowToUpsert
+                            .create(TABLE_NAME, AttributeWriteConflictMode.RETURN_ERROR_ON_CONFLICT)
+                            .addPrimaryKeyColumn(PK_KEY, PK_VALUE)
+                            .addNonPrimaryKeyColumn(COL_KEY_1, COL_VALUE_1)
+                            .addNonPrimaryKeyColumn(COL_KEY_2, COL_VALUE_2)
+                    )
             )
             .build();
     }
