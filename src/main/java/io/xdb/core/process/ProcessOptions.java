@@ -19,8 +19,6 @@ public class ProcessOptions {
      */
     private final String type;
 
-    private final ProcessStartConfig processStartConfig;
-
     public static ProcessOptionsBuilder builder(final Class<? extends Process> processClass) {
         return builder().processClass(processClass);
     }

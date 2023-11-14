@@ -9,8 +9,10 @@ import integ.spring.WorkerServiceForTesting;
 import integ.spring.XdbConfig;
 import io.xdb.core.client.Client;
 import io.xdb.core.exception.status.ProcessAlreadyStartedException;
+import io.xdb.core.process.ProcessStartConfig;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStopType;
+import io.xdb.gen.models.ProcessIdReusePolicy;
 import io.xdb.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,12 +25,12 @@ public class TestIdReusePolicy {
     }
 
     @Test
-    public void testAllowIfNoRunningProcess() {
+    public void testDefaultAllowIfNoRunningProcess() {
         final Client client = XdbConfig.client;
 
         final String processId = "allow-if-no-running-process-" + System.currentTimeMillis() / 1000;
 
-        final String processExecutionId = client.startProcess(AllowIfNoRunningProcess.class, processId, null);
+        final String processExecutionId = client.startProcess(IdReusePolicyProcess.class, processId, null);
 
         TestUtils.sleep(2);
 
@@ -37,12 +39,12 @@ public class TestIdReusePolicy {
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(AllowIfNoRunningProcess.class, processId, null)
+            () -> client.startProcess(IdReusePolicyProcess.class, processId, null)
         );
 
         client.stopProcess(processId);
 
-        final String newProcessExecutionId = client.startProcess(AllowIfNoRunningProcess.class, processId, null);
+        final String newProcessExecutionId = client.startProcess(IdReusePolicyProcess.class, processId, null);
         assertNotEquals(processExecutionId, newProcessExecutionId);
 
         final ProcessExecutionDescribeResponse response2 = client.describeCurrentProcessExecution(processId);
@@ -60,9 +62,13 @@ public class TestIdReusePolicy {
             "allow-if-previous-exit-abnormally-process-completed-" + System.currentTimeMillis() / 1000;
 
         final String processExecutionId = client.startProcess(
-            new AllowIfPreviousExitAbnormallyProcess(),
+            new IdReusePolicyAutoCompleteProcess(),
             processId,
-            null
+            null,
+            ProcessStartConfig
+                .builder()
+                .processIdReusePolicy(ProcessIdReusePolicy.ALLOW_IF_PREVIOUS_EXIT_ABNORMALLY)
+                .build()
         );
 
         TestUtils.sleep(2);
@@ -72,7 +78,7 @@ public class TestIdReusePolicy {
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new AllowIfPreviousExitAbnormallyProcess(), processId, null)
+            () -> client.startProcess(new IdReusePolicyAutoCompleteProcess(), processId, null)
         );
     }
 
@@ -84,9 +90,13 @@ public class TestIdReusePolicy {
             "allow-if-previous-exit-abnormally-process-failed-" + System.currentTimeMillis() / 1000;
 
         final String processExecutionId = client.startProcess(
-            new AllowIfPreviousExitAbnormallyProcess(),
+            new IdReusePolicyAutoCompleteProcess(),
             processId,
-            null
+            null,
+            ProcessStartConfig
+                .builder()
+                .processIdReusePolicy(ProcessIdReusePolicy.ALLOW_IF_PREVIOUS_EXIT_ABNORMALLY)
+                .build()
         );
 
         client.stopProcess(processId, ProcessExecutionStopType.FAIL);
@@ -95,7 +105,7 @@ public class TestIdReusePolicy {
         assertEquals(ProcessStatus.FAILED, response.getStatus());
 
         final String newProcessExecutionId = client.startProcess(
-            new AllowIfPreviousExitAbnormallyProcess(),
+            new IdReusePolicyAutoCompleteProcess(),
             processId,
             null
         );
@@ -114,7 +124,12 @@ public class TestIdReusePolicy {
 
         final String processId = "disallow-reuse-process-" + System.currentTimeMillis() / 1000;
 
-        final String processExecutionId = client.startProcess(new DisallowReuseProcess(), processId, null);
+        final String processExecutionId = client.startProcess(
+            new IdReusePolicyProcess(),
+            processId,
+            null,
+            ProcessStartConfig.builder().processIdReusePolicy(ProcessIdReusePolicy.DISALLOW_REUSE).build()
+        );
 
         TestUtils.sleep(2);
 
@@ -123,14 +138,14 @@ public class TestIdReusePolicy {
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new DisallowReuseProcess(), processId, null)
+            () -> client.startProcess(new IdReusePolicyProcess(), processId, null)
         );
 
         client.stopProcess(processId);
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new DisallowReuseProcess(), processId, null)
+            () -> client.startProcess(new IdReusePolicyProcess(), processId, null)
         );
     }
 
@@ -140,14 +155,24 @@ public class TestIdReusePolicy {
 
         final String processId = "terminate-if-running-process-" + System.currentTimeMillis() / 1000;
 
-        final String processExecutionId = client.startProcess(new TerminateIfRunningProcess(), processId, null);
+        final String processExecutionId = client.startProcess(
+            new IdReusePolicyProcess(),
+            processId,
+            null,
+            ProcessStartConfig.builder().processIdReusePolicy(ProcessIdReusePolicy.TERMINATE_IF_RUNNING).build()
+        );
 
         TestUtils.sleep(2);
 
         final ProcessExecutionDescribeResponse response = client.describeCurrentProcessExecution(processId);
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
-        final String newProcessExecutionId = client.startProcess(new TerminateIfRunningProcess(), processId, null);
+        final String newProcessExecutionId = client.startProcess(
+            new IdReusePolicyProcess(),
+            processId,
+            null,
+            ProcessStartConfig.builder().processIdReusePolicy(ProcessIdReusePolicy.TERMINATE_IF_RUNNING).build()
+        );
 
         assertNotEquals(processExecutionId, newProcessExecutionId);
 
