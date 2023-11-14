@@ -1,7 +1,7 @@
 package io.xdb.core.utils;
 
-import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
-import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xdb.core.process.Process;
 import io.xdb.core.state.AsyncState;
 import io.xdb.gen.models.AsyncStateConfig;
@@ -41,12 +41,12 @@ public class ProcessUtil {
     public static AsyncStateConfig getAsyncStateConfig(final AsyncState state, final Process process) {
         AsyncStateConfig asyncStateConfig = new AsyncStateConfig().skipWaitUntil(AsyncState.shouldSkipWaitUntil(state));
 
-        final PersistenceSchemaToLoad persistenceSchemaToLoad = state.getOptions() == null ||
-            state.getOptions().getPersistenceSchemaToLoad() == null
-            ? process.getPersistenceSchema().getPersistenceSchemaToLoad()
-            : state.getOptions().getPersistenceSchemaToLoad();
+        final PersistenceSchemaToLoadData persistenceSchemaToLoadData = state.getOptions() == null ||
+            state.getOptions().getPersistenceSchemaToLoadData() == null
+            ? process.getPersistenceSchema().getPersistenceSchemaToLoadData()
+            : state.getOptions().getPersistenceSchemaToLoadData();
 
-        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoad));
+        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoadData));
 
         if (state.getOptions() == null) {
             return asyncStateConfig;
@@ -63,14 +63,16 @@ public class ProcessUtil {
         return asyncStateConfig;
     }
 
-    private static LoadGlobalAttributesRequest toApiModel(final PersistenceSchemaToLoad persistenceSchemaToLoad) {
-        if (persistenceSchemaToLoad == null || persistenceSchemaToLoad.getGlobalAttributes().isEmpty()) {
+    private static LoadGlobalAttributesRequest toApiModel(
+        final PersistenceSchemaToLoadData persistenceSchemaToLoadData
+    ) {
+        if (persistenceSchemaToLoadData == null || persistenceSchemaToLoadData.getGlobalAttributes().isEmpty()) {
             return null;
         }
 
         final LoadGlobalAttributesRequest loadGlobalAttributesRequest = new LoadGlobalAttributesRequest();
 
-        for (final PersistenceTableSchemaToLoad globalAttribute : persistenceSchemaToLoad.getGlobalAttributes()) {
+        for (final PersistenceTableSchemaToLoadData globalAttribute : persistenceSchemaToLoadData.getGlobalAttributes()) {
             final List<TableColumnDef> columns = new ArrayList<>();
 
             for (final String columnName : globalAttribute.getColumnNames()) {

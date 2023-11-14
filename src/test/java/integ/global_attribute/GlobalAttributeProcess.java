@@ -23,8 +23,8 @@ import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.core.persistence.schema.PersistenceTableColumnSchema;
 import io.xdb.core.persistence.schema.PersistenceTableSchema;
-import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
-import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.process.ProcessStartConfig;
@@ -139,9 +139,9 @@ class GlobalAttributeProcessNextState1 implements AsyncState<Void> {
     public AsyncStateOptions getOptions() {
         return AsyncStateOptions
             .builder(GlobalAttributeProcessNextState1.class)
-            .persistenceSchemaToLoad(
-                PersistenceSchemaToLoad.withGlobalAttributes(
-                    PersistenceTableSchemaToLoad.create(TABLE_NAME, COL_KEY_1, COL_KEY_3)
+            .persistenceSchemaToLoadData(
+                PersistenceSchemaToLoadData.withGlobalAttributes(
+                    PersistenceTableSchemaToLoadData.create(TABLE_NAME, COL_KEY_1, COL_KEY_3)
                 )
             )
             .build();
@@ -180,7 +180,7 @@ class GlobalAttributeProcessNextState2 implements AsyncState<Void> {
     public AsyncStateOptions getOptions() {
         return AsyncStateOptions
             .builder(GlobalAttributeProcessNextState2.class)
-            .persistenceSchemaToLoad(PersistenceSchemaToLoad.EMPTY())
+            .persistenceSchemaToLoadData(PersistenceSchemaToLoadData.EMPTY())
             .build();
     }
 

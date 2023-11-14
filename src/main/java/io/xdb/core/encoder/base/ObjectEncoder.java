@@ -1,4 +1,4 @@
-package io.xdb.core.encoder;
+package io.xdb.core.encoder.base;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xdb.gen.models.EncodedObject;
@@ -15,24 +15,6 @@ public interface ObjectEncoder {
      * @return encoding type that this converter handles.
      */
     String getEncodingType();
-
-    /**
-     * Encode a Java object to a string.
-     *
-     * @param object Java object to convert.
-     * @return encoded string.
-     */
-    String encodeToString(final Object object);
-
-    /**
-     * Decode an encoded string into a Java object with the Encoding Type.
-     *
-     * @param encodedString encoded string to decode.
-     * @param type Java class to decode into.
-     * @param <T> Java class to decode into.
-     * @return decoded Java object.
-     */
-    <T> T decodeFromString(final String encodedString, final Class<T> type);
 
     /**
      * Encode a Java object to an EncodedObject.

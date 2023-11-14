@@ -3,7 +3,7 @@ package io.xdb.core.command;
 import com.google.common.collect.ImmutableList;
 import io.xdb.core.command.result.LocalQueueResult;
 import io.xdb.core.command.result.TimerResult;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;

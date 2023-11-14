@@ -1,6 +1,6 @@
 package io.xdb.core.command.result;
 
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import io.xdb.gen.models.EncodedObject;
 import lombok.Builder;
 import lombok.ToString;

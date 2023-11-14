@@ -9,14 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Strings;
+import io.xdb.core.encoder.base.DatabaseStringEncoder;
 import io.xdb.core.exception.ObjectEncoderException;
-import io.xdb.gen.models.EncodedObject;
 
-public class JacksonJsonObjectEncoder implements ObjectEncoder {
+public class JacksonDatabaseStringEncoder implements DatabaseStringEncoder {
 
     private final ObjectMapper objectMapper;
 
-    public JacksonJsonObjectEncoder() {
+    public JacksonDatabaseStringEncoder() {
         this.objectMapper = new ObjectMapper();
         // preserve the original value of timezone coming from the server in Payload
         // without adjusting to the host timezone
@@ -30,11 +30,6 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
     @Override
     public ObjectMapper getObjectMapper() {
         return this.objectMapper;
-    }
-
-    @Override
-    public String getEncodingType() {
-        return "BuiltinJacksonJson";
     }
 
     @Override
@@ -63,19 +58,5 @@ public class JacksonJsonObjectEncoder implements ObjectEncoder {
         } catch (final Exception e) {
             throw new ObjectEncoderException(e);
         }
-    }
-
-    @Override
-    public EncodedObject encodeToEncodedObject(final Object object) {
-        return new EncodedObject().encoding(getEncodingType()).data(encodeToString(object));
-    }
-
-    @Override
-    public <T> T decodeFromEncodedObject(final EncodedObject encodedObject, final Class<T> type) {
-        if (encodedObject == null) {
-            return null;
-        }
-
-        return decodeFromString(encodedObject.getData(), type);
     }
 }

@@ -2,7 +2,7 @@ package io.xdb.core.persistence.schema;
 
 import com.google.common.collect.ImmutableMap;
 import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
-import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xdb.gen.models.TableReadLockingPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,21 +170,21 @@ public class PersistenceTableSchema {
         );
     }
 
-    public PersistenceTableSchemaToLoad getPersistenceTableSchemaToLoad() {
-        final List<String> columnsToLoad = new ArrayList<>();
+    public PersistenceTableSchemaToLoadData getPersistenceTableSchemaToLoadData() {
+        final List<String> columnsToLoadData = new ArrayList<>();
 
         primaryKeyColumns.forEach((columnName, columnSchema) -> {
             if (columnSchema.isLoadByDefault()) {
-                columnsToLoad.add(columnName);
+                columnsToLoadData.add(columnName);
             }
         });
 
         otherColumns.forEach((columnName, columnSchema) -> {
             if (columnSchema.isLoadByDefault()) {
-                columnsToLoad.add(columnName);
+                columnsToLoadData.add(columnName);
             }
         });
 
-        return PersistenceTableSchemaToLoad.create(tableName, columnsToLoad, tableReadLockingPolicy);
+        return PersistenceTableSchemaToLoadData.create(tableName, columnsToLoadData, tableReadLockingPolicy);
     }
 }

@@ -1,7 +1,7 @@
 package io.xdb.core.persistence;
 
 import com.google.common.collect.ImmutableList;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.DatabaseStringEncoder;
 import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.gen.models.GlobalAttributeTableRowUpdate;
@@ -24,14 +24,14 @@ public class Persistence {
      */
     private final Map<String, Map<String, Object>> globalAttributesToUpdate = new HashMap<>();
 
-    private final ObjectEncoder objectEncoder;
+    private final DatabaseStringEncoder databaseStringEncoder;
 
     public Persistence(
         final LoadGlobalAttributeResponse loadGlobalAttributeResponse,
         final PersistenceSchema persistenceSchema,
-        final ObjectEncoder objectEncoder
+        final DatabaseStringEncoder databaseStringEncoder
     ) {
-        this.objectEncoder = objectEncoder;
+        this.databaseStringEncoder = databaseStringEncoder;
 
         if (loadGlobalAttributeResponse == null) {
             return;
@@ -60,7 +60,7 @@ public class Persistence {
                     .get(tableResponse.getTableName())
                     .put(
                         column.getDbColumn(),
-                        objectEncoder.decodeFromString(column.getDbQueryValue(), columnValueType)
+                        databaseStringEncoder.decodeFromString(column.getDbQueryValue(), columnValueType)
                     );
             }
         }
@@ -119,7 +119,9 @@ public class Persistence {
                 final Class<?> columnValueType = schema.getGlobalAttributeColumnValueType(tableName, columnName);
 
                 columns.add(
-                    new TableColumnValue().dbColumn(columnName).dbQueryValue(objectEncoder.encodeToString(value))
+                    new TableColumnValue()
+                        .dbColumn(columnName)
+                        .dbQueryValue(databaseStringEncoder.encodeToString(value))
                 );
             });
 

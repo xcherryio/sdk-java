@@ -1,8 +1,8 @@
 package io.xdb.core.persistence.schema;
 
 import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
-import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoad;
-import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoad;
+import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
+import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,13 +62,13 @@ public class PersistenceSchema {
         return globalAttributes.get(tableName).getColumnValueType(columnName);
     }
 
-    public PersistenceSchemaToLoad getPersistenceSchemaToLoad() {
-        final List<PersistenceTableSchemaToLoad> tableSchemasToLoad = new ArrayList<>();
+    public PersistenceSchemaToLoadData getPersistenceSchemaToLoadData() {
+        final List<PersistenceTableSchemaToLoadData> tableSchemasToLoadData = new ArrayList<>();
 
         globalAttributes.forEach((table, tableSchema) -> {
-            tableSchemasToLoad.add(tableSchema.getPersistenceTableSchemaToLoad());
+            tableSchemasToLoadData.add(tableSchema.getPersistenceTableSchemaToLoadData());
         });
 
-        return PersistenceSchemaToLoad.withGlobalAttributes(tableSchemasToLoad);
+        return PersistenceSchemaToLoadData.withGlobalAttributes(tableSchemasToLoadData);
     }
 }

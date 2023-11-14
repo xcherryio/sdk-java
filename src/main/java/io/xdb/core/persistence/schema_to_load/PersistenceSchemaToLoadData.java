@@ -10,17 +10,17 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class PersistenceSchemaToLoad {
+public class PersistenceSchemaToLoadData {
 
-    private final List<PersistenceTableSchemaToLoad> globalAttributes = new ArrayList<>();
+    private final List<PersistenceTableSchemaToLoadData> globalAttributes = new ArrayList<>();
 
     /**
      * Create and return an empty persistence schema to load.
      *
      * @return  the created persistence schema to load.
      */
-    public static PersistenceSchemaToLoad EMPTY() {
-        return new PersistenceSchemaToLoad();
+    public static PersistenceSchemaToLoadData EMPTY() {
+        return new PersistenceSchemaToLoadData();
     }
 
     /**
@@ -29,10 +29,10 @@ public class PersistenceSchemaToLoad {
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
      * @return  the created persistence schema to load.
      */
-    public static PersistenceSchemaToLoad withGlobalAttributes(
-        final PersistenceTableSchemaToLoad... persistenceTableSchemasToLoad
+    public static PersistenceSchemaToLoadData withGlobalAttributes(
+        final PersistenceTableSchemaToLoadData... persistenceTableSchemasToLoad
     ) {
-        return PersistenceSchemaToLoad.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
+        return PersistenceSchemaToLoadData.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
     }
 
     /**
@@ -41,10 +41,10 @@ public class PersistenceSchemaToLoad {
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
      * @return  the created persistence schema to load.
      */
-    public static PersistenceSchemaToLoad withGlobalAttributes(
-        final List<PersistenceTableSchemaToLoad> persistenceTableSchemasToLoad
+    public static PersistenceSchemaToLoadData withGlobalAttributes(
+        final List<PersistenceTableSchemaToLoadData> persistenceTableSchemasToLoad
     ) {
-        return PersistenceSchemaToLoad.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
+        return PersistenceSchemaToLoadData.EMPTY().addGlobalAttributes(persistenceTableSchemasToLoad);
     }
 
     /**
@@ -53,8 +53,8 @@ public class PersistenceSchemaToLoad {
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
      * @return the updated persistence schema to load.
      */
-    public PersistenceSchemaToLoad addGlobalAttributes(
-        final PersistenceTableSchemaToLoad... persistenceTableSchemasToLoad
+    public PersistenceSchemaToLoadData addGlobalAttributes(
+        final PersistenceTableSchemaToLoadData... persistenceTableSchemasToLoad
     ) {
         return addGlobalAttributes(Arrays.stream(persistenceTableSchemasToLoad).collect(Collectors.toList()));
     }
@@ -65,8 +65,8 @@ public class PersistenceSchemaToLoad {
      * @param persistenceTableSchemasToLoad    the table schemas of global attributes to load.
      * @return the updated persistence schema to load.
      */
-    public PersistenceSchemaToLoad addGlobalAttributes(
-        final List<PersistenceTableSchemaToLoad> persistenceTableSchemasToLoad
+    public PersistenceSchemaToLoadData addGlobalAttributes(
+        final List<PersistenceTableSchemaToLoadData> persistenceTableSchemasToLoad
     ) {
         globalAttributes.addAll(persistenceTableSchemasToLoad);
         return this;

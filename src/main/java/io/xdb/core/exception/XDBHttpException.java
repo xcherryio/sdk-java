@@ -1,7 +1,7 @@
 package io.xdb.core.exception;
 
 import feign.FeignException;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import io.xdb.core.exception.status.InvalidRequestException;
 import io.xdb.core.exception.status.ProcessAlreadyStartedException;
 import io.xdb.core.exception.status.ProcessNotFoundException;

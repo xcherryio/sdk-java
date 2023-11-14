@@ -1,7 +1,7 @@
 package io.xdb.core.exception;
 
 import feign.FeignException;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 
 public class ClientSideException extends XDBHttpException {
 

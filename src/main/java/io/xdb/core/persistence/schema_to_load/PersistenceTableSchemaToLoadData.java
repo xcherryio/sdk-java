@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class PersistenceTableSchemaToLoad {
+public class PersistenceTableSchemaToLoadData {
 
     private final String tableName;
     private final List<String> columnNames;
@@ -23,8 +23,11 @@ public class PersistenceTableSchemaToLoad {
      * @param columnNames   the columns to load.
      * @return  the created table schema to load.
      */
-    public static PersistenceTableSchemaToLoad create(final String tableName, final String... columnNames) {
-        return PersistenceTableSchemaToLoad.create(tableName, Arrays.stream(columnNames).collect(Collectors.toList()));
+    public static PersistenceTableSchemaToLoadData create(final String tableName, final String... columnNames) {
+        return PersistenceTableSchemaToLoadData.create(
+            tableName,
+            Arrays.stream(columnNames).collect(Collectors.toList())
+        );
     }
 
     /**
@@ -34,8 +37,8 @@ public class PersistenceTableSchemaToLoad {
      * @param columnNames   the columns to load.
      * @return  the created table schema to load.
      */
-    public static PersistenceTableSchemaToLoad create(final String tableName, final List<String> columnNames) {
-        return PersistenceTableSchemaToLoad.create(tableName, columnNames, TableReadLockingPolicy.NO_LOCKING);
+    public static PersistenceTableSchemaToLoadData create(final String tableName, final List<String> columnNames) {
+        return PersistenceTableSchemaToLoadData.create(tableName, columnNames, TableReadLockingPolicy.NO_LOCKING);
     }
 
     /**
@@ -46,11 +49,11 @@ public class PersistenceTableSchemaToLoad {
      * @param tableReadLockingPolicy    locking policy when reading the table.
      * @return  the created table schema to load.
      */
-    public static PersistenceTableSchemaToLoad create(
+    public static PersistenceTableSchemaToLoadData create(
         final String tableName,
         final List<String> columnNames,
         final TableReadLockingPolicy tableReadLockingPolicy
     ) {
-        return new PersistenceTableSchemaToLoad(tableName, columnNames, tableReadLockingPolicy);
+        return new PersistenceTableSchemaToLoadData(tableName, columnNames, tableReadLockingPolicy);
     }
 }

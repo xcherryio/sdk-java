@@ -60,7 +60,7 @@ public class WorkerService {
         final Persistence persistence = new Persistence(
             request.getLoadedGlobalAttributes(),
             registry.getPersistenceSchema(request.getProcessType()),
-            workerServiceOptions.getObjectEncoder()
+            workerServiceOptions.getDatabaseStringEncoder()
         );
 
         final io.xdb.core.state.StateDecision stateDecision = state.execute(

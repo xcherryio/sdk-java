@@ -289,7 +289,9 @@ public class Client {
 
         columnNameToValueMap.forEach((k, v) -> {
             columns.add(
-                new TableColumnValue().dbColumn(k).dbQueryValue(clientOptions.getObjectEncoder().encodeToString(v))
+                new TableColumnValue()
+                    .dbColumn(k)
+                    .dbQueryValue(clientOptions.getDatabaseStringEncoder().encodeToString(v))
             );
         });
 
