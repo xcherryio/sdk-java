@@ -19,20 +19,16 @@ import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
 import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.Persistence;
-import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.schema.PersistenceSchema;
 import io.xdb.core.persistence.schema.PersistenceTableColumnSchema;
 import io.xdb.core.persistence.schema.PersistenceTableSchema;
 import io.xdb.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
 import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xdb.core.process.Process;
-import io.xdb.core.process.ProcessOptions;
-import io.xdb.core.process.ProcessStartConfig;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.AsyncStateOptions;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.AttributeWriteConflictMode;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -67,25 +63,6 @@ public class GlobalAttributeProcess implements Process {
                 .addColumn(PersistenceTableColumnSchema.create(COL_KEY_2, String.class, true))
                 .addColumn(PersistenceTableColumnSchema.create(COL_KEY_3, Integer.class, false))
         );
-    }
-
-    @Override
-    public ProcessOptions getOptions() {
-        return ProcessOptions
-            .builder(GlobalAttributeProcess.class)
-            .processStartConfig(
-                ProcessStartConfig
-                    .builder()
-                    .build()
-                    .addGlobalAttributesToUpsert(
-                        PersistenceTableRowToUpsert
-                            .create(TABLE_NAME, AttributeWriteConflictMode.RETURN_ERROR_ON_CONFLICT)
-                            .addPrimaryKeyColumn(PK_KEY, PK_VALUE)
-                            .addNonPrimaryKeyColumn(COL_KEY_1, COL_VALUE_1)
-                            .addNonPrimaryKeyColumn(COL_KEY_2, COL_VALUE_2)
-                    )
-            )
-            .build();
     }
 }
 

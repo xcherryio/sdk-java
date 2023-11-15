@@ -236,7 +236,8 @@ public class Client {
                 globalAttributeConfig.addTableConfigsItem(
                     new GlobalAttributeTableConfig()
                         .tableName(tableRowToUpsert.getTableName())
-                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
+                        // TODO
+                        //                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
                         .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
                         .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
                 );

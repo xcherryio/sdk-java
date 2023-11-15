@@ -78,7 +78,16 @@ public class TestIdReusePolicy {
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new IdReusePolicyAutoCompleteProcess(), processId, null)
+            () ->
+                client.startProcess(
+                    new IdReusePolicyAutoCompleteProcess(),
+                    processId,
+                    null,
+                    ProcessStartConfig
+                        .builder()
+                        .processIdReusePolicy(ProcessIdReusePolicy.ALLOW_IF_PREVIOUS_EXIT_ABNORMALLY)
+                        .build()
+                )
         );
     }
 
@@ -107,7 +116,11 @@ public class TestIdReusePolicy {
         final String newProcessExecutionId = client.startProcess(
             new IdReusePolicyAutoCompleteProcess(),
             processId,
-            null
+            null,
+            ProcessStartConfig
+                .builder()
+                .processIdReusePolicy(ProcessIdReusePolicy.ALLOW_IF_PREVIOUS_EXIT_ABNORMALLY)
+                .build()
         );
         assertNotEquals(processExecutionId, newProcessExecutionId);
 
@@ -138,14 +151,26 @@ public class TestIdReusePolicy {
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new IdReusePolicyProcess(), processId, null)
+            () ->
+                client.startProcess(
+                    new IdReusePolicyProcess(),
+                    processId,
+                    null,
+                    ProcessStartConfig.builder().processIdReusePolicy(ProcessIdReusePolicy.DISALLOW_REUSE).build()
+                )
         );
 
         client.stopProcess(processId);
 
         assertThrows(
             ProcessAlreadyStartedException.class,
-            () -> client.startProcess(new IdReusePolicyProcess(), processId, null)
+            () ->
+                client.startProcess(
+                    new IdReusePolicyProcess(),
+                    processId,
+                    null,
+                    ProcessStartConfig.builder().processIdReusePolicy(ProcessIdReusePolicy.DISALLOW_REUSE).build()
+                )
         );
     }
 
