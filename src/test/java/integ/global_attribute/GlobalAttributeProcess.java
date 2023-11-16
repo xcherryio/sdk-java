@@ -1,15 +1,15 @@
 package integ.global_attribute;
 
-import static integ.global_attribute.GlobalAttributeProcess.COL_KEY_1;
-import static integ.global_attribute.GlobalAttributeProcess.COL_KEY_2;
-import static integ.global_attribute.GlobalAttributeProcess.COL_KEY_3;
-import static integ.global_attribute.GlobalAttributeProcess.COL_VALUE_1;
-import static integ.global_attribute.GlobalAttributeProcess.COL_VALUE_1_2;
-import static integ.global_attribute.GlobalAttributeProcess.COL_VALUE_2;
-import static integ.global_attribute.GlobalAttributeProcess.COL_VALUE_3;
-import static integ.global_attribute.GlobalAttributeProcess.PK_KEY;
-import static integ.global_attribute.GlobalAttributeProcess.PK_VALUE;
-import static integ.global_attribute.GlobalAttributeProcess.TABLE_NAME;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_KEY_1;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_KEY_2;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_KEY_3;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_VALUE_1;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_VALUE_1_2;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_VALUE_2;
+import static integ.global_attribute.TestGlobalAttributeProcess.COL_VALUE_3;
+import static integ.global_attribute.TestGlobalAttributeProcess.PK_KEY;
+import static integ.global_attribute.TestGlobalAttributeProcess.PK_VALUE;
+import static integ.global_attribute.TestGlobalAttributeProcess.TABLE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -33,17 +33,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GlobalAttributeProcess implements Process {
-
-    public static final String TABLE_NAME = "sample_user_table";
-    public static final String PK_KEY = "user_id";
-    public static final String PK_VALUE = "pk_value";
-    public static final String COL_KEY_1 = "first_name";
-    public static final String COL_VALUE_1 = "col_1_value";
-    public static final String COL_VALUE_1_2 = "col_1_value_2";
-    public static final String COL_KEY_2 = "last_name";
-    public static final String COL_VALUE_2 = "col_2_value";
-    public static final String COL_KEY_3 = "create_timestamp";
-    public static final int COL_VALUE_3 = 111;
 
     @Override
     public StateSchema getStateSchema() {
