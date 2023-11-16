@@ -1,6 +1,5 @@
 package io.xdb.core.persistence.schema;
 
-import com.google.common.collect.ImmutableMap;
 import io.xdb.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xdb.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xdb.gen.models.TableReadLockingPolicy;
@@ -8,8 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,128 +30,41 @@ public class PersistenceTableSchema {
      * Create a table schema to be used in {@link PersistenceSchema} with the default NO_LOCKING reading policy.
      *
      * @param tableName                table name.
-     * @param primaryKeyColumn         the schema of a single column primary key.
+     * @param tableColumnSchemas       the schema of all the table columns.
      * @return  the created table schema.
      */
-    public static PersistenceTableSchema withSingleColumnPrimaryKey(
+    public static PersistenceTableSchema create(
         final String tableName,
-        final PersistenceTableColumnSchema primaryKeyColumn
+        final PersistenceTableColumnSchema... tableColumnSchemas
     ) {
-        return PersistenceTableSchema.withSingleColumnPrimaryKey(
-            tableName,
-            primaryKeyColumn,
-            TableReadLockingPolicy.NO_LOCKING
-        );
+        return PersistenceTableSchema.create(tableName, TableReadLockingPolicy.NO_LOCKING, tableColumnSchemas);
     }
 
     /**
      * Create a table schema to be used in {@link PersistenceSchema}.
      *
      * @param tableName                 table name.
-     * @param primaryKeyColumn          the schema of a single column primary key.
      * @param tableReadLockingPolicy    locking policy when reading the table.
+     * @param tableColumnSchemas       the schema of all the table columns.
      * @return  the created table schema.
      */
-    public static PersistenceTableSchema withSingleColumnPrimaryKey(
+    public static PersistenceTableSchema create(
         final String tableName,
-        final PersistenceTableColumnSchema primaryKeyColumn,
-        final TableReadLockingPolicy tableReadLockingPolicy
+        final TableReadLockingPolicy tableReadLockingPolicy,
+        final PersistenceTableColumnSchema... tableColumnSchemas
     ) {
-        return new PersistenceTableSchema(
-            tableName,
-            ImmutableMap.of(primaryKeyColumn.getColumnName(), primaryKeyColumn),
-            new HashMap<>(),
-            tableReadLockingPolicy
-        );
-    }
+        final Map<String, PersistenceTableColumnSchema> primaryKeyColumns = new HashMap<>();
+        final Map<String, PersistenceTableColumnSchema> otherColumns = new HashMap<>();
 
-    /**
-     * Create a table schema to be used in {@link PersistenceSchema} with the default NO_LOCKING reading policy.
-     *
-     * @param tableName                 table name.
-     * @param primaryKeyColumns         the schema of a multiple columns primary key.
-     * @return  the created table schema.
-     */
-    public static PersistenceTableSchema withMultipleColumnsPrimaryKey(
-        final String tableName,
-        final List<PersistenceTableColumnSchema> primaryKeyColumns
-    ) {
-        return PersistenceTableSchema.withMultipleColumnsPrimaryKey(
-            tableName,
-            primaryKeyColumns,
-            TableReadLockingPolicy.NO_LOCKING
-        );
-    }
+        for (final PersistenceTableColumnSchema tableColumnSchema : tableColumnSchemas) {
+            if (tableColumnSchema.isPrimaryKey()) {
+                primaryKeyColumns.put(tableColumnSchema.getColumnName(), tableColumnSchema);
+            } else {
+                otherColumns.put(tableColumnSchema.getColumnName(), tableColumnSchema);
+            }
+        }
 
-    /**
-     * Create a table schema to be used in {@link PersistenceSchema}.
-     *
-     * @param tableName                 table name.
-     * @param primaryKeyColumns         the schema of a multiple columns primary key.
-     * @param tableReadLockingPolicy    locking policy when reading the table.
-     * @return  the created table schema.
-     */
-    public static PersistenceTableSchema withMultipleColumnsPrimaryKey(
-        final String tableName,
-        final List<PersistenceTableColumnSchema> primaryKeyColumns,
-        final TableReadLockingPolicy tableReadLockingPolicy
-    ) {
-        return new PersistenceTableSchema(
-            tableName,
-            primaryKeyColumns
-                .stream()
-                .collect(Collectors.toMap(PersistenceTableColumnSchema::getColumnName, Function.identity())),
-            new HashMap<>(),
-            tableReadLockingPolicy
-        );
-    }
-
-    /**
-     * Create a table schema to be used in {@link PersistenceSchema} without the primary key, and with the default NO_LOCKING reading policy.
-     *
-     * @param tableName                 table name.
-     * @param columns                   the schema of non-primary-key columns.
-     * @return  the created table schema.
-     */
-    public static PersistenceTableSchema noPrimaryKey(
-        final String tableName,
-        final List<PersistenceTableColumnSchema> columns
-    ) {
-        return PersistenceTableSchema.noPrimaryKey(tableName, columns, TableReadLockingPolicy.NO_LOCKING);
-    }
-
-    /**
-     * Create a table schema to be used in {@link PersistenceSchema} without the primary key.
-     *
-     * @param tableName                 table name.
-     * @param columns                   the schema of non-primary-key columns.
-     * @param tableReadLockingPolicy    locking policy when reading the table.
-     * @return  the created table schema.
-     */
-    public static PersistenceTableSchema noPrimaryKey(
-        final String tableName,
-        final List<PersistenceTableColumnSchema> columns,
-        final TableReadLockingPolicy tableReadLockingPolicy
-    ) {
-        return new PersistenceTableSchema(
-            tableName,
-            new HashMap<>(),
-            columns
-                .stream()
-                .collect(Collectors.toMap(PersistenceTableColumnSchema::getColumnName, Function.identity())),
-            tableReadLockingPolicy
-        );
-    }
-
-    /**
-     * Add a non-primary-key column schema into the table schema.
-     *
-     * @param column    the schema of a non-primary-key column.
-     * @return  the updated table schema.
-     */
-    public PersistenceTableSchema addColumn(final PersistenceTableColumnSchema column) {
-        this.otherColumns.put(column.getColumnName(), column);
-        return this;
+        return new PersistenceTableSchema(tableName, primaryKeyColumns, otherColumns, tableReadLockingPolicy);
     }
 
     public Class<?> getColumnValueType(final String columnName) {

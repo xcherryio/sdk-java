@@ -57,11 +57,13 @@ public class GlobalAttributeProcess implements Process {
     @Override
     public PersistenceSchema getPersistenceSchema() {
         return PersistenceSchema.withGlobalAttributes(
-            PersistenceTableSchema
-                .withSingleColumnPrimaryKey(TABLE_NAME, PersistenceTableColumnSchema.create(PK_KEY, String.class, true))
-                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_1, String.class, true))
-                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_2, String.class, true))
-                .addColumn(PersistenceTableColumnSchema.create(COL_KEY_3, Integer.class, false))
+            PersistenceTableSchema.create(
+                TABLE_NAME,
+                PersistenceTableColumnSchema.create(PK_KEY, String.class, true, true),
+                PersistenceTableColumnSchema.create(COL_KEY_1, String.class, false, true),
+                PersistenceTableColumnSchema.create(COL_KEY_2, String.class, false, true),
+                PersistenceTableColumnSchema.create(COL_KEY_3, Integer.class, false, false)
+            )
         );
     }
 }
