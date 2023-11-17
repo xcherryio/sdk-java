@@ -5,35 +5,22 @@ import io.xdb.core.communication.Communication;
 import io.xdb.core.context.Context;
 import io.xdb.core.persistence.Persistence;
 import io.xdb.core.process.Process;
-import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
 import io.xdb.core.state.StateSchema;
-import io.xdb.gen.models.ProcessIdReusePolicy;
-import io.xdb.gen.models.ProcessStartConfig;
 import java.time.Duration;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AllowIfPreviousExitAbnormallyProcess implements Process {
-
-    @Override
-    public ProcessOptions getOptions() {
-        return ProcessOptions
-            .builder(AllowIfPreviousExitAbnormallyProcess.class)
-            .processStartConfig(
-                new ProcessStartConfig().idReusePolicy(ProcessIdReusePolicy.ALLOW_IF_PREVIOUS_EXIT_ABNORMALLY)
-            )
-            .build();
-    }
+public class IdReusePolicyAutoCompleteProcess implements Process {
 
     @Override
     public StateSchema getStateSchema() {
-        return StateSchema.withStartingState(new AllowIfPreviousExitAbnormallyStartingState());
+        return StateSchema.withStartingState(new IdReusePolicyAutoCompleteStartingState());
     }
 }
 
-class AllowIfPreviousExitAbnormallyStartingState implements AsyncState<Void> {
+class IdReusePolicyAutoCompleteStartingState implements AsyncState<Void> {
 
     @Override
     public Class<Void> getInputType() {

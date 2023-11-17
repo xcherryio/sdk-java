@@ -1,17 +1,28 @@
 package io.xdb.core.client;
 
+import com.google.common.collect.ImmutableMap;
+import io.xdb.core.exception.persistence.GlobalAttributeSchemaNotMatchException;
+import io.xdb.core.persistence.PersistenceTableRowToUpsert;
+import io.xdb.core.persistence.schema.PersistenceSchema;
+import io.xdb.core.persistence.schema.PersistenceTableSchema;
 import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
+import io.xdb.core.process.ProcessStartConfig;
 import io.xdb.core.registry.Registry;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
+import io.xdb.gen.models.GlobalAttributeConfig;
+import io.xdb.gen.models.GlobalAttributeTableConfig;
 import io.xdb.gen.models.LocalQueueMessage;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStopType;
 import io.xdb.gen.models.PublishToLocalQueueRequest;
-import java.time.Duration;
+import io.xdb.gen.models.TableColumnValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Client {
@@ -36,8 +47,26 @@ public class Client {
      * @return              a unique identifier for the process execution.
      */
     public String startProcess(final Process process, final String processId, final Object input) {
+        return startProcess(process, processId, input, null);
+    }
+
+    /**
+     * Start a new process execution.
+     *
+     * @param process               the target process to start.
+     * @param processId             a unique identifier used to differentiate between different executions of the same process type.
+     * @param input                 the input data to be provided for the execution.
+     * @param processStartConfig    the config to apply when starting the process.
+     * @return              a unique identifier for the process execution.
+     */
+    public String startProcess(
+        final Process process,
+        final String processId,
+        final Object input,
+        final ProcessStartConfig processStartConfig
+    ) {
         final String processType = ProcessUtil.getProcessType(process);
-        return startProcessInternal(processType, processId, input);
+        return startProcessInternal(processType, processId, input, processStartConfig);
     }
 
     /**
@@ -54,8 +83,27 @@ public class Client {
         final String processId,
         final Object input
     ) {
+        return startProcess(processClass, processId, input, null);
+    }
+
+    /**
+     * Caution: if you intend to override certain process options, utilize the {@link Client#startProcess(Process, String, Object)} method
+     * Start a new process execution.
+     *
+     * @param processClass  the class of the target process to start.
+     * @param processId     a unique identifier used to differentiate between different executions of the same process type.
+     * @param input         the input data to be provided for the execution.
+     * @param processStartConfig    the config to apply when starting the process.
+     * @return              a unique identifier for the process execution.
+     */
+    public String startProcess(
+        final Class<? extends Process> processClass,
+        final String processId,
+        final Object input,
+        final ProcessStartConfig processStartConfig
+    ) {
         final String processType = ProcessUtil.getClassSimpleName(processClass);
-        return startProcessInternal(processType, processId, input);
+        return startProcessInternal(processType, processId, input, processStartConfig);
     }
 
     /**
@@ -120,7 +168,7 @@ public class Client {
         final LocalQueueMessage message = new LocalQueueMessage()
             .queueName(queueName)
             .dedupId(dedupId)
-            .payload(clientOptions.getObjectEncoder().encode(payload));
+            .payload(clientOptions.getObjectEncoder().encodeToEncodedObject(payload));
 
         publishToLocalQueue(processId, message);
     }
@@ -135,17 +183,12 @@ public class Client {
         return basicClient.describeCurrentProcessExecution(clientOptions.getNamespace(), processId);
     }
 
-    // TODO: placeholder to be used in integration test for now
-    public void waitForProcessCompletion(final String processId) {
-        System.out.println(processId);
-        try {
-            Thread.sleep(Duration.ofSeconds(2).toMillis());
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String startProcessInternal(final String processType, final String processId, final Object input) {
+    private String startProcessInternal(
+        final String processType,
+        final String processId,
+        final Object input,
+        final ProcessStartConfig processStartConfig
+    ) {
         final Process process = registry.getProcess(processType);
         final ProcessOptions processOptions = process.getOptions() == null
             ? ProcessOptions.builder(process.getClass()).build()
@@ -156,17 +199,146 @@ public class Client {
             .processId(processId)
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
-            .startStateInput(clientOptions.getObjectEncoder().encode(input))
-            .processStartConfig(processOptions.getProcessStartConfig());
+            .startStateInput(clientOptions.getObjectEncoder().encodeToEncodedObject(input))
+            .processStartConfig(toApiModel(process.getPersistenceSchema(), processStartConfig));
 
         if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
             final AsyncState startingState = process.getStateSchema().getStartingState();
             request
                 .startStateId(ProcessUtil.getStateId(startingState))
-                .startStateConfig(ProcessUtil.getAsyncStateConfig(startingState));
+                .startStateConfig(ProcessUtil.getAsyncStateConfig(startingState, process));
         }
 
         return basicClient.startProcess(request);
+    }
+
+    private io.xdb.gen.models.ProcessStartConfig toApiModel(
+        final PersistenceSchema persistenceSchema,
+        final ProcessStartConfig processStartConfig
+    ) {
+        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert = processStartConfig == null
+            ? ImmutableMap.of()
+            : processStartConfig.getGlobalAttributesToUpsert();
+
+        validateThePersistenceSchema(persistenceSchema, globalAttributesToUpsert);
+
+        if (processStartConfig == null) {
+            return null;
+        }
+
+        final GlobalAttributeConfig globalAttributeConfig;
+        if (globalAttributesToUpsert.isEmpty()) {
+            globalAttributeConfig = null;
+        } else {
+            globalAttributeConfig = new GlobalAttributeConfig();
+
+            for (final PersistenceTableRowToUpsert tableRowToUpsert : globalAttributesToUpsert.values()) {
+                globalAttributeConfig.addTableConfigsItem(
+                    new GlobalAttributeTableConfig()
+                        .tableName(tableRowToUpsert.getTableName())
+                        // TODO
+                        //                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
+                        .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
+                        .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
+                );
+            }
+        }
+
+        return new io.xdb.gen.models.ProcessStartConfig()
+            .timeoutSeconds(processStartConfig.getTimeoutSeconds())
+            .idReusePolicy(processStartConfig.getProcessIdReusePolicy())
+            .globalAttributeConfig(globalAttributeConfig);
+    }
+
+    private void validateThePersistenceSchema(
+        final PersistenceSchema persistenceSchema,
+        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert
+    ) {
+        final PersistenceSchema schema = persistenceSchema == null ? PersistenceSchema.EMPTY() : persistenceSchema;
+
+        schema
+            .getGlobalAttributes()
+            .forEach((tableName, tableSchema) -> {
+                if (!globalAttributesToUpsert.containsKey(tableName)) {
+                    throw new GlobalAttributeSchemaNotMatchException(
+                        String.format(
+                            "The table %s in the persistence schema is not defined in the ProcessStartConfig",
+                            tableName
+                        )
+                    );
+                }
+
+                final PersistenceTableRowToUpsert tableRowToUpsert = globalAttributesToUpsert.get(tableName);
+
+                tableSchema
+                    .getPrimaryKeyColumns()
+                    .forEach((columnName, columnSchema) -> {
+                        if (!tableRowToUpsert.getPrimaryKeyColumns().containsKey(columnName)) {
+                            throw new GlobalAttributeSchemaNotMatchException(
+                                String.format(
+                                    "The primary key column %s of the table %s in the persistence schema is not defined in the ProcessStartConfig",
+                                    columnName,
+                                    tableName
+                                )
+                            );
+                        }
+                    });
+            });
+
+        globalAttributesToUpsert.forEach((tableName, tableRowToUpsert) -> {
+            if (!schema.getGlobalAttributes().containsKey(tableName)) {
+                throw new GlobalAttributeSchemaNotMatchException(
+                    String.format(
+                        "The table %s defined in the ProcessStartConfig does not exist in the persistence schema",
+                        tableName
+                    )
+                );
+            }
+
+            final PersistenceTableSchema tableSchema = schema.getGlobalAttributes().get(tableName);
+
+            tableRowToUpsert
+                .getPrimaryKeyColumns()
+                .forEach((columnName, value) -> {
+                    if (!tableSchema.getPrimaryKeyColumns().containsKey(columnName)) {
+                        throw new GlobalAttributeSchemaNotMatchException(
+                            String.format(
+                                "The primary key column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
+                                columnName,
+                                tableName
+                            )
+                        );
+                    }
+                });
+
+            tableRowToUpsert
+                .getOtherColumns()
+                .forEach((columnName, value) -> {
+                    if (!tableSchema.getOtherColumns().containsKey(columnName)) {
+                        throw new GlobalAttributeSchemaNotMatchException(
+                            String.format(
+                                "The column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
+                                columnName,
+                                tableName
+                            )
+                        );
+                    }
+                });
+        });
+    }
+
+    private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {
+        final List<TableColumnValue> columns = new ArrayList<>();
+
+        columnNameToValueMap.forEach((k, v) -> {
+            columns.add(
+                new TableColumnValue()
+                    .dbColumn(k)
+                    .dbQueryValue(clientOptions.getDatabaseStringEncoder().encodeToString(v))
+            );
+        });
+
+        return columns;
     }
 
     /**

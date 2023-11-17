@@ -2,16 +2,15 @@ package io.xdb.core.command;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimerCommand implements BaseCommand {
 
-    private long delayInSeconds;
-
-    private TimerCommand(final long delayInSeconds) {
-        this.delayInSeconds = delayInSeconds;
-    }
+    private final long delayInSeconds;
 
     /**
      * Set a timer to be fired after the specified duration.

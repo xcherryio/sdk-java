@@ -3,11 +3,12 @@ package io.xdb.core.state;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Builder
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class StateSchema {
 
     private final AsyncState startingState;
@@ -19,7 +20,7 @@ public class StateSchema {
             states.add(startingState);
         }
 
-        return StateSchema.builder().startingState(startingState).allStates(states).build();
+        return new StateSchema(startingState, states);
     }
 
     public static StateSchema noStartingState(final AsyncState... nonStartingStates) {

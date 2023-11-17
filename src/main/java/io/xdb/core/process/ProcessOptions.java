@@ -3,7 +3,6 @@ package io.xdb.core.process;
 import com.google.common.base.Strings;
 import io.xdb.core.exception.ProcessDefinitionException;
 import io.xdb.core.utils.ProcessUtil;
-import io.xdb.gen.models.ProcessStartConfig;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,7 +18,6 @@ public class ProcessOptions {
      * Either processClass or type must be set.
      */
     private final String type;
-    private final ProcessStartConfig processStartConfig;
 
     public static ProcessOptionsBuilder builder(final Class<? extends Process> processClass) {
         return builder().processClass(processClass);

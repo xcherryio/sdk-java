@@ -1,17 +1,15 @@
 package io.xdb.core.command;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalQueueCommand implements BaseCommand {
 
     private final String queueName;
     private final int count;
-
-    private LocalQueueCommand(final String queueName, final int count) {
-        this.queueName = queueName;
-        this.count = count;
-    }
 
     /**
      * Create a local queue command with queueName, and set the default waiting message count to 1.

@@ -4,4 +4,4 @@ import io.xdb.core.process.Process;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AllowIfNoRunningProcess implements Process {}
+public class IdReusePolicyProcess implements Process {}

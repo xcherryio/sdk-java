@@ -1,8 +1,10 @@
 package io.xdb.core.client;
 
 import com.google.common.base.Strings;
-import io.xdb.core.encoder.JacksonJsonObjectEncoder;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.JacksonDatabaseStringEncoder;
+import io.xdb.core.encoder.JacksonObjectEncoder;
+import io.xdb.core.encoder.base.DatabaseStringEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,6 +21,7 @@ public class ClientOptions {
      */
     private final String namespace;
     private final ObjectEncoder objectEncoder;
+    private final DatabaseStringEncoder databaseStringEncoder;
     private final ServerApiRetryConfig serverApiRetryConfig;
 
     private static final String DEFAULT_NAMESPACE = "default";
@@ -29,7 +32,8 @@ public class ClientOptions {
             .serverUrl("http://localhost:8801")
             .workerUrl("http://localhost:8802")
             .namespace(DEFAULT_NAMESPACE)
-            .objectEncoder(new JacksonJsonObjectEncoder())
+            .objectEncoder(new JacksonObjectEncoder())
+            .databaseStringEncoder(new JacksonDatabaseStringEncoder())
             .serverApiRetryConfig(ServerApiRetryConfig.getDefault())
             .build();
     }

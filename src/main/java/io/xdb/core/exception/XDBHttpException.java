@@ -1,7 +1,7 @@
 package io.xdb.core.exception;
 
 import feign.FeignException;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import io.xdb.core.exception.status.InvalidRequestException;
 import io.xdb.core.exception.status.ProcessAlreadyStartedException;
 import io.xdb.core.exception.status.ProcessNotFoundException;
@@ -29,7 +29,8 @@ public abstract class XDBHttpException extends RuntimeException {
         if (respBody.isPresent()) {
             final String data = StandardCharsets.UTF_8.decode(respBody.get()).toString();
             try {
-                apiErrorResponse = objectEncoder.decode(new EncodedObject().data(data), ApiErrorResponse.class);
+                apiErrorResponse =
+                    objectEncoder.decodeFromEncodedObject(new EncodedObject().data(data), ApiErrorResponse.class);
                 return;
             } catch (final Exception e) {
                 decodeErrorMessage = e.getMessage();

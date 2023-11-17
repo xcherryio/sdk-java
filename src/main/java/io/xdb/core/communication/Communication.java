@@ -1,6 +1,6 @@
 package io.xdb.core.communication;
 
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import io.xdb.gen.models.LocalQueueMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class Communication {
         final LocalQueueMessage message = new LocalQueueMessage()
             .queueName(queueName)
             .dedupId(dedupId)
-            .payload(objectEncoder.encode(payload));
+            .payload(objectEncoder.encodeToEncodedObject(payload));
 
         localQueueMessagesToPublish.add(message);
     }

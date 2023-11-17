@@ -35,7 +35,7 @@ public class WorkerService {
         final AsyncState state = registry.getProcessState(request.getProcessType(), request.getStateId());
         final Object input = workerServiceOptions
             .getObjectEncoder()
-            .decode(request.getStateInput(), state.getInputType());
+            .decodeFromEncodedObject(request.getStateInput(), state.getInputType());
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
@@ -54,10 +54,14 @@ public class WorkerService {
         final AsyncState state = registry.getProcessState(request.getProcessType(), request.getStateId());
         final Object input = workerServiceOptions
             .getObjectEncoder()
-            .decode(request.getStateInput(), state.getInputType());
+            .decodeFromEncodedObject(request.getStateInput(), state.getInputType());
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
-        final Persistence persistence = new Persistence();
+        final Persistence persistence = new Persistence(
+            request.getLoadedGlobalAttributes(),
+            registry.getPersistenceSchema(request.getProcessType()),
+            workerServiceOptions.getDatabaseStringEncoder()
+        );
 
         final io.xdb.core.state.StateDecision stateDecision = state.execute(
             Context.fromApiModel(request.getContext()),
@@ -69,7 +73,10 @@ public class WorkerService {
 
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
+            .writeToGlobalAttributes(
+                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
+            );
     }
 
     private StateDecision toApiModel(final String processType, final io.xdb.core.state.StateDecision stateDecision) {
@@ -83,10 +90,13 @@ public class WorkerService {
             .map(stateMovement ->
                 new StateMovement()
                     .stateId(stateMovement.getStateId())
-                    .stateInput(workerServiceOptions.getObjectEncoder().encode(stateMovement.getStateInput()))
+                    .stateInput(
+                        workerServiceOptions.getObjectEncoder().encodeToEncodedObject(stateMovement.getStateInput())
+                    )
                     .stateConfig(
                         ProcessUtil.getAsyncStateConfig(
-                            registry.getProcessState(processType, stateMovement.getStateId())
+                            registry.getProcessState(processType, stateMovement.getStateId()),
+                            registry.getProcess(processType)
                         )
                     )
             )

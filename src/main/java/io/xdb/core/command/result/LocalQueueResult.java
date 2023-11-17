@@ -1,7 +1,7 @@
 package io.xdb.core.command.result;
 
 import com.google.common.collect.ImmutableList;
-import io.xdb.core.encoder.ObjectEncoder;
+import io.xdb.core.encoder.base.ObjectEncoder;
 import io.xdb.gen.models.CommandStatus;
 import java.util.List;
 import java.util.stream.Collectors;
