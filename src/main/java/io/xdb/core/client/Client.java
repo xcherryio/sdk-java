@@ -190,9 +190,9 @@ public class Client {
     }
 
     /**
-     * Create a new stub for invoking RPC.
+     * Create a new stub for invoking RPC methods.
      *
-     * @param processClass      class of the target process that the RPCs belong to.
+     * @param processClass      class of the target process that the RPC methods belong to.
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      * @return  a new rpc stub.
      * @param <T>               the target process type.
@@ -247,7 +247,6 @@ public class Client {
      *
      * @param rpcMethod     the RPC method from stub created by {@link #newRpcStub(Class, String)}}
      * @param input         the input of the RPC method.
-     * @return
      * @param <I>           the input type.
      */
     public <I> void invokeRpc(final RpcDefinition.RpcMethodNoOutput<I> rpcMethod, final I input) {
@@ -269,7 +268,6 @@ public class Client {
      * Invoke an RPC method through the rpc stub.
      *
      * @param rpcMethod     the RPC method from stub created by {@link #newRpcStub(Class, String)}}
-     * @return
      */
     public void invokeRpc(final RpcDefinition.RpcMethodNoInputNoOutput rpcMethod) {
         rpcMethod.execute(null, null, null);
