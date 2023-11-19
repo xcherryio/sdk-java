@@ -24,8 +24,8 @@ public class Context {
             .processExecutionId(context.getProcessExecutionId())
             .processStartedTimestamp(context.getProcessStartedTimestamp())
             .stateExecutionId(context.getStateExecutionId())
-            .firstAttemptTimestamp(context.getFirstAttemptTimestamp())
-            .attempt(context.getAttempt())
+            .firstAttemptTimestamp(context.getFirstAttemptTimestamp() == null ? 0 : context.getFirstAttemptTimestamp())
+            .attempt(context.getAttempt() == null ? 0 : context.getAttempt())
             .recoverFromStateExecutionId(context.getRecoverFromStateExecutionId())
             .recoverFromApi(context.getRecoverFromApi())
             .build();

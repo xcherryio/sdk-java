@@ -1,6 +1,7 @@
 package io.xdb.core.communication;
 
 import io.xdb.core.encoder.base.ObjectEncoder;
+import io.xdb.core.state.StateDecision;
 import io.xdb.gen.models.LocalQueueMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,10 @@ public class Communication {
 
     private final ObjectEncoder objectEncoder;
     private final List<LocalQueueMessage> localQueueMessagesToPublish = new ArrayList<>();
+    /**
+     * only used for RPC
+     */
+    private StateDecision stateDecision = null;
 
     /**
      * Publish message(s) to the local queue for consumption by the process execution.
@@ -49,5 +54,14 @@ public class Communication {
             .payload(objectEncoder.encodeToEncodedObject(payload));
 
         localQueueMessagesToPublish.add(message);
+    }
+
+    /**
+     * Trigger new state decision from @RPC methods.
+     *
+     * @param stateDecision     the state decision to trigger.
+     */
+    public void triggerNewStateDecision(final StateDecision stateDecision) {
+        this.stateDecision = stateDecision;
     }
 }

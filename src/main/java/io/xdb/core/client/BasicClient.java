@@ -9,6 +9,8 @@ import io.xdb.gen.api.ApiClient;
 import io.xdb.gen.api.DefaultApi;
 import io.xdb.gen.models.ProcessExecutionDescribeRequest;
 import io.xdb.gen.models.ProcessExecutionDescribeResponse;
+import io.xdb.gen.models.ProcessExecutionRpcRequest;
+import io.xdb.gen.models.ProcessExecutionRpcResponse;
 import io.xdb.gen.models.ProcessExecutionStartRequest;
 import io.xdb.gen.models.ProcessExecutionStartResponse;
 import io.xdb.gen.models.ProcessExecutionStopRequest;
@@ -101,6 +103,25 @@ public class BasicClient {
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
+    }
+
+    /**
+     * Invoke an RPC method through the rpc stub.
+     *
+     * @param request       the request to invoke the RPC method.
+     * @param returnType    the return type of the RPC method.
+     * @return  the output of the RPC execution.
+     * @param <T>   the output type.
+     */
+    public <T> T invokeRpc(final ProcessExecutionRpcRequest request, final Class<T> returnType) {
+        final ProcessExecutionRpcResponse response;
+        try {
+            response = defaultApi.apiV1XdbServiceProcessExecutionRpcPost(request);
+        } catch (final FeignException.FeignClientException e) {
+            throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
+        }
+
+        return clientOptions.getObjectEncoder().decodeFromEncodedObject(response.getOutput(), returnType);
     }
 
     private DefaultApi buildDefaultApi() {
