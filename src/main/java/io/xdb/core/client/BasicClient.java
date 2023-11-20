@@ -113,7 +113,7 @@ public class BasicClient {
      * @return  the output of the RPC execution.
      * @param <T>   the output type.
      */
-    public <T> T invokeRpc(final ProcessExecutionRpcRequest request, final Class<T> returnType) {
+    public <T> T invokeRPC(final ProcessExecutionRpcRequest request, final Class<T> returnType) {
         final ProcessExecutionRpcResponse response;
         try {
             response = defaultApi.apiV1XdbServiceProcessExecutionRpcPost(request);

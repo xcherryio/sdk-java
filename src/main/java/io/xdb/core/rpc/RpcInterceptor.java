@@ -33,6 +33,6 @@ public class RpcInterceptor {
             .input(objectEncoder.encodeToEncodedObject(input))
             .timeoutSeconds(rpcAnnotation.timeoutInSeconds());
 
-        return basicClient.invokeRpc(request, method.getReturnType());
+        return basicClient.invokeRPC(request, method.getReturnType());
     }
 }

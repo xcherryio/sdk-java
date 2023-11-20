@@ -32,8 +32,8 @@ public class TestRpcProcess {
         assertEquals(processExecutionId, response.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
-        final RpcProcess rpcProcessStub = client.newRpcStub(RpcProcess.class, processId);
-        final String output = client.invokeRpc(rpcProcessStub::triggerNextState, INPUT);
+        final RpcProcess rpcProcessStub = client.newStubForRPC(RpcProcess.class, processId);
+        final String output = client.invokeRPC(rpcProcessStub::triggerNextState, INPUT);
         assertEquals(String.valueOf(INPUT + 1), output);
 
         TestUtils.sleep(2);
@@ -56,8 +56,8 @@ public class TestRpcProcess {
         assertEquals(processExecutionId, response.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
-        final RpcProcess rpcProcessStub = client.newRpcStub(RpcProcess.class, processId);
-        client.invokeRpc(rpcProcessStub::triggerNextStateNoOutput, INPUT);
+        final RpcProcess rpcProcessStub = client.newStubForRPC(RpcProcess.class, processId);
+        client.invokeRPC(rpcProcessStub::triggerNextStateNoOutput, INPUT);
 
         TestUtils.sleep(2);
 
@@ -79,8 +79,8 @@ public class TestRpcProcess {
         assertEquals(processExecutionId, response.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
-        final RpcProcess rpcProcessStub = client.newRpcStub(RpcProcess.class, processId);
-        final String output = client.invokeRpc(rpcProcessStub::triggerNextStateNoInput);
+        final RpcProcess rpcProcessStub = client.newStubForRPC(RpcProcess.class, processId);
+        final String output = client.invokeRPC(rpcProcessStub::triggerNextStateNoInput);
         assertEquals(String.valueOf(INPUT + 2), output);
 
         TestUtils.sleep(2);
@@ -103,8 +103,8 @@ public class TestRpcProcess {
         assertEquals(processExecutionId, response.getProcessExecutionId());
         assertEquals(ProcessStatus.RUNNING, response.getStatus());
 
-        final RpcProcess rpcProcessStub = client.newRpcStub(RpcProcess.class, processId);
-        client.invokeRpc(rpcProcessStub::triggerNextStateNoInputNoOutput);
+        final RpcProcess rpcProcessStub = client.newStubForRPC(RpcProcess.class, processId);
+        client.invokeRPC(rpcProcessStub::triggerNextStateNoInputNoOutput);
 
         TestUtils.sleep(2);
 

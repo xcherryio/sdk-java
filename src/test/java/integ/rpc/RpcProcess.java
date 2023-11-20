@@ -35,7 +35,7 @@ public class RpcProcess implements Process {
 
         assertEquals(INPUT, input);
 
-        communication.triggerNewStateDecision(StateDecision.singleNextState(RpcNextState1.class, input));
+        communication.triggerStateDecision(StateDecision.singleNextState(RpcNextState1.class, input));
 
         return String.valueOf(input + 1);
     }
@@ -51,7 +51,7 @@ public class RpcProcess implements Process {
 
         assertEquals(INPUT, input);
 
-        communication.triggerNewStateDecision(StateDecision.singleNextState(RpcNextState1.class, input));
+        communication.triggerStateDecision(StateDecision.singleNextState(RpcNextState1.class, input));
     }
 
     @RPC
@@ -62,7 +62,7 @@ public class RpcProcess implements Process {
     ) {
         System.out.println("triggerNextStateNoInput");
 
-        communication.triggerNewStateDecision(StateDecision.singleNextState(RpcNextState1.class, INPUT));
+        communication.triggerStateDecision(StateDecision.singleNextState(RpcNextState1.class, INPUT));
 
         return String.valueOf(INPUT + 2);
     }
@@ -75,7 +75,7 @@ public class RpcProcess implements Process {
     ) {
         System.out.println("triggerNextStateNoInputNoOutput");
 
-        communication.triggerNewStateDecision(StateDecision.singleNextState(RpcNextState1.class, INPUT));
+        communication.triggerStateDecision(StateDecision.singleNextState(RpcNextState1.class, INPUT));
     }
 }
 

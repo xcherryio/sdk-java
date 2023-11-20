@@ -61,7 +61,7 @@ public class Communication {
      *
      * @param stateDecision     the state decision to trigger.
      */
-    public void triggerNewStateDecision(final StateDecision stateDecision) {
+    public void triggerStateDecision(final StateDecision stateDecision) {
         this.stateDecision = stateDecision;
     }
 }
