@@ -30,9 +30,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkerService {
 
-    public static final String API_PATH_ASYNC_STATE_WAIT_UNTIL = "/api/v1/xdb/worker/async-state/wait-until";
-    public static final String API_PATH_ASYNC_STATE_EXECUTE = "/api/v1/xdb/worker/async-state/execute";
-    public static final String API_PATH_PROCESS_RPC = "/api/v1/xdb/worker/process/rpc";
+    public static final String API_PATH_ASYNC_STATE_WAIT_UNTIL = "/api/v1/xcherry/worker/async-state/wait-until";
+    public static final String API_PATH_ASYNC_STATE_EXECUTE = "/api/v1/xcherry/worker/async-state/execute";
+    public static final String API_PATH_PROCESS_RPC = "/api/v1/xcherry/worker/process/rpc";
 
     private final Registry registry;
     private final WorkerServiceOptions workerServiceOptions;

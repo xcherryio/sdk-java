@@ -41,7 +41,7 @@ public class BasicClient {
     public String startProcess(final ProcessExecutionStartRequest request) {
         final ProcessExecutionStartResponse response;
         try {
-            response = defaultApi.apiV1XdbServiceProcessExecutionStartPost(request);
+            response = defaultApi.apiV1XcherryServiceProcessExecutionStartPost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
@@ -64,7 +64,7 @@ public class BasicClient {
             .stopType(stopType);
 
         try {
-            defaultApi.apiV1XdbServiceProcessExecutionStopPost(request);
+            defaultApi.apiV1XcherryServiceProcessExecutionStopPost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
@@ -86,7 +86,7 @@ public class BasicClient {
             .processId(processId);
 
         try {
-            return defaultApi.apiV1XdbServiceProcessExecutionDescribePost(request);
+            return defaultApi.apiV1XcherryServiceProcessExecutionDescribePost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
@@ -99,7 +99,7 @@ public class BasicClient {
      */
     public void publishToLocalQueue(final PublishToLocalQueueRequest request) {
         try {
-            defaultApi.apiV1XdbServiceProcessExecutionPublishToLocalQueuePost(request);
+            defaultApi.apiV1XcherryServiceProcessExecutionPublishToLocalQueuePost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
@@ -116,7 +116,7 @@ public class BasicClient {
     public <T> T invokeRPC(final ProcessExecutionRpcRequest request, final Class<T> returnType) {
         final ProcessExecutionRpcResponse response;
         try {
-            response = defaultApi.apiV1XdbServiceProcessExecutionRpcPost(request);
+            response = defaultApi.apiV1XcherryServiceProcessExecutionRpcPost(request);
         } catch (final FeignException.FeignClientException e) {
             throw XDBHttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }

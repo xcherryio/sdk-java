@@ -72,12 +72,12 @@ dependencies {
 // open api
 
 openApiValidate {
-	inputSpec.set("$rootDir/xdb-apis/api-schema/xdb.yaml")
+	inputSpec.set("$rootDir/apis/api-schema/xcherry.yaml")
 }
 
 openApiGenerate {
 	generatorName = "java"
-	inputSpec = "$rootDir/xdb-apis/api-schema/xdb.yaml".toString()
+	inputSpec = "$rootDir/apis/api-schema/xcherry.yaml".toString()
 	outputDir = "$buildDir/generated".toString()
 	apiPackage = "io.xdb.gen.api"
 	modelPackage = "io.xdb.gen.models"
