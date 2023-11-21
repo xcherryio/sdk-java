@@ -60,6 +60,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
+	// bytebuddy
+	implementation 'net.bytebuddy:byte-buddy-gradle-plugin:1.14.9'
+
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 	testCompileOnly 'org.projectlombok:lombok:1.18.30'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
@@ -69,12 +72,12 @@ dependencies {
 // open api
 
 openApiValidate {
-	inputSpec.set("$rootDir/xdb-apis/api-schema/xdb.yaml")
+	inputSpec.set("$rootDir/apis/api-schema/xcherry.yaml")
 }
 
 openApiGenerate {
 	generatorName = "java"
-	inputSpec = "$rootDir/xdb-apis/api-schema/xdb.yaml".toString()
+	inputSpec = "$rootDir/apis/api-schema/xcherry.yaml".toString()
 	outputDir = "$buildDir/generated".toString()
 	apiPackage = "io.xdb.gen.api"
 	modelPackage = "io.xdb.gen.models"

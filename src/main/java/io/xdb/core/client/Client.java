@@ -1,6 +1,7 @@
 package io.xdb.core.client;
 
 import com.google.common.collect.ImmutableMap;
+import io.xdb.core.exception.RpcException;
 import io.xdb.core.exception.persistence.GlobalAttributeSchemaNotMatchException;
 import io.xdb.core.persistence.PersistenceTableRowToUpsert;
 import io.xdb.core.persistence.schema.PersistenceSchema;
@@ -9,6 +10,8 @@ import io.xdb.core.process.Process;
 import io.xdb.core.process.ProcessOptions;
 import io.xdb.core.process.ProcessStartConfig;
 import io.xdb.core.registry.Registry;
+import io.xdb.core.rpc.RpcDefinition;
+import io.xdb.core.rpc.RpcInterceptor;
 import io.xdb.core.state.AsyncState;
 import io.xdb.core.utils.ProcessUtil;
 import io.xdb.gen.models.GlobalAttributeConfig;
@@ -24,6 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 
 public class Client {
 
@@ -181,6 +187,90 @@ public class Client {
      */
     public ProcessExecutionDescribeResponse describeCurrentProcessExecution(final String processId) {
         return basicClient.describeCurrentProcessExecution(clientOptions.getNamespace(), processId);
+    }
+
+    /**
+     * Create a new stub for invoking RPC methods.
+     *
+     * @param processClass      class of the target process that the RPC methods belong to.
+     * @param processId         a unique identifier used to differentiate between different executions of the same process type.
+     * @return  a new rpc stub.
+     * @param <T>               the target process type.
+     */
+    public <T extends Process> T newStubForRPC(final Class<T> processClass, final String processId) {
+        final Class<? extends T> dynamicType = new ByteBuddy()
+            .subclass(processClass)
+            .method(ElementMatchers.any())
+            .intercept(
+                MethodDelegation.to(
+                    new RpcInterceptor(
+                        basicClient,
+                        clientOptions.getNamespace(),
+                        processId,
+                        clientOptions.getObjectEncoder()
+                    )
+                )
+            )
+            .make()
+            .load(getClass().getClassLoader())
+            .getLoaded();
+
+        try {
+            return dynamicType.newInstance();
+        } catch (final Exception e) {
+            throw new RpcException(
+                String.format(
+                    "Failed to create new RPC stub with process class %s and process id %s",
+                    processClass.getSimpleName(),
+                    processId
+                ),
+                e
+            );
+        }
+    }
+
+    /**
+     * Invoke an RPC method through the rpc stub.
+     *
+     * @param rpcMethod     the RPC method from stub created by {@link #newStubForRPC(Class, String)}}
+     * @param input         the input of the RPC method.
+     * @return  the output of the RPC execution.
+     * @param <I>           the input type.
+     * @param <O>           the output type.
+     */
+    public <I, O> O invokeRPC(final RpcDefinition.RpcMethod<I, O> rpcMethod, final I input) {
+        return rpcMethod.execute(null, input, null, null);
+    }
+
+    /**
+     * Invoke an RPC method through the rpc stub.
+     *
+     * @param rpcMethod     the RPC method from stub created by {@link #newStubForRPC(Class, String)}}
+     * @param input         the input of the RPC method.
+     * @param <I>           the input type.
+     */
+    public <I> void invokeRPC(final RpcDefinition.RpcMethodNoOutput<I> rpcMethod, final I input) {
+        rpcMethod.execute(null, input, null, null);
+    }
+
+    /**
+     * Invoke an RPC method through the rpc stub.
+     *
+     * @param rpcMethod     the RPC method from stub created by {@link #newStubForRPC(Class, String)}}
+     * @return  the output of the RPC execution.
+     * @param <O>           the output type.
+     */
+    public <O> O invokeRPC(final RpcDefinition.RpcMethodNoInput<O> rpcMethod) {
+        return rpcMethod.execute(null, null, null);
+    }
+
+    /**
+     * Invoke an RPC method through the rpc stub.
+     *
+     * @param rpcMethod     the RPC method from stub created by {@link #newStubForRPC(Class, String)}}
+     */
+    public void invokeRPC(final RpcDefinition.RpcMethodNoInputNoOutput rpcMethod) {
+        rpcMethod.execute(null, null, null);
     }
 
     private String startProcessInternal(
