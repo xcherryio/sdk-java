@@ -3,11 +3,11 @@ package integ.command_request;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import integ.TestUtils;
+import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
-import integ.spring.XdbConfig;
-import io.xdb.core.client.Client;
-import io.xdb.gen.models.ProcessExecutionDescribeResponse;
-import io.xdb.gen.models.ProcessStatus;
+import io.xcherry.core.client.Client;
+import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ public class TestCommandRequest {
 
     @Test
     public void testCommandRequestAnyCompleteTimer() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "command-request-any-timer-" + System.currentTimeMillis() / 1000;
 
@@ -43,7 +43,7 @@ public class TestCommandRequest {
 
     @Test
     public void testCommandRequestAnyCompleteLocalQueue() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "command-request-any-local-queue-" + System.currentTimeMillis() / 1000;
 
@@ -66,7 +66,7 @@ public class TestCommandRequest {
 
     @Test
     public void testCommandRequestAllComplete() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "command-request-all-" + System.currentTimeMillis() / 1000;
 

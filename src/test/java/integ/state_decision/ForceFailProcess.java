@@ -4,17 +4,17 @@ import static integ.state_decision.ForceFailProcess.STATE_ID_NEXT_1;
 import static integ.state_decision.ForceFailProcess.STATE_ID_NEXT_2;
 import static integ.state_decision.TestStateDecision.INPUT;
 
-import io.xdb.core.command.CommandRequest;
-import io.xdb.core.command.CommandResults;
-import io.xdb.core.communication.Communication;
-import io.xdb.core.context.Context;
-import io.xdb.core.persistence.Persistence;
-import io.xdb.core.process.Process;
-import io.xdb.core.state.AsyncState;
-import io.xdb.core.state.AsyncStateOptions;
-import io.xdb.core.state.StateDecision;
-import io.xdb.core.state.StateMovement;
-import io.xdb.core.state.StateSchema;
+import io.xcherry.core.command.CommandRequest;
+import io.xcherry.core.command.CommandResults;
+import io.xcherry.core.communication.Communication;
+import io.xcherry.core.context.Context;
+import io.xcherry.core.persistence.Persistence;
+import io.xcherry.core.process.Process;
+import io.xcherry.core.state.AsyncState;
+import io.xcherry.core.state.AsyncStateOptions;
+import io.xcherry.core.state.StateDecision;
+import io.xcherry.core.state.StateMovement;
+import io.xcherry.core.state.StateSchema;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;
 

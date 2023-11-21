@@ -5,15 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import integ.TestUtils;
+import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
-import integ.spring.XdbConfig;
-import io.xdb.core.client.Client;
-import io.xdb.core.exception.status.ProcessAlreadyStartedException;
-import io.xdb.core.process.ProcessStartConfig;
-import io.xdb.gen.models.ProcessExecutionDescribeResponse;
-import io.xdb.gen.models.ProcessExecutionStopType;
-import io.xdb.gen.models.ProcessIdReusePolicy;
-import io.xdb.gen.models.ProcessStatus;
+import io.xcherry.core.client.Client;
+import io.xcherry.core.exception.status.ProcessAlreadyStartedException;
+import io.xcherry.core.process.ProcessStartConfig;
+import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
+import io.xcherry.gen.models.ProcessExecutionStopType;
+import io.xcherry.gen.models.ProcessIdReusePolicy;
+import io.xcherry.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ public class TestIdReusePolicy {
 
     @Test
     public void testDefaultAllowIfNoRunningProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "allow-if-no-running-process-" + System.currentTimeMillis() / 1000;
 
@@ -56,7 +56,7 @@ public class TestIdReusePolicy {
 
     @Test
     public void testAllowIfPreviousExitAbnormallyProcessWhenProcessCompleted() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId =
             "allow-if-previous-exit-abnormally-process-completed-" + System.currentTimeMillis() / 1000;
@@ -93,7 +93,7 @@ public class TestIdReusePolicy {
 
     @Test
     public void testAllowIfPreviousExitAbnormallyProcessWhenProcessFailed() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId =
             "allow-if-previous-exit-abnormally-process-failed-" + System.currentTimeMillis() / 1000;
@@ -133,7 +133,7 @@ public class TestIdReusePolicy {
 
     @Test
     public void testDisallowReuseProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "disallow-reuse-process-" + System.currentTimeMillis() / 1000;
 
@@ -176,7 +176,7 @@ public class TestIdReusePolicy {
 
     @Test
     public void testTerminateIfRunningProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "terminate-if-running-process-" + System.currentTimeMillis() / 1000;
 

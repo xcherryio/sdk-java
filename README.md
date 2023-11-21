@@ -1,9 +1,9 @@
-# xdb-java-sdk
+# xCherry Java SDK
 
-[![Coverage Status](https://codecov.io/github/xdblab/xdb-java-sdk/coverage.svg?branch=main)](https://app.codecov.io/gh/xdblab/xdb-java-sdk/branch/main)
-[![Build status](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-integ-test.yml/badge.svg?branch=main)](https://github.com/xdblab/xdb-java-sdk/actions/workflows/ci-integ-test.yml)
+[![Coverage Status](https://codecov.io/github/xcherryio/java-sdk/coverage.svg?branch=main)](https://app.codecov.io/gh/xcherryio/sdk-java/branch/main)
+[![Build status](https://github.com/xcherryio/sdk-java/actions/workflows/ci-integ-test.yml/badge.svg?branch=main)](https://github.com/xcherryio/sdk-java/actions/workflows/ci-integ-test.yml)
 
-Java SDK for [xdb](https://github.com/xdblab/xdb)
+Java SDK for [xCherry](https://github.com/xcherryio/xcherry)
 
 ## Requirements
 
