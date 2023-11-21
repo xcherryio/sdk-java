@@ -1,7 +1,9 @@
 package io.xdb.core.communication;
 
 import io.xdb.core.encoder.base.ObjectEncoder;
+import io.xdb.core.state.AsyncState;
 import io.xdb.core.state.StateDecision;
+import io.xdb.core.state.StateMovement;
 import io.xdb.gen.models.LocalQueueMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,11 +59,49 @@ public class Communication {
     }
 
     /**
-     * Trigger new state decision from @RPC methods.
+     * Trigger a single state movement from an @RPC method.
      *
-     * @param stateDecision     the state decision to trigger.
+     * @param stateClass    the class of the target state to trigger.
+     * @param stateInput    the input.
      */
-    public void triggerStateDecision(final StateDecision stateDecision) {
-        this.stateDecision = stateDecision;
+    public void triggerSingleStateMovement(final Class<? extends AsyncState> stateClass, final Object stateInput) {
+        this.stateDecision = StateDecision.singleNextState(stateClass, stateInput);
+    }
+
+    /**
+     * Trigger a single state movement from an @RPC method.
+     *
+     * @param stateId       the id of the target state to trigger.
+     * @param stateInput    the input.
+     */
+    public void triggerSingleStateMovement(final String stateId, final Object stateInput) {
+        this.stateDecision = StateDecision.singleNextState(stateId, stateInput);
+    }
+
+    /**
+     * Trigger multiple state movements from an @RPC method.
+     *
+     * @param stateClasses  the classes of the target states to trigger.
+     */
+    public void triggerMultipleStateMovements(final Class<? extends AsyncState>... stateClasses) {
+        this.stateDecision = StateDecision.multipleNextStates(stateClasses);
+    }
+
+    /**
+     * Trigger multiple state movements from an @RPC method.
+     *
+     * @param stateIds  the ids of the target states to trigger.
+     */
+    public void triggerMultipleStateMovements(final String... stateIds) {
+        this.stateDecision = StateDecision.multipleNextStates(stateIds);
+    }
+
+    /**
+     * Trigger multiple state movements from an @RPC method.
+     *
+     * @param stateMovements  the state movements to trigger.
+     */
+    public void triggerMultipleStateMovements(final StateMovement... stateMovements) {
+        this.stateDecision = StateDecision.multipleNextStates(stateMovements);
     }
 }
