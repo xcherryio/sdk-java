@@ -79,12 +79,12 @@ openApiGenerate {
 	generatorName = "java"
 	inputSpec = "$rootDir/apis/api-schema/xcherry.yaml".toString()
 	outputDir = "$buildDir/generated".toString()
-	apiPackage = "io.xdb.gen.api"
-	modelPackage = "io.xdb.gen.models"
-	invokerPackage = "io.xdb.gen.api"
+	apiPackage = "io.xcherry.gen.api"
+	modelPackage = "io.xcherry.gen.models"
+	invokerPackage = "io.xcherry.gen.api"
 	configOptions = [
-			configPackage: "io.xdb.gen.configuration",
-			basePackage  : "io.xdb.gen",
+			configPackage: "io.xcherry.gen.configuration",
+			basePackage  : "io.xcherry.gen",
 			library      : "feign",
 			interfaceOnly: "true"
 	]
@@ -170,14 +170,14 @@ publishing {
 			from(components.java)
 
 			pom {
-				name = "xdb-java-sdk"
-				description = "xdb java sdk core"
-				url = 'https://github.com/xdblab/xdb-java-sdk'
+				name = "xcherry-java-sdk"
+				description = "xcherry java sdk core"
+				url = 'https://github.com/xcherryio/sdk-java'
 
 				scm {
-					connection = 'scm:git@github.com:xdblab/xdb-java-sdk.git'
-					developerConnection = 'scm:git@github.com:xdblab/xdb-java-sdk.git'
-					url = 'https://github.com/xdblab/xdb-java-sdk'
+					connection = 'scm:git@github.com:xcherryio/sdk-java.git'
+					developerConnection = 'scm:git@github.com:xcherryio/sdk-java.git'
+					url = 'https://github.com/xcherryio/sdk-java'
 				}
 
 				licenses {
@@ -203,7 +203,7 @@ signing {
 	sign publishing.publications.mavenJava
 }
 
-group = "io.xdb"
+group = "io.xcherry"
 version = "0.0.1"
 
 nexusPublishing {

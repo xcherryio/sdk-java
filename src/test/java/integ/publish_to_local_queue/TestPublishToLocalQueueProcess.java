@@ -3,11 +3,11 @@ package integ.publish_to_local_queue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import integ.TestUtils;
+import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
-import integ.spring.XdbConfig;
-import io.xdb.core.client.Client;
-import io.xdb.gen.models.ProcessExecutionDescribeResponse;
-import io.xdb.gen.models.ProcessStatus;
+import io.xcherry.core.client.Client;
+import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ public class TestPublishToLocalQueueProcess {
 
     @Test
     public void testPublishToLocalQueueProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "publish-to-local-queue-" + System.currentTimeMillis() / 1000;
 

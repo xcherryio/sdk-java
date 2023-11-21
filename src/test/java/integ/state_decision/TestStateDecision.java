@@ -4,11 +4,11 @@ import static integ.spring.WorkerForTesting.WORKER_PORT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import integ.TestUtils;
+import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
-import integ.spring.XdbConfig;
-import io.xdb.core.client.Client;
-import io.xdb.gen.models.ProcessExecutionDescribeResponse;
-import io.xdb.gen.models.ProcessStatus;
+import io.xcherry.core.client.Client;
+import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class TestStateDecision {
 
     @Test
     public void testGracefulCompleteProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "graceful-complete-process-" + System.currentTimeMillis() / 1000;
 
@@ -40,7 +40,7 @@ public class TestStateDecision {
 
     @Test
     public void testForceCompleteProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "force-complete-process-" + System.currentTimeMillis() / 1000;
 
@@ -57,7 +57,7 @@ public class TestStateDecision {
 
     @Test
     public void testForceFailProcess() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "force-fail-process-" + System.currentTimeMillis() / 1000;
 

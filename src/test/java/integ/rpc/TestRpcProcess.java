@@ -4,11 +4,11 @@ import static integ.rpc.RpcProcess.INPUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import integ.TestUtils;
+import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
-import integ.spring.XdbConfig;
-import io.xdb.core.client.Client;
-import io.xdb.gen.models.ProcessExecutionDescribeResponse;
-import io.xdb.gen.models.ProcessStatus;
+import io.xcherry.core.client.Client;
+import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ public class TestRpcProcess {
 
     @Test
     public void testRpcProcess_triggerNextState() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "rpc-triggerNextState-" + System.currentTimeMillis() / 1000;
 
@@ -45,7 +45,7 @@ public class TestRpcProcess {
 
     @Test
     public void testRpcProcess_triggerNextStateNoOutput() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "rpc-triggerNextStateNoOutput-" + System.currentTimeMillis() / 1000;
 
@@ -68,7 +68,7 @@ public class TestRpcProcess {
 
     @Test
     public void testRpcProcess_triggerNextStateNoInput() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "rpc-triggerNextStateNoInput-" + System.currentTimeMillis() / 1000;
 
@@ -92,7 +92,7 @@ public class TestRpcProcess {
 
     @Test
     public void testRpcProcess_triggerNextStateNoInputNoOutput() {
-        final Client client = XdbConfig.client;
+        final Client client = IntegConfig.client;
 
         final String processId = "rpc-triggerNextStateNoInputNoOutput-" + System.currentTimeMillis() / 1000;
 
