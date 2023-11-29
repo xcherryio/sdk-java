@@ -1,6 +1,6 @@
 package io.xcherry.core.persistence.schema_to_load;
 
-import io.xcherry.gen.models.TableReadLockingPolicy;
+import io.xcherry.gen.models.DatabaseLockingType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ public class PersistenceTableSchemaToLoadData {
 
     private final String tableName;
     private final List<String> columnNames;
-    private final TableReadLockingPolicy tableReadLockingPolicy;
+    private final DatabaseLockingType databaseLockingType;
 
     /**
      * Create a table schema to load with the default NO_LOCKING reading policy.
@@ -38,7 +38,7 @@ public class PersistenceTableSchemaToLoadData {
      * @return  the created table schema to load.
      */
     public static PersistenceTableSchemaToLoadData create(final String tableName, final List<String> columnNames) {
-        return PersistenceTableSchemaToLoadData.create(tableName, columnNames, TableReadLockingPolicy.NO_LOCKING);
+        return PersistenceTableSchemaToLoadData.create(tableName, columnNames, DatabaseLockingType.NO_LOCKING);
     }
 
     /**
@@ -46,14 +46,14 @@ public class PersistenceTableSchemaToLoadData {
      *
      * @param tableName                 table name.
      * @param columnNames               the columns to load.
-     * @param tableReadLockingPolicy    locking policy when reading the table.
+     * @param databaseLockingType       locking policy when reading the database.
      * @return  the created table schema to load.
      */
     public static PersistenceTableSchemaToLoadData create(
         final String tableName,
         final List<String> columnNames,
-        final TableReadLockingPolicy tableReadLockingPolicy
+        final DatabaseLockingType databaseLockingType
     ) {
-        return new PersistenceTableSchemaToLoadData(tableName, columnNames, tableReadLockingPolicy);
+        return new PersistenceTableSchemaToLoadData(tableName, columnNames, databaseLockingType);
     }
 }

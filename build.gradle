@@ -28,17 +28,11 @@ java {
 	withSourcesJar()
 }
 
-//tasks.withType(Javadoc) {
-//	// Set the source files for which Javadoc will be generated
-//	source = sourceSets.main.allJava
-//
-//	// Set the destination directory for the generated Javadoc
-//	destinationDir = file("$buildDir/docs/javadoc")
-//
-//	// Specify the files or packages to be excluded from Javadoc generation
-//	exclude '**/AsyncStateOptions.java'
-//	exclude '**/ProcessOptions.java'
-//}
+tasks.withType(Javadoc) {
+	// Specify the files or packages to be excluded from Javadoc generation
+	exclude '**/AsyncStateOptions.java'
+	exclude '**/ProcessOptions.java'
+}
 
 repositories {
 	mavenCentral()

@@ -39,7 +39,7 @@ public abstract class HttpException extends RuntimeException {
 
         // TODO
         apiErrorResponse =
-            new ApiErrorResponse().detail("empty or unable to decode to apiErrorResponse: " + decodeErrorMessage);
+            new ApiErrorResponse().details("empty or unable to decode to apiErrorResponse: " + decodeErrorMessage);
     }
 
     public static HttpException fromFeignException(

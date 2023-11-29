@@ -64,7 +64,7 @@ public class WorkerService {
 
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
         final Persistence persistence = new Persistence(
-            request.getLoadedGlobalAttributes(),
+            request.getAppDatabaseReadResponse(),
             registry.getPersistenceSchema(request.getProcessType()),
             workerServiceOptions.getDatabaseStringEncoder()
         );
@@ -79,10 +79,10 @@ public class WorkerService {
 
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
-            .writeToGlobalAttributes(
-                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
-            );
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
+        //            .writeToGlobalAttributes(
+        //                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
+        //            );
     }
 
     public ProcessRpcWorkerResponse handleProcessRpc(final ProcessRpcWorkerRequest request) {
@@ -101,7 +101,7 @@ public class WorkerService {
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
 
         final Persistence persistence = new Persistence(
-            request.getLoadedGlobalAttributes(),
+            request.getAppDatabaseReadResponse(),
             registry.getPersistenceSchema(request.getProcessType()),
             workerServiceOptions.getDatabaseStringEncoder()
         );
@@ -118,10 +118,10 @@ public class WorkerService {
         return new ProcessRpcWorkerResponse()
             .output(workerServiceOptions.getObjectEncoder().encodeToEncodedObject(output))
             .stateDecision(toApiModel(request.getProcessType(), communication.getStateDecision()))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
-            .writeToGlobalAttributes(
-                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
-            );
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
+        //            .writeToGlobalAttributes(
+        //                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
+        //            );
     }
 
     private StateDecision toApiModel(

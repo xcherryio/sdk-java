@@ -1,15 +1,9 @@
 package io.xcherry.core.utils;
 
 import io.xcherry.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
-import io.xcherry.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
 import io.xcherry.core.process.Process;
 import io.xcherry.core.state.AsyncState;
 import io.xcherry.gen.models.AsyncStateConfig;
-import io.xcherry.gen.models.LoadGlobalAttributesRequest;
-import io.xcherry.gen.models.TableColumnDef;
-import io.xcherry.gen.models.TableReadRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProcessUtil {
 
@@ -46,7 +40,7 @@ public class ProcessUtil {
             ? process.getPersistenceSchema().getPersistenceSchemaToLoadData()
             : state.getOptions().getPersistenceSchemaToLoadData();
 
-        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoadData));
+        //        asyncStateConfig = asyncStateConfig.loadGlobalAttributesRequest(toApiModel(persistenceSchemaToLoadData));
 
         if (state.getOptions() == null) {
             return asyncStateConfig;
@@ -62,31 +56,30 @@ public class ProcessUtil {
 
         return asyncStateConfig;
     }
-
-    private static LoadGlobalAttributesRequest toApiModel(
-        final PersistenceSchemaToLoadData persistenceSchemaToLoadData
-    ) {
-        if (persistenceSchemaToLoadData == null || persistenceSchemaToLoadData.getGlobalAttributes().isEmpty()) {
-            return null;
-        }
-
-        final LoadGlobalAttributesRequest loadGlobalAttributesRequest = new LoadGlobalAttributesRequest();
-
-        for (final PersistenceTableSchemaToLoadData globalAttribute : persistenceSchemaToLoadData.getGlobalAttributes()) {
-            final List<TableColumnDef> columns = new ArrayList<>();
-
-            for (final String columnName : globalAttribute.getColumnNames()) {
-                columns.add(new TableColumnDef().dbColumn(columnName));
-            }
-
-            loadGlobalAttributesRequest.addTableRequestsItem(
-                new TableReadRequest()
-                    .tableName(globalAttribute.getTableName())
-                    .lockingPolicy(globalAttribute.getTableReadLockingPolicy())
-                    .columns(columns)
-            );
-        }
-
-        return loadGlobalAttributesRequest;
-    }
+    //    private static LoadGlobalAttributesRequest toApiModel(
+    //        final PersistenceSchemaToLoadData persistenceSchemaToLoadData
+    //    ) {
+    //        if (persistenceSchemaToLoadData == null || persistenceSchemaToLoadData.getGlobalAttributes().isEmpty()) {
+    //            return null;
+    //        }
+    //
+    //        final LoadGlobalAttributesRequest loadGlobalAttributesRequest = new LoadGlobalAttributesRequest();
+    //
+    //        for (final PersistenceTableSchemaToLoadData globalAttribute : persistenceSchemaToLoadData.getGlobalAttributes()) {
+    //            final List<TableColumnDef> columns = new ArrayList<>();
+    //
+    //            for (final String columnName : globalAttribute.getColumnNames()) {
+    //                columns.add(new TableColumnDef().dbColumn(columnName));
+    //            }
+    //
+    //            loadGlobalAttributesRequest.addTableRequestsItem(
+    //                new TableReadRequest()
+    //                    .tableName(globalAttribute.getTableName())
+    //                    .lockingPolicy(globalAttribute.getTableReadLockingPolicy())
+    //                    .columns(columns)
+    //            );
+    //        }
+    //
+    //        return loadGlobalAttributesRequest;
+    //    }
 }

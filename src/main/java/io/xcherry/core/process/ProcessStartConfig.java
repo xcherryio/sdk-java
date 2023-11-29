@@ -1,8 +1,8 @@
 package io.xcherry.core.process;
 
 import io.xcherry.core.persistence.PersistenceTableRowToUpsert;
-import io.xcherry.gen.models.AttributeWriteConflictMode;
 import io.xcherry.gen.models.ProcessIdReusePolicy;
+import io.xcherry.gen.models.WriteConflictMode;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Builder;
@@ -32,7 +32,7 @@ public class ProcessStartConfig {
         final String tableName,
         final Map<String, Object> primaryKeyColumns,
         final Map<String, Object> otherColumns,
-        final AttributeWriteConflictMode writeConflictMode
+        final WriteConflictMode writeConflictMode
     ) {
         globalAttributesToUpsert.put(
             tableName,
