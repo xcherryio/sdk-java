@@ -7,6 +7,7 @@ import io.xcherry.core.exception.status.ProcessAlreadyStartedException;
 import io.xcherry.core.exception.status.ProcessNotFoundException;
 import io.xcherry.gen.models.ApiErrorResponse;
 import io.xcherry.gen.models.EncodedObject;
+import io.xcherry.gen.models.ErrorSubType;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -37,9 +38,10 @@ public abstract class HttpException extends RuntimeException {
             }
         }
 
-        // TODO
         apiErrorResponse =
-            new ApiErrorResponse().details("empty or unable to decode to apiErrorResponse: " + decodeErrorMessage);
+            new ApiErrorResponse()
+                .errorSubType(ErrorSubType.UNCATEGORIZED_ERROR)
+                .details("empty or unable to decode to apiErrorResponse: " + decodeErrorMessage);
     }
 
     public static HttpException fromFeignException(

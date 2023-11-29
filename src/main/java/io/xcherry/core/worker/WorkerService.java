@@ -1,5 +1,7 @@
 package io.xcherry.core.worker;
 
+import static io.xcherry.core.worker.WorkerServiceResponseEntity.HTTP_STATUS_FAILED_DEPENDENCY;
+
 import com.google.common.collect.ImmutableList;
 import io.xcherry.core.command.BaseCommand;
 import io.xcherry.core.command.CommandResults;
@@ -22,6 +24,9 @@ import io.xcherry.gen.models.ProcessRpcWorkerResponse;
 import io.xcherry.gen.models.StateDecision;
 import io.xcherry.gen.models.StateMovement;
 import io.xcherry.gen.models.TimerCommand;
+import io.xcherry.gen.models.WorkerErrorResponse;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +42,32 @@ public class WorkerService {
     private final Registry registry;
     private final WorkerServiceOptions workerServiceOptions;
 
-    public AsyncStateWaitUntilResponse handleAsyncStateWaitUntil(final AsyncStateWaitUntilRequest request) {
+    public WorkerServiceResponseEntity handleAsyncStateWaitUntil(final AsyncStateWaitUntilRequest request) {
+        try {
+            return WorkerServiceResponseEntity.ok(handleAsyncStateWaitUntilInternal(request));
+        } catch (final Exception e) {
+            return processWorkerException(e, HTTP_STATUS_FAILED_DEPENDENCY);
+        }
+    }
+
+    public WorkerServiceResponseEntity handleAsyncStateExecute(final AsyncStateExecuteRequest request) {
+        try {
+            // TODO: handling 406
+            return WorkerServiceResponseEntity.ok(handleAsyncStateExecuteInternal(request));
+        } catch (final Exception e) {
+            return processWorkerException(e, HTTP_STATUS_FAILED_DEPENDENCY);
+        }
+    }
+
+    public WorkerServiceResponseEntity handleProcessRpc(final ProcessRpcWorkerRequest request) {
+        try {
+            return WorkerServiceResponseEntity.ok(handleProcessRpcInternal(request));
+        } catch (final Exception e) {
+            return processWorkerException(e, HTTP_STATUS_FAILED_DEPENDENCY);
+        }
+    }
+
+    private AsyncStateWaitUntilResponse handleAsyncStateWaitUntilInternal(final AsyncStateWaitUntilRequest request) {
         final AsyncState state = registry.getProcessState(request.getProcessType(), request.getStateId());
         final Object input = workerServiceOptions
             .getObjectEncoder()
@@ -56,7 +86,7 @@ public class WorkerService {
             .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
     }
 
-    public AsyncStateExecuteResponse handleAsyncStateExecute(final AsyncStateExecuteRequest request) {
+    private AsyncStateExecuteResponse handleAsyncStateExecuteInternal(final AsyncStateExecuteRequest request) {
         final AsyncState state = registry.getProcessState(request.getProcessType(), request.getStateId());
         final Object input = workerServiceOptions
             .getObjectEncoder()
@@ -85,7 +115,7 @@ public class WorkerService {
         //            );
     }
 
-    public ProcessRpcWorkerResponse handleProcessRpc(final ProcessRpcWorkerRequest request) {
+    private ProcessRpcWorkerResponse handleProcessRpcInternal(final ProcessRpcWorkerRequest request) {
         final Process process = registry.getProcess(request.getProcessType());
         final Method rpcMethod = registry.getRpcMethod(request.getProcessType(), request.getRpcName());
 
@@ -179,5 +209,22 @@ public class WorkerService {
         }
 
         return apiCommandRequest;
+    }
+
+    private WorkerServiceResponseEntity processWorkerException(final Exception e, final int statusCode) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+
+        String stackTrace = sw.toString(); // stack trace as a string
+        if (stackTrace.length() > 2000) {
+            stackTrace = stackTrace.substring(0, 2000) + "...(truncated)";
+        }
+
+        final WorkerErrorResponse workerErrorResponse = new WorkerErrorResponse()
+            .detail(e.getMessage() + "\n stacktrace: \n" + stackTrace)
+            .errorType(e.getClass().getName());
+
+        return new WorkerServiceResponseEntity(statusCode, workerErrorResponse);
     }
 }

@@ -5,12 +5,10 @@ import static io.xcherry.core.worker.WorkerService.API_PATH_ASYNC_STATE_WAIT_UNT
 import static io.xcherry.core.worker.WorkerService.API_PATH_PROCESS_RPC;
 
 import io.xcherry.core.worker.WorkerService;
+import io.xcherry.core.worker.WorkerServiceResponseEntity;
 import io.xcherry.gen.models.AsyncStateExecuteRequest;
-import io.xcherry.gen.models.AsyncStateExecuteResponse;
 import io.xcherry.gen.models.AsyncStateWaitUntilRequest;
-import io.xcherry.gen.models.AsyncStateWaitUntilResponse;
 import io.xcherry.gen.models.ProcessRpcWorkerRequest;
-import io.xcherry.gen.models.ProcessRpcWorkerResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,23 +22,20 @@ public class WorkerApiController {
     private final WorkerService workerService;
 
     @PostMapping(API_PATH_ASYNC_STATE_WAIT_UNTIL)
-    public ResponseEntity<AsyncStateWaitUntilResponse> handleAsyncStateWaitUntil(
-        final @RequestBody AsyncStateWaitUntilRequest request
-    ) {
-        return ResponseEntity.ok(workerService.handleAsyncStateWaitUntil(request));
+    public ResponseEntity<?> handleAsyncStateWaitUntil(final @RequestBody AsyncStateWaitUntilRequest request) {
+        final WorkerServiceResponseEntity responseEntity = workerService.handleAsyncStateWaitUntil(request);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
     @PostMapping(API_PATH_ASYNC_STATE_EXECUTE)
-    public ResponseEntity<AsyncStateExecuteResponse> handleAsyncStateExecute(
-        final @RequestBody AsyncStateExecuteRequest request
-    ) {
-        return ResponseEntity.ok(workerService.handleAsyncStateExecute(request));
+    public ResponseEntity<?> handleAsyncStateExecute(final @RequestBody AsyncStateExecuteRequest request) {
+        final WorkerServiceResponseEntity responseEntity = workerService.handleAsyncStateExecute(request);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
     @PostMapping(API_PATH_PROCESS_RPC)
-    public ResponseEntity<ProcessRpcWorkerResponse> handleProcessRpc(
-        final @RequestBody ProcessRpcWorkerRequest request
-    ) {
-        return ResponseEntity.ok(workerService.handleProcessRpc(request));
+    public ResponseEntity<?> handleProcessRpc(final @RequestBody ProcessRpcWorkerRequest request) {
+        final WorkerServiceResponseEntity responseEntity = workerService.handleProcessRpc(request);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 }
