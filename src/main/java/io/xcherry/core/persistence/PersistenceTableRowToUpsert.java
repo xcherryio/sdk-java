@@ -1,6 +1,6 @@
 package io.xcherry.core.persistence;
 
-import io.xcherry.gen.models.AttributeWriteConflictMode;
+import io.xcherry.gen.models.WriteConflictMode;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,7 +19,7 @@ public class PersistenceTableRowToUpsert {
      * column name: column value
      */
     private final Map<String, Object> otherColumns;
-    private final AttributeWriteConflictMode writeConflictMode;
+    private final WriteConflictMode writeConflictMode;
 
     /**
      * Create a table row to upsert.
@@ -34,7 +34,7 @@ public class PersistenceTableRowToUpsert {
         final String tableName,
         final Map<String, Object> primaryKeyColumns,
         final Map<String, Object> otherColumns,
-        final AttributeWriteConflictMode writeConflictMode
+        final WriteConflictMode writeConflictMode
     ) {
         return new PersistenceTableRowToUpsert(tableName, primaryKeyColumns, otherColumns, writeConflictMode);
     }

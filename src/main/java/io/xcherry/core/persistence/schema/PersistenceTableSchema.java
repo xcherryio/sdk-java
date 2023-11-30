@@ -2,7 +2,7 @@ package io.xcherry.core.persistence.schema;
 
 import io.xcherry.core.exception.persistence.GlobalAttributeNotFoundException;
 import io.xcherry.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
-import io.xcherry.gen.models.TableReadLockingPolicy;
+import io.xcherry.gen.models.DatabaseLockingType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +24,7 @@ public class PersistenceTableSchema {
      * column name : column schema
      */
     private final Map<String, PersistenceTableColumnSchema> otherColumns;
-    private final TableReadLockingPolicy tableReadLockingPolicy;
+    private final DatabaseLockingType databaseLockingType;
 
     /**
      * Create a table schema to be used in {@link PersistenceSchema} with the default NO_LOCKING reading policy.
@@ -37,20 +37,20 @@ public class PersistenceTableSchema {
         final String tableName,
         final PersistenceTableColumnSchema... tableColumnSchemas
     ) {
-        return PersistenceTableSchema.create(tableName, TableReadLockingPolicy.NO_LOCKING, tableColumnSchemas);
+        return PersistenceTableSchema.create(tableName, DatabaseLockingType.NO_LOCKING, tableColumnSchemas);
     }
 
     /**
      * Create a table schema to be used in {@link PersistenceSchema}.
      *
      * @param tableName                 table name.
-     * @param tableReadLockingPolicy    locking policy when reading the table.
-     * @param tableColumnSchemas       the schema of all the table columns.
+     * @param databaseLockingType       locking policy when reading the database.
+     * @param tableColumnSchemas        the schema of all the table columns.
      * @return  the created table schema.
      */
     public static PersistenceTableSchema create(
         final String tableName,
-        final TableReadLockingPolicy tableReadLockingPolicy,
+        final DatabaseLockingType databaseLockingType,
         final PersistenceTableColumnSchema... tableColumnSchemas
     ) {
         final Map<String, PersistenceTableColumnSchema> primaryKeyColumns = new HashMap<>();
@@ -64,7 +64,7 @@ public class PersistenceTableSchema {
             }
         }
 
-        return new PersistenceTableSchema(tableName, primaryKeyColumns, otherColumns, tableReadLockingPolicy);
+        return new PersistenceTableSchema(tableName, primaryKeyColumns, otherColumns, databaseLockingType);
     }
 
     public Class<?> getColumnValueType(final String columnName) {
@@ -95,6 +95,6 @@ public class PersistenceTableSchema {
             }
         });
 
-        return PersistenceTableSchemaToLoadData.create(tableName, columnsToLoadData, tableReadLockingPolicy);
+        return PersistenceTableSchemaToLoadData.create(tableName, columnsToLoadData, databaseLockingType);
     }
 }

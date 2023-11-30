@@ -14,17 +14,12 @@ import io.xcherry.core.rpc.RpcDefinition;
 import io.xcherry.core.rpc.RpcInterceptor;
 import io.xcherry.core.state.AsyncState;
 import io.xcherry.core.utils.ProcessUtil;
-import io.xcherry.gen.models.GlobalAttributeConfig;
-import io.xcherry.gen.models.GlobalAttributeTableConfig;
 import io.xcherry.gen.models.LocalQueueMessage;
 import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
 import io.xcherry.gen.models.ProcessExecutionStartRequest;
 import io.xcherry.gen.models.ProcessExecutionStopType;
 import io.xcherry.gen.models.PublishToLocalQueueRequest;
-import io.xcherry.gen.models.TableColumnValue;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.bytebuddy.ByteBuddy;
@@ -316,28 +311,28 @@ public class Client {
             return null;
         }
 
-        final GlobalAttributeConfig globalAttributeConfig;
-        if (globalAttributesToUpsert.isEmpty()) {
-            globalAttributeConfig = null;
-        } else {
-            globalAttributeConfig = new GlobalAttributeConfig();
-
-            for (final PersistenceTableRowToUpsert tableRowToUpsert : globalAttributesToUpsert.values()) {
-                globalAttributeConfig.addTableConfigsItem(
-                    new GlobalAttributeTableConfig()
-                        .tableName(tableRowToUpsert.getTableName())
-                        // TODO
-                        //                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
-                        .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
-                        .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
-                );
-            }
-        }
+        //        final GlobalAttributeConfig globalAttributeConfig;
+        //        if (globalAttributesToUpsert.isEmpty()) {
+        //            globalAttributeConfig = null;
+        //        } else {
+        //            globalAttributeConfig = new GlobalAttributeConfig();
+        //
+        //            for (final PersistenceTableRowToUpsert tableRowToUpsert : globalAttributesToUpsert.values()) {
+        //                globalAttributeConfig.addTableConfigsItem(
+        //                    new GlobalAttributeTableConfig()
+        //                        .tableName(tableRowToUpsert.getTableName())
+        //                        // TODO
+        //                        //                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
+        //                        .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
+        //                        .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
+        //                );
+        //            }
+        //        }
 
         return new io.xcherry.gen.models.ProcessStartConfig()
             .timeoutSeconds(processStartConfig.getTimeoutSeconds())
-            .idReusePolicy(processStartConfig.getProcessIdReusePolicy())
-            .globalAttributeConfig(globalAttributeConfig);
+            .idReusePolicy(processStartConfig.getProcessIdReusePolicy());
+        //            .globalAttributeConfig(globalAttributeConfig);
     }
 
     private void validateThePersistenceSchema(
@@ -417,19 +412,19 @@ public class Client {
         });
     }
 
-    private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {
-        final List<TableColumnValue> columns = new ArrayList<>();
-
-        columnNameToValueMap.forEach((k, v) -> {
-            columns.add(
-                new TableColumnValue()
-                    .dbColumn(k)
-                    .dbQueryValue(clientOptions.getDatabaseStringEncoder().encodeToString(v))
-            );
-        });
-
-        return columns;
-    }
+    //    private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {
+    //        final List<TableColumnValue> columns = new ArrayList<>();
+    //
+    //        columnNameToValueMap.forEach((k, v) -> {
+    //            columns.add(
+    //                new TableColumnValue()
+    //                    .dbColumn(k)
+    //                    .dbQueryValue(clientOptions.getDatabaseStringEncoder().encodeToString(v))
+    //            );
+    //        });
+    //
+    //        return columns;
+    //    }
 
     /**
      * Publish message(s) to the local queue for consumption by the process execution.

@@ -1,6 +1,6 @@
 package io.xcherry.core.context;
 
-import io.xcherry.gen.models.StateApiType;
+import io.xcherry.gen.models.WorkerApiType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ public class Context {
     private final long firstAttemptTimestamp;
     private final int attempt;
     private final String recoverFromStateExecutionId;
-    private final StateApiType recoverFromApi;
+    private final WorkerApiType recoverFromApi;
 
     public static Context fromApiModel(final io.xcherry.gen.models.Context context) {
         return Context
