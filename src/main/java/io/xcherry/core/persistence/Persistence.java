@@ -1,125 +1,121 @@
 package io.xcherry.core.persistence;
 
+import com.google.common.collect.ImmutableList;
 import io.xcherry.core.encoder.base.DatabaseStringEncoder;
-import io.xcherry.core.exception.persistence.GlobalAttributeNotFoundException;
+import io.xcherry.core.exception.persistence.AppDatabaseNotFoundException;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
+import io.xcherry.gen.models.AppDatabaseColumnValue;
 import io.xcherry.gen.models.AppDatabaseReadResponse;
+import io.xcherry.gen.models.AppDatabaseRowReadResponse;
+import io.xcherry.gen.models.AppDatabaseRowWrite;
+import io.xcherry.gen.models.AppDatabaseTableReadResponse;
+import io.xcherry.gen.models.AppDatabaseTableWrite;
+import io.xcherry.gen.models.AppDatabaseWrite;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Persistence {
 
     /**
-     * table: { columnName: columnValue }
+     * table: rows
      */
-    private final Map<String, Map<String, Object>> globalAttributes = new HashMap<>();
-    /**
-     * table: { columnName: columnValue }
-     */
-    private final Map<String, Map<String, Object>> globalAttributesToUpdate = new HashMap<>();
-
-    private final DatabaseStringEncoder databaseStringEncoder;
+    private final Map<String, List<AppDatabaseRow>> appDatabase = new HashMap<>();
 
     public Persistence(
         final AppDatabaseReadResponse appDatabaseReadResponse,
         final PersistenceSchema persistenceSchema,
-        final DatabaseStringEncoder databaseStringEncoder
+        final DatabaseStringEncoder encoder
     ) {
-        this.databaseStringEncoder = databaseStringEncoder;
-
         if (appDatabaseReadResponse == null) {
             return;
         }
-        //        final List<TableReadResponse> tableResponses = loadGlobalAttributeResponse.getTableResponses() == null
-        //            ? ImmutableList.of()
-        //            : loadGlobalAttributeResponse.getTableResponses();
-        //
-        //        for (final TableReadResponse tableResponse : tableResponses) {
-        //            if (!globalAttributes.containsKey(tableResponse.getTableName())) {
-        //                globalAttributes.put(tableResponse.getTableName(), new HashMap<>());
-        //            }
-        //
-        //            final List<TableColumnValue> columns = tableResponse.getColumns() == null
-        //                ? ImmutableList.of()
-        //                : tableResponse.getColumns();
-        //
-        //            for (final TableColumnValue column : columns) {
-        //                final Class<?> columnValueType = persistenceSchema.getGlobalAttributeColumnValueType(
-        //                    tableResponse.getTableName(),
-        //                    column.getDbColumn()
-        //                );
-        //
-        //                globalAttributes
-        //                    .get(tableResponse.getTableName())
-        //                    .put(
-        //                        column.getDbColumn(),
-        //                        databaseStringEncoder.decodeFromString(column.getDbQueryValue(), columnValueType)
-        //                    );
-        //            }
-        //        }
+
+        final List<AppDatabaseTableReadResponse> tables = appDatabaseReadResponse.getTables() == null
+            ? ImmutableList.of()
+            : appDatabaseReadResponse.getTables();
+
+        for (final AppDatabaseTableReadResponse table : tables) {
+            if (!appDatabase.containsKey(table.getTableName())) {
+                appDatabase.put(table.getTableName(), new ArrayList<>());
+            }
+
+            final List<AppDatabaseRowReadResponse> rows = table.getRows() == null
+                ? ImmutableList.of()
+                : table.getRows();
+
+            for (final AppDatabaseRowReadResponse row : rows) {
+                final Map<String, Object> primaryKeyColumnMap = new HashMap<>();
+                final Map<String, Object> otherColumnMap = new HashMap<>();
+
+                final List<AppDatabaseColumnValue> columns = row.getColumns() == null
+                    ? ImmutableList.of()
+                    : row.getColumns();
+
+                for (final AppDatabaseColumnValue column : columns) {
+                    final Class<?> columnValueType = persistenceSchema.getAppDatabaseColumnValueType(
+                        table.getTableName(),
+                        column.getColumn()
+                    );
+
+                    if (persistenceSchema.isAppDatabasePrimaryKeyColumn(table.getTableName(), column.getColumn())) {
+                        primaryKeyColumnMap.put(
+                            column.getColumn(),
+                            encoder.decodeFromString(column.getQueryValue(), columnValueType)
+                        );
+                    } else {
+                        otherColumnMap.put(
+                            column.getColumn(),
+                            encoder.decodeFromString(column.getQueryValue(), columnValueType)
+                        );
+                    }
+                }
+
+                appDatabase
+                    .get(table.getTableName())
+                    .add(AppDatabaseRow.create(table.getTableName(), primaryKeyColumnMap, otherColumnMap));
+            }
+        }
     }
 
     /**
-     * Get a global attribute as the column value from the specified table column.
+     * Get rows from the specified app database table.
      *
-     * @param tableName     the table where the global attribute is stored.
-     * @param columnName    the column of the table where the global attribute is stored.
-     * @return  the column value as the global attribute.
+     * @param tableName table name.
+     * @return  rows of the table.
      */
-    public Object getGlobalAttribute(final String tableName, final String columnName) {
-        if (!globalAttributes.containsKey(tableName)) {
-            throw new GlobalAttributeNotFoundException(
-                String.format("Table %s does not exist within the global attributes", tableName)
-            );
-        }
-        if (!globalAttributes.get(tableName).containsKey(columnName)) {
-            throw new GlobalAttributeNotFoundException(
-                String.format(
-                    "Column %s does not exist in the table %s within the global attributes",
-                    columnName,
-                    tableName
-                )
-            );
+    public List<AppDatabaseRow> getAppDatabaseRows(final String tableName) {
+        if (!appDatabase.containsKey(tableName)) {
+            throw new AppDatabaseNotFoundException(String.format("Table %s does not exist in app database", tableName));
         }
 
-        return globalAttributes.get(tableName).get(columnName);
+        return appDatabase.get(tableName);
     }
 
-    /**
-     * Upsert a global attribute.
-     * If a global attribute already exists in the column, update its value. Otherwise, insert a new row with the column value as the global attribute.
-     *
-     * @param tableName     the table where the global attribute will be stored.
-     * @param columnName    the column of the table where the global attribute will be stored.
-     * @param columnValue   the column value to upsert as the global attribute.
-     */
-    public void upsertGlobalAttribute(final String tableName, final String columnName, final Object columnValue) {
-        if (!globalAttributesToUpdate.containsKey(tableName)) {
-            globalAttributesToUpdate.put(tableName, new HashMap<>());
+    public AppDatabaseWrite getAppDatabaseWrite(final DatabaseStringEncoder encoder) {
+        final ArrayList<AppDatabaseTableWrite> tableWrites = new ArrayList<>();
+
+        appDatabase.forEach((table, rows) -> {
+            final List<AppDatabaseRowWrite> rowWrites = rows
+                .stream()
+                .map(row -> row.getAppDatabaseRowWrite(encoder))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+            if (rowWrites.isEmpty()) {
+                return;
+            }
+
+            tableWrites.add(new AppDatabaseTableWrite().tableName(table).rows(rowWrites));
+        });
+
+        if (tableWrites.isEmpty()) {
+            return null;
         }
 
-        globalAttributesToUpdate.get(tableName).put(columnName, columnValue);
+        return new AppDatabaseWrite().tables(tableWrites);
     }
-    //    public List<GlobalAttributeTableRowUpdate> getGlobalAttributesToUpsert(final PersistenceSchema schema) {
-    //        final List<GlobalAttributeTableRowUpdate> globalAttributes = new ArrayList<>();
-    //
-    //        globalAttributesToUpdate.forEach((tableName, columnsToUpdate) -> {
-    //            final List<TableColumnValue> columns = new ArrayList<>();
-    //
-    //            columnsToUpdate.forEach((columnName, value) -> {
-    //                // Just trying to get the value type to make sure this is a valid column defined in the schema
-    //                final Class<?> columnValueType = schema.getGlobalAttributeColumnValueType(tableName, columnName);
-    //
-    //                columns.add(
-    //                    new TableColumnValue()
-    //                        .dbColumn(columnName)
-    //                        .dbQueryValue(databaseStringEncoder.encodeToString(value))
-    //                );
-    //            });
-    //
-    //            globalAttributes.add(new GlobalAttributeTableRowUpdate().tableName(tableName).updateColumns(columns));
-    //        });
-    //
-    //        return globalAttributes;
-    //    }
 }

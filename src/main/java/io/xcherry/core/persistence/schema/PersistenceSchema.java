@@ -1,24 +1,13 @@
 package io.xcherry.core.persistence.schema;
 
-import io.xcherry.core.exception.persistence.GlobalAttributeNotFoundException;
-import io.xcherry.core.persistence.schema_to_load.PersistenceSchemaToLoadData;
-import io.xcherry.core.persistence.schema_to_load.PersistenceTableSchemaToLoadData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersistenceSchema {
 
-    /**
-     * table name: table schema
-     */
-    private final Map<String, PersistenceTableSchema> globalAttributes = new HashMap<>();
+    private final AppDatabaseSchema appDatabaseSchema;
 
     /**
      * Create and return an empty persistence schema.
@@ -26,49 +15,32 @@ public class PersistenceSchema {
      * @return  the created persistence schema.
      */
     public static PersistenceSchema EMPTY() {
-        return new PersistenceSchema();
+        return PersistenceSchema.define(AppDatabaseSchema.EMPTY());
     }
 
     /**
-     * Create and return a persistence schema with global attributes.
+     * Create and return a persistence schema.
      *
-     * @param persistenceTableSchemas    the table schemas of global attributes.
+     * @param appDatabaseSchema   the app database.
      * @return  the created persistence schema.
      */
-    public static PersistenceSchema withGlobalAttributes(final PersistenceTableSchema... persistenceTableSchemas) {
-        return PersistenceSchema.EMPTY().addGlobalAttributes(persistenceTableSchemas);
+    public static PersistenceSchema define(final AppDatabaseSchema appDatabaseSchema) {
+        return new PersistenceSchema(appDatabaseSchema);
     }
 
-    /**
-     * Update the persistence schema with global attributes and return the new persistence schema.
-     *
-     * @param persistenceTableSchemas    the table schemas of global attributes.
-     * @return the updated persistence schema.
-     */
-    public PersistenceSchema addGlobalAttributes(final PersistenceTableSchema... persistenceTableSchemas) {
-        for (final PersistenceTableSchema persistenceTableSchema : persistenceTableSchemas) {
-            globalAttributes.put(persistenceTableSchema.getTableName(), persistenceTableSchema);
-        }
-        return this;
+    public AppDatabaseSchema getAppDatabaseSchema() {
+        return appDatabaseSchema;
     }
 
-    public Class<?> getGlobalAttributeColumnValueType(final String tableName, final String columnName) {
-        if (!globalAttributes.containsKey(tableName)) {
-            throw new GlobalAttributeNotFoundException(
-                String.format("Table %s does not exist within the global attributes", tableName)
-            );
-        }
-
-        return globalAttributes.get(tableName).getColumnValueType(columnName);
+    public Class<?> getAppDatabaseColumnValueType(final String tableName, final String columnName) {
+        return appDatabaseSchema.getColumnValueType(tableName, columnName);
     }
 
-    public PersistenceSchemaToLoadData getPersistenceSchemaToLoadData() {
-        final List<PersistenceTableSchemaToLoadData> tableSchemasToLoadData = new ArrayList<>();
+    public boolean isAppDatabasePrimaryKeyColumn(final String tableName, final String columnName) {
+        return appDatabaseSchema.isPrimaryKeyColumn(tableName, columnName);
+    }
 
-        globalAttributes.forEach((table, tableSchema) -> {
-            tableSchemasToLoadData.add(tableSchema.getPersistenceTableSchemaToLoadData());
-        });
-
-        return PersistenceSchemaToLoadData.withGlobalAttributes(tableSchemasToLoadData);
+    public AppDatabaseReadRequest getAppDatabaseReadRequest() {
+        return appDatabaseSchema.getReadRequest();
     }
 }
