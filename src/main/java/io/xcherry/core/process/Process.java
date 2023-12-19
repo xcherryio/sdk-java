@@ -26,9 +26,9 @@ public interface Process {
     }
 
     /**
-     * The persistence schema defines the global attributes to read/write in the process.
+     * The persistence schema defines the app database to read/write in the process.
      * <p>
-     * Global attribute: is the value of a specified database table row column.
+     * App Database: is specified database.
      *
      * @return the persistence schema defined for this process.
      */

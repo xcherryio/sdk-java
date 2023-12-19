@@ -1,13 +1,7 @@
 package io.xcherry.core.client;
 
-import com.google.common.collect.ImmutableMap;
 import io.xcherry.core.exception.RpcException;
-import io.xcherry.core.exception.persistence.GlobalAttributeSchemaNotMatchException;
-import io.xcherry.core.persistence.PersistenceTableRowToUpsert;
-import io.xcherry.core.persistence.schema.PersistenceSchema;
-import io.xcherry.core.persistence.schema.PersistenceTableSchema;
 import io.xcherry.core.process.Process;
-import io.xcherry.core.process.ProcessOptions;
 import io.xcherry.core.process.ProcessStartConfig;
 import io.xcherry.core.registry.Registry;
 import io.xcherry.core.rpc.RpcDefinition;
@@ -20,7 +14,6 @@ import io.xcherry.gen.models.ProcessExecutionStartRequest;
 import io.xcherry.gen.models.ProcessExecutionStopType;
 import io.xcherry.gen.models.PublishToLocalQueueRequest;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.stream.Collectors;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -275,9 +268,6 @@ public class Client {
         final ProcessStartConfig processStartConfig
     ) {
         final Process process = registry.getProcess(processType);
-        final ProcessOptions processOptions = process.getOptions() == null
-            ? ProcessOptions.builder(process.getClass()).build()
-            : process.getOptions();
 
         final ProcessExecutionStartRequest request = new ProcessExecutionStartRequest()
             .namespace(clientOptions.getNamespace())
@@ -285,7 +275,14 @@ public class Client {
             .processType(processType)
             .workerUrl(clientOptions.getWorkerUrl())
             .startStateInput(clientOptions.getObjectEncoder().encodeToEncodedObject(input))
-            .processStartConfig(toApiModel(process.getPersistenceSchema(), processStartConfig));
+            .processStartConfig(
+                processStartConfig == null
+                    ? null
+                    : processStartConfig.toApiModel(
+                        process.getPersistenceSchema(),
+                        clientOptions.getDatabaseStringEncoder()
+                    )
+            );
 
         if (process.getStateSchema() != null && process.getStateSchema().getStartingState() != null) {
             final AsyncState startingState = process.getStateSchema().getStartingState();
@@ -296,135 +293,6 @@ public class Client {
 
         return basicClient.startProcess(request);
     }
-
-    private io.xcherry.gen.models.ProcessStartConfig toApiModel(
-        final PersistenceSchema persistenceSchema,
-        final ProcessStartConfig processStartConfig
-    ) {
-        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert = processStartConfig == null
-            ? ImmutableMap.of()
-            : processStartConfig.getGlobalAttributesToUpsert();
-
-        validateThePersistenceSchema(persistenceSchema, globalAttributesToUpsert);
-
-        if (processStartConfig == null) {
-            return null;
-        }
-
-        //        final GlobalAttributeConfig globalAttributeConfig;
-        //        if (globalAttributesToUpsert.isEmpty()) {
-        //            globalAttributeConfig = null;
-        //        } else {
-        //            globalAttributeConfig = new GlobalAttributeConfig();
-        //
-        //            for (final PersistenceTableRowToUpsert tableRowToUpsert : globalAttributesToUpsert.values()) {
-        //                globalAttributeConfig.addTableConfigsItem(
-        //                    new GlobalAttributeTableConfig()
-        //                        .tableName(tableRowToUpsert.getTableName())
-        //                        // TODO
-        //                        //                        .primaryKey(toApiModel(tableRowToUpsert.getPrimaryKeyColumns()))
-        //                        .initialWrite(toApiModel(tableRowToUpsert.getOtherColumns()))
-        //                        .initialWriteMode(tableRowToUpsert.getWriteConflictMode())
-        //                );
-        //            }
-        //        }
-
-        return new io.xcherry.gen.models.ProcessStartConfig()
-            .timeoutSeconds(processStartConfig.getTimeoutSeconds())
-            .idReusePolicy(processStartConfig.getProcessIdReusePolicy());
-        //            .globalAttributeConfig(globalAttributeConfig);
-    }
-
-    private void validateThePersistenceSchema(
-        final PersistenceSchema persistenceSchema,
-        final Map<String, PersistenceTableRowToUpsert> globalAttributesToUpsert
-    ) {
-        final PersistenceSchema schema = persistenceSchema == null ? PersistenceSchema.EMPTY() : persistenceSchema;
-
-        schema
-            .getGlobalAttributes()
-            .forEach((tableName, tableSchema) -> {
-                if (!globalAttributesToUpsert.containsKey(tableName)) {
-                    throw new GlobalAttributeSchemaNotMatchException(
-                        String.format(
-                            "The table %s in the persistence schema is not defined in the ProcessStartConfig",
-                            tableName
-                        )
-                    );
-                }
-
-                final PersistenceTableRowToUpsert tableRowToUpsert = globalAttributesToUpsert.get(tableName);
-
-                tableSchema
-                    .getPrimaryKeyColumns()
-                    .forEach((columnName, columnSchema) -> {
-                        if (!tableRowToUpsert.getPrimaryKeyColumns().containsKey(columnName)) {
-                            throw new GlobalAttributeSchemaNotMatchException(
-                                String.format(
-                                    "The primary key column %s of the table %s in the persistence schema is not defined in the ProcessStartConfig",
-                                    columnName,
-                                    tableName
-                                )
-                            );
-                        }
-                    });
-            });
-
-        globalAttributesToUpsert.forEach((tableName, tableRowToUpsert) -> {
-            if (!schema.getGlobalAttributes().containsKey(tableName)) {
-                throw new GlobalAttributeSchemaNotMatchException(
-                    String.format(
-                        "The table %s defined in the ProcessStartConfig does not exist in the persistence schema",
-                        tableName
-                    )
-                );
-            }
-
-            final PersistenceTableSchema tableSchema = schema.getGlobalAttributes().get(tableName);
-
-            tableRowToUpsert
-                .getPrimaryKeyColumns()
-                .forEach((columnName, value) -> {
-                    if (!tableSchema.getPrimaryKeyColumns().containsKey(columnName)) {
-                        throw new GlobalAttributeSchemaNotMatchException(
-                            String.format(
-                                "The primary key column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
-                                columnName,
-                                tableName
-                            )
-                        );
-                    }
-                });
-
-            tableRowToUpsert
-                .getOtherColumns()
-                .forEach((columnName, value) -> {
-                    if (!tableSchema.getOtherColumns().containsKey(columnName)) {
-                        throw new GlobalAttributeSchemaNotMatchException(
-                            String.format(
-                                "The column %s of the table %s in the ProcessStartConfig does not exist in the persistence schema",
-                                columnName,
-                                tableName
-                            )
-                        );
-                    }
-                });
-        });
-    }
-
-    //    private List<TableColumnValue> toApiModel(final Map<String, Object> columnNameToValueMap) {
-    //        final List<TableColumnValue> columns = new ArrayList<>();
-    //
-    //        columnNameToValueMap.forEach((k, v) -> {
-    //            columns.add(
-    //                new TableColumnValue()
-    //                    .dbColumn(k)
-    //                    .dbQueryValue(clientOptions.getDatabaseStringEncoder().encodeToString(v))
-    //            );
-    //        });
-    //
-    //        return columns;
-    //    }
 
     /**
      * Publish message(s) to the local queue for consumption by the process execution.

@@ -109,10 +109,8 @@ public class WorkerService {
 
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
-        //            .writeToGlobalAttributes(
-        //                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
-        //            );
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
+            .writeToAppDatabase(persistence.getAppDatabaseWrite(workerServiceOptions.getDatabaseStringEncoder()));
     }
 
     private ProcessRpcWorkerResponse handleProcessRpcInternal(final ProcessRpcWorkerRequest request) {
