@@ -4,6 +4,9 @@ import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
 import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
 import io.xcherry.core.persistence.schema.app_database.AppDatabaseSchema;
 import io.xcherry.core.persistence.schema.local_attribute.LocalAttributeSchema;
+import io.xcherry.core.rpc.RpcPersistenceReadRequest;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,11 @@ public class PersistenceSchema {
 
     private final AppDatabaseSchema appDatabaseSchema;
     private final LocalAttributeSchema localAttributeSchema;
+
+    /**
+     * name: rpcPersistenceReadRequest
+     */
+    private final Map<String, RpcPersistenceReadRequest> rpcPersistenceReadRequestMap;
 
     /**
      * Create and return an empty persistence schema.
@@ -47,15 +55,23 @@ public class PersistenceSchema {
     /**
      * Create and return a persistence schema.
      *
-     * @param appDatabaseSchema     the app database schema.
-     * @param localAttributeSchema  the local attribute schema.
+     * @param appDatabaseSchema             the app database schema.
+     * @param localAttributeSchema          the local attribute schema.
+     * @param rpcPersistenceReadRequests    a list of {@link RpcPersistenceReadRequest} to be used in @{@link io.xcherry.core.rpc.RPC} methods.
      * @return  the created persistence schema.
      */
     public static PersistenceSchema define(
         final AppDatabaseSchema appDatabaseSchema,
-        final LocalAttributeSchema localAttributeSchema
+        final LocalAttributeSchema localAttributeSchema,
+        final RpcPersistenceReadRequest... rpcPersistenceReadRequests
     ) {
-        return new PersistenceSchema(appDatabaseSchema, localAttributeSchema);
+        final Map<String, RpcPersistenceReadRequest> rpcPersistenceReadRequestMap = new HashMap<>();
+
+        for (final RpcPersistenceReadRequest rpcPersistenceReadRequest : rpcPersistenceReadRequests) {
+            rpcPersistenceReadRequestMap.put(rpcPersistenceReadRequest.getName(), rpcPersistenceReadRequest);
+        }
+
+        return new PersistenceSchema(appDatabaseSchema, localAttributeSchema, rpcPersistenceReadRequestMap);
     }
 
     public Class<?> getAppDatabaseColumnValueType(final String tableName, final String columnName) {

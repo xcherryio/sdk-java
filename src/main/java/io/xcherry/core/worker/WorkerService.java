@@ -151,10 +151,8 @@ public class WorkerService {
         return new ProcessRpcWorkerResponse()
             .output(workerServiceOptions.getObjectEncoder().encodeToEncodedObject(output))
             .stateDecision(toApiModel(request.getProcessType(), communication.getStateDecision()))
-            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish());
-        //            .writeToGlobalAttributes(
-        //                persistence.getGlobalAttributesToUpsert(registry.getPersistenceSchema(request.getProcessType()))
-        //            );
+            .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
+            .writeToAppDatabase(persistence.getAppDatabaseWrite());
     }
 
     private StateDecision toApiModel(

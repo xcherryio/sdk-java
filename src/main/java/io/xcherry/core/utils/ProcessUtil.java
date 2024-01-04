@@ -37,7 +37,7 @@ public class ProcessUtil {
         final AppDatabaseReadRequest appDatabaseReadRequest = state.getOptions() == null ||
             state.getOptions().getAppDatabaseReadRequest() == null
             ? process.getPersistenceSchema() == null ? null : process.getPersistenceSchema().getAppDatabaseReadRequest()
-            : state.getOptions().getAppDatabaseReadRequest(process.getPersistenceSchema());
+            : state.getOptions().getAppDatabaseReadRequest();
 
         final LocalAttributeReadRequest localAttributeReadRequest = state.getOptions() == null ||
             state.getOptions().getLocalAttributeReadRequest() == null
@@ -48,7 +48,11 @@ public class ProcessUtil {
 
         AsyncStateConfig asyncStateConfig = new AsyncStateConfig()
             .skipWaitUntil(AsyncState.shouldSkipWaitUntil(state))
-            .appDatabaseReadRequest(appDatabaseReadRequest == null ? null : appDatabaseReadRequest.toApiModel())
+            .appDatabaseReadRequest(
+                appDatabaseReadRequest == null
+                    ? null
+                    : appDatabaseReadRequest.toApiModel(process.getPersistenceSchema())
+            )
             .loadLocalAttributesRequest(
                 localAttributeReadRequest == null ? null : localAttributeReadRequest.toApiModel()
             );
