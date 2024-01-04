@@ -95,8 +95,10 @@ public class WorkerService {
         final Communication communication = new Communication(workerServiceOptions.getObjectEncoder());
         final Persistence persistence = new Persistence(
             request.getAppDatabaseReadResponse(),
+            request.getLoadedLocalAttributes(),
             registry.getPersistenceSchema(request.getProcessType()),
-            workerServiceOptions.getDatabaseStringEncoder()
+            workerServiceOptions.getDatabaseStringEncoder(),
+            workerServiceOptions.getObjectEncoder()
         );
 
         final io.xcherry.core.state.StateDecision stateDecision = state.execute(
@@ -110,7 +112,8 @@ public class WorkerService {
         return new AsyncStateExecuteResponse()
             .stateDecision(toApiModel(request.getProcessType(), stateDecision))
             .publishToLocalQueue(communication.getLocalQueueMessagesToPublish())
-            .writeToAppDatabase(persistence.getAppDatabaseWrite(workerServiceOptions.getDatabaseStringEncoder()));
+            .writeToAppDatabase(persistence.getAppDatabaseWrite())
+            .writeToLocalAttributes(persistence.getLocalAttributeWrite());
     }
 
     private ProcessRpcWorkerResponse handleProcessRpcInternal(final ProcessRpcWorkerRequest request) {
@@ -130,8 +133,10 @@ public class WorkerService {
 
         final Persistence persistence = new Persistence(
             request.getAppDatabaseReadResponse(),
+            null,
             registry.getPersistenceSchema(request.getProcessType()),
-            workerServiceOptions.getDatabaseStringEncoder()
+            workerServiceOptions.getDatabaseStringEncoder(),
+            workerServiceOptions.getObjectEncoder()
         );
 
         final Object output = RpcDefinition.invoke(

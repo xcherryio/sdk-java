@@ -1,12 +1,15 @@
 package io.xcherry.core.process;
 
 import io.xcherry.core.encoder.base.DatabaseStringEncoder;
+import io.xcherry.core.encoder.base.ObjectEncoder;
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
-import io.xcherry.core.persistence.schema.AppDatabaseTableSchema;
+import io.xcherry.core.exception.persistence.LocalAttributeSchemaNotMatchException;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
-import io.xcherry.core.persistence.selector.AppDatabaseColumnValueSelector;
-import io.xcherry.core.persistence.selector.AppDatabaseRowSelector;
-import io.xcherry.core.persistence.selector.AppDatabaseSelector;
+import io.xcherry.core.persistence.schema.app_database.AppDatabaseTableSchema;
+import io.xcherry.core.persistence.selector.app_database.AppDatabaseColumnValueSelector;
+import io.xcherry.core.persistence.selector.app_database.AppDatabaseRowSelector;
+import io.xcherry.core.persistence.selector.app_database.AppDatabaseSelector;
+import io.xcherry.core.persistence.selector.local_attribute.LocalAttributeSelector;
 import io.xcherry.gen.models.ProcessIdReusePolicy;
 import java.util.List;
 import java.util.Map;
@@ -22,24 +25,32 @@ public class ProcessStartConfig {
     private final int timeoutSeconds;
     private final ProcessIdReusePolicy processIdReusePolicy;
     private final AppDatabaseSelector appDatabaseSelector;
+    private final LocalAttributeSelector localAttributeSelector;
 
     public io.xcherry.gen.models.ProcessStartConfig toApiModel(
         final PersistenceSchema persistenceSchema,
-        final DatabaseStringEncoder encoder
+        final DatabaseStringEncoder databaseStringEncoder,
+        final ObjectEncoder objectEncoder
     ) {
-        final AppDatabaseSelector selector = appDatabaseSelector == null
+        final AppDatabaseSelector appDatabaseSelectorNotNull = appDatabaseSelector == null
             ? AppDatabaseSelector.create()
             : appDatabaseSelector;
 
-        validatePersistenceSchema(persistenceSchema, selector);
+        final LocalAttributeSelector localAttributeSelectorNotNull = localAttributeSelector == null
+            ? LocalAttributeSelector.create()
+            : localAttributeSelector;
+
+        validatePersistenceSchemaWithAppDatabase(persistenceSchema, appDatabaseSelectorNotNull);
+        validatePersistenceSchemaWithLocalAttribute(persistenceSchema, localAttributeSelectorNotNull);
 
         return new io.xcherry.gen.models.ProcessStartConfig()
             .timeoutSeconds(timeoutSeconds)
             .idReusePolicy(processIdReusePolicy)
-            .appDatabaseConfig(selector.toApiModel(encoder));
+            .appDatabaseConfig(appDatabaseSelectorNotNull.toApiModel(databaseStringEncoder))
+            .localAttributeConfig(localAttributeSelectorNotNull.toApiModel(objectEncoder));
     }
 
-    private void validatePersistenceSchema(
+    private void validatePersistenceSchemaWithAppDatabase(
         final PersistenceSchema persistenceSchema,
         final AppDatabaseSelector appDatabaseSelector
     ) {
@@ -105,5 +116,21 @@ public class ProcessStartConfig {
                 );
             }
         });
+    }
+
+    private void validatePersistenceSchemaWithLocalAttribute(
+        final PersistenceSchema persistenceSchema,
+        final LocalAttributeSelector localAttributeSelector
+    ) {
+        final PersistenceSchema schema = persistenceSchema == null ? PersistenceSchema.EMPTY() : persistenceSchema;
+
+        final Set<String> schemaKeys = schema.getLocalAttributeSchema().getKeys();
+        final Set<String> selectorKeys = localAttributeSelector.getKeys();
+
+        if (!schemaKeys.containsAll(selectorKeys)) {
+            throw new LocalAttributeSchemaNotMatchException(
+                "The local attributes defined in the persistence schema do not contain all the keys used in the ProcessStartConfig"
+            );
+        }
     }
 }

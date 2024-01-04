@@ -1,6 +1,7 @@
 package io.xcherry.core.utils;
 
 import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
+import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
 import io.xcherry.core.process.Process;
 import io.xcherry.core.state.AsyncState;
 import io.xcherry.gen.models.AsyncStateConfig;
@@ -38,9 +39,19 @@ public class ProcessUtil {
             ? process.getPersistenceSchema() == null ? null : process.getPersistenceSchema().getAppDatabaseReadRequest()
             : state.getOptions().getAppDatabaseReadRequest(process.getPersistenceSchema());
 
+        final LocalAttributeReadRequest localAttributeReadRequest = state.getOptions() == null ||
+            state.getOptions().getLocalAttributeReadRequest() == null
+            ? process.getPersistenceSchema() == null
+                ? null
+                : process.getPersistenceSchema().getLocalAttributeReadRequest()
+            : state.getOptions().getLocalAttributeReadRequest(process.getPersistenceSchema());
+
         AsyncStateConfig asyncStateConfig = new AsyncStateConfig()
             .skipWaitUntil(AsyncState.shouldSkipWaitUntil(state))
-            .appDatabaseReadRequest(appDatabaseReadRequest == null ? null : appDatabaseReadRequest.toApiModel());
+            .appDatabaseReadRequest(appDatabaseReadRequest == null ? null : appDatabaseReadRequest.toApiModel())
+            .loadLocalAttributesRequest(
+                localAttributeReadRequest == null ? null : localAttributeReadRequest.toApiModel()
+            );
 
         if (state.getOptions() == null) {
             return asyncStateConfig;

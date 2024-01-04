@@ -3,13 +3,16 @@ package io.xcherry.core.state;
 import com.google.common.base.Strings;
 import io.xcherry.core.exception.ProcessDefinitionException;
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
+import io.xcherry.core.exception.persistence.LocalAttributeSchemaNotMatchException;
 import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
-import io.xcherry.core.persistence.schema.AppDatabaseTableSchema;
+import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
+import io.xcherry.core.persistence.schema.app_database.AppDatabaseTableSchema;
 import io.xcherry.core.utils.ProcessUtil;
 import io.xcherry.gen.models.RetryPolicy;
 import io.xcherry.gen.models.StateFailureRecoveryOptions;
 import java.util.Map;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,6 +35,7 @@ public class AsyncStateOptions {
     private RetryPolicy executeApiRetryPolicy;
     private StateFailureRecoveryOptions stateFailureRecoveryOptions;
     private AppDatabaseReadRequest appDatabaseReadRequest;
+    private LocalAttributeReadRequest localAttributeReadRequest;
 
     public static AsyncStateOptionsBuilder builder(final Class<? extends AsyncState> stateClass) {
         return builder().stateClass(stateClass);
@@ -72,6 +76,23 @@ public class AsyncStateOptions {
             });
 
         return appDatabaseReadRequest;
+    }
+
+    public LocalAttributeReadRequest getLocalAttributeReadRequest(final PersistenceSchema persistenceSchema) {
+        if (persistenceSchema == null || persistenceSchema.getLocalAttributeSchema() == null) {
+            return null;
+        }
+
+        final Set<String> keysInSchema = persistenceSchema.getLocalAttributeSchema().getKeys();
+        final Set<String> keysInReadRequest = localAttributeReadRequest.getKeys();
+
+        if (!keysInSchema.containsAll(keysInReadRequest)) {
+            throw new LocalAttributeSchemaNotMatchException(
+                "The local attributes defined in the persistence schema do not contain all the keys used in the AsyncStateOptions"
+            );
+        }
+
+        return localAttributeReadRequest;
     }
 
     public void validate() {

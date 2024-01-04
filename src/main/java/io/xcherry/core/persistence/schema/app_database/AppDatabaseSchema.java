@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.schema;
+package io.xcherry.core.persistence.schema.app_database;
 
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
 import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;

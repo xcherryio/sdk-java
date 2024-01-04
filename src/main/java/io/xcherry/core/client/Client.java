@@ -280,7 +280,8 @@ public class Client {
                     ? null
                     : processStartConfig.toApiModel(
                         process.getPersistenceSchema(),
-                        clientOptions.getDatabaseStringEncoder()
+                        clientOptions.getDatabaseStringEncoder(),
+                        clientOptions.getObjectEncoder()
                     )
             );
 
