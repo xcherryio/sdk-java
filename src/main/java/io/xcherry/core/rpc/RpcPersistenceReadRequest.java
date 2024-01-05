@@ -1,7 +1,7 @@
 package io.xcherry.core.rpc;
 
-import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
-import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
+import io.xcherry.core.persistence.readrequest.AppDatabaseReadRequest;
+import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
 import io.xcherry.gen.models.DatabaseLockingType;
 import lombok.AccessLevel;
 import lombok.Getter;

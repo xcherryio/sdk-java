@@ -10,18 +10,17 @@ import static integ.local_attribute.TestLocalAttributeProcess.LOCAL_ATTRIBUTE_VA
 import static integ.local_attribute.TestLocalAttributeProcess.LOCAL_ATTRIBUTE_VALUE_2_2;
 import static integ.local_attribute.TestLocalAttributeProcess.LOCAL_ATTRIBUTE_VALUE_3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.xcherry.core.command.CommandRequest;
 import io.xcherry.core.command.CommandResults;
 import io.xcherry.core.communication.Communication;
 import io.xcherry.core.context.Context;
-import io.xcherry.core.exception.persistence.LocalAttributeNotFoundException;
 import io.xcherry.core.persistence.Persistence;
-import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
+import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
-import io.xcherry.core.persistence.schema.local_attribute.LocalAttributeKeySchema;
-import io.xcherry.core.persistence.schema.local_attribute.LocalAttributeSchema;
+import io.xcherry.core.persistence.schema.localattribute.LocalAttributeKeySchema;
+import io.xcherry.core.persistence.schema.localattribute.LocalAttributeSchema;
 import io.xcherry.core.process.Process;
 import io.xcherry.core.state.AsyncState;
 import io.xcherry.core.state.AsyncStateOptions;
@@ -79,15 +78,12 @@ class LocalAttributeProcessStartingState implements AsyncState<Void> {
         System.out.println("LocalAttributeProcessStartingState.execute: " + input);
 
         assertEquals(LOCAL_ATTRIBUTE_VALUE_1, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_1));
-        assertThrows(LocalAttributeNotFoundException.class, () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_2));
-        assertThrows(LocalAttributeNotFoundException.class, () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_3));
-        assertThrows(
-            LocalAttributeNotFoundException.class,
-            () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST)
-        );
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_2));
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_3));
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST));
 
         // upsert
-        persistence.upsertLocalAttribute(LOCAL_ATTRIBUTE_KEY_3, LOCAL_ATTRIBUTE_VALUE_3);
+        persistence.setLocalAttribute(LOCAL_ATTRIBUTE_KEY_3, LOCAL_ATTRIBUTE_VALUE_3);
 
         return StateDecision.singleNextState(LocalAttributeProcessNextState1.class, null);
     }
@@ -124,17 +120,14 @@ class LocalAttributeProcessNextState1 implements AsyncState<Void> {
     ) {
         System.out.println("LocalAttributeProcessNextState1.execute: " + input);
 
-        assertThrows(LocalAttributeNotFoundException.class, () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_1));
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_1));
         assertEquals(LOCAL_ATTRIBUTE_VALUE_2, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_2));
         assertEquals(LOCAL_ATTRIBUTE_VALUE_3, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_3));
-        assertThrows(
-            LocalAttributeNotFoundException.class,
-            () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST)
-        );
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST));
 
         // upsert
-        persistence.upsertLocalAttribute(LOCAL_ATTRIBUTE_KEY_1, LOCAL_ATTRIBUTE_VALUE_1_2);
-        persistence.upsertLocalAttribute(LOCAL_ATTRIBUTE_KEY_2, LOCAL_ATTRIBUTE_VALUE_2_2);
+        persistence.setLocalAttribute(LOCAL_ATTRIBUTE_KEY_1, LOCAL_ATTRIBUTE_VALUE_1_2);
+        persistence.setLocalAttribute(LOCAL_ATTRIBUTE_KEY_2, LOCAL_ATTRIBUTE_VALUE_2_2);
 
         return StateDecision.singleNextState(LocalAttributeProcessNextState2.class, null);
     }
@@ -175,10 +168,7 @@ class LocalAttributeProcessNextState2 implements AsyncState<Void> {
         assertEquals(LOCAL_ATTRIBUTE_VALUE_1_2, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_1));
         assertEquals(LOCAL_ATTRIBUTE_VALUE_2_2, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_2));
         assertEquals(LOCAL_ATTRIBUTE_VALUE_3, persistence.getLocalAttribute(LOCAL_ATTRIBUTE_KEY_3));
-        assertThrows(
-            LocalAttributeNotFoundException.class,
-            () -> persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST)
-        );
+        assertNull(persistence.getLocalAttribute(LOCAL_ATTRIBUTE_NOT_EXIST));
 
         return StateDecision.forceCompleteProcess();
     }

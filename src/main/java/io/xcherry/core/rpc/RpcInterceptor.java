@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import io.xcherry.core.client.BasicClient;
 import io.xcherry.core.encoder.base.ObjectEncoder;
 import io.xcherry.core.exception.ProcessDefinitionException;
-import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
+import io.xcherry.core.persistence.readrequest.AppDatabaseReadRequest;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
 import io.xcherry.gen.models.ProcessExecutionRpcRequest;
 import java.lang.reflect.Method;

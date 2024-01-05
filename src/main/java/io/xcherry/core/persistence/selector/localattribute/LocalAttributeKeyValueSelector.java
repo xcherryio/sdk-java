@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.selector.local_attribute;
+package io.xcherry.core.persistence.selector.localattribute;
 
 import io.xcherry.core.encoder.base.ObjectEncoder;
 import io.xcherry.gen.models.KeyValue;

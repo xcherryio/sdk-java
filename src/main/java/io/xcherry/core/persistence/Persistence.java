@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import io.xcherry.core.encoder.base.DatabaseStringEncoder;
 import io.xcherry.core.encoder.base.ObjectEncoder;
 import io.xcherry.core.exception.persistence.AppDatabaseNotFoundException;
-import io.xcherry.core.exception.persistence.LocalAttributeNotFoundException;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
 import io.xcherry.gen.models.AppDatabaseColumnValue;
 import io.xcherry.gen.models.AppDatabaseReadResponse;
@@ -150,7 +149,7 @@ public class Persistence {
 
     public Object getLocalAttribute(final String key) {
         if (!localAttributes.containsKey(key)) {
-            throw new LocalAttributeNotFoundException(String.format("Key %s does not exist in local attributes", key));
+            return null;
         }
 
         return localAttributes.get(key);
@@ -162,7 +161,7 @@ public class Persistence {
      * @param key       key of the local attribute.
      * @param value     value of the local attribute.
      */
-    public void upsertLocalAttribute(final String key, final Object value) {
+    public void setLocalAttribute(final String key, final Object value) {
         localAttributesToWrite.put(key, value);
     }
 

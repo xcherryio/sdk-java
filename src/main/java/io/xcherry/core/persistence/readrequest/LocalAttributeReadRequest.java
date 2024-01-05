@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.read_request;
+package io.xcherry.core.persistence.readrequest;
 
 import com.google.common.collect.ImmutableSet;
 import io.xcherry.gen.models.DatabaseLockingType;

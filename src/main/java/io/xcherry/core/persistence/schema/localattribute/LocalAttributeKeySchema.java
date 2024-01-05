@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.schema.local_attribute;
+package io.xcherry.core.persistence.schema.localattribute;
 
 import io.xcherry.core.command.CommandResults;
 import io.xcherry.core.communication.Communication;

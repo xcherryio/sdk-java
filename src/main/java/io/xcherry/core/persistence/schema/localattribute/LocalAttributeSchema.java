@@ -1,7 +1,7 @@
-package io.xcherry.core.persistence.schema.local_attribute;
+package io.xcherry.core.persistence.schema.localattribute;
 
 import io.xcherry.core.exception.persistence.LocalAttributeSchemaNotMatchException;
-import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
+import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
 import io.xcherry.gen.models.DatabaseLockingType;
 import java.util.HashMap;
 import java.util.HashSet;

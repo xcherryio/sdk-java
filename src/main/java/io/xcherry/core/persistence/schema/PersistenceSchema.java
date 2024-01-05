@@ -1,9 +1,9 @@
 package io.xcherry.core.persistence.schema;
 
-import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
-import io.xcherry.core.persistence.read_request.LocalAttributeReadRequest;
-import io.xcherry.core.persistence.schema.app_database.AppDatabaseSchema;
-import io.xcherry.core.persistence.schema.local_attribute.LocalAttributeSchema;
+import io.xcherry.core.persistence.readrequest.AppDatabaseReadRequest;
+import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
+import io.xcherry.core.persistence.schema.appdatabase.AppDatabaseSchema;
+import io.xcherry.core.persistence.schema.localattribute.LocalAttributeSchema;
 import io.xcherry.core.rpc.RpcPersistenceReadRequest;
 import java.util.HashMap;
 import java.util.Map;
