@@ -1,8 +1,8 @@
-package io.xcherry.core.persistence.schema;
+package io.xcherry.core.persistence.schema.appdatabase;
 
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
-import io.xcherry.core.persistence.read_request.AppDatabaseReadRequest;
-import io.xcherry.core.persistence.read_request.AppDatabaseTableReadRequest;
+import io.xcherry.core.persistence.readrequest.AppDatabaseReadRequest;
+import io.xcherry.core.persistence.readrequest.AppDatabaseTableReadRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

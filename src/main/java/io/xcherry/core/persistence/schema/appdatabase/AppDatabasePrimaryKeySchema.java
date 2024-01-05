@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.schema;
+package io.xcherry.core.persistence.schema.appdatabase;
 
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
 import java.util.HashMap;

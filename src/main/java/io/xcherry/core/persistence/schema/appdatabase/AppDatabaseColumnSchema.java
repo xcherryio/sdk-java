@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.schema;
+package io.xcherry.core.persistence.schema.appdatabase;
 
 import io.xcherry.core.command.CommandResults;
 import io.xcherry.core.communication.Communication;

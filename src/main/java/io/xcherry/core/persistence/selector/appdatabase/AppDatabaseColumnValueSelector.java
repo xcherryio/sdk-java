@@ -1,4 +1,4 @@
-package io.xcherry.core.persistence.selector;
+package io.xcherry.core.persistence.selector.appdatabase;
 
 import io.xcherry.core.encoder.base.DatabaseStringEncoder;
 import io.xcherry.gen.models.AppDatabaseColumnValue;

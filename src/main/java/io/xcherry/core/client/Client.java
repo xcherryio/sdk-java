@@ -1,6 +1,7 @@
 package io.xcherry.core.client;
 
 import io.xcherry.core.exception.RpcException;
+import io.xcherry.core.persistence.schema.PersistenceSchema;
 import io.xcherry.core.process.Process;
 import io.xcherry.core.process.ProcessStartConfig;
 import io.xcherry.core.registry.Registry;
@@ -179,6 +180,7 @@ public class Client {
 
     /**
      * Create a new stub for invoking RPC methods.
+     * Use this method only when the type is NOT defined in {@link io.xcherry.core.process.ProcessOptions}.
      *
      * @param processClass      class of the target process that the RPC methods belong to.
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
@@ -186,6 +188,28 @@ public class Client {
      * @param <T>               the target process type.
      */
     public <T extends Process> T newStubForRPC(final Class<T> processClass, final String processId) {
+        final String processType = ProcessUtil.getClassSimpleName(processClass);
+
+        return newStubForRPC(processClass, processId, processType);
+    }
+
+    /**
+     * Create a new stub for invoking RPC methods.
+     * Use this method when the type is defined in {@link io.xcherry.core.process.ProcessOptions}.
+     *
+     * @param processClass      class of the target process that the RPC methods belong to.
+     * @param processId         a unique identifier used to differentiate between different executions of the same process type.
+     * @param processType       the process type.
+     * @return  a new rpc stub.
+     * @param <T>               the target process type.
+     */
+    public <T extends Process> T newStubForRPC(
+        final Class<T> processClass,
+        final String processId,
+        final String processType
+    ) {
+        final PersistenceSchema persistenceSchema = registry.getPersistenceSchema(processType);
+
         final Class<? extends T> dynamicType = new ByteBuddy()
             .subclass(processClass)
             .method(ElementMatchers.any())
@@ -195,7 +219,8 @@ public class Client {
                         basicClient,
                         clientOptions.getNamespace(),
                         processId,
-                        clientOptions.getObjectEncoder()
+                        clientOptions.getObjectEncoder(),
+                        persistenceSchema
                     )
                 )
             )
@@ -280,7 +305,8 @@ public class Client {
                     ? null
                     : processStartConfig.toApiModel(
                         process.getPersistenceSchema(),
-                        clientOptions.getDatabaseStringEncoder()
+                        clientOptions.getDatabaseStringEncoder(),
+                        clientOptions.getObjectEncoder()
                     )
             );
 
