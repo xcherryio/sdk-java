@@ -1,7 +1,7 @@
 package io.xcherry.core.persistence.readrequest;
 
 import com.google.common.collect.ImmutableSet;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,39 +13,36 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalAttributeReadRequest {
 
-    private final DatabaseLockingType lockingType;
+    private final LockType lockType;
     private final Set<String> keysToReadNoLock;
     private final Set<String> keysToReadWithLock;
 
     /**
      * Create a local attribute read request.
      *
-     * @param lockingType           locking type applied to the keysToReadWithLock.
+     * @param lockType              locking type applied to the keysToReadWithLock.
      * @param keysToReadNoLock      keys to read without locking.
      * @param keysToReadWithLock    keys to read with the lockingType.
      * @return the created local attribute read request.
      */
     public static LocalAttributeReadRequest create(
-        final DatabaseLockingType lockingType,
+        final LockType lockType,
         final Set<String> keysToReadNoLock,
         final Set<String> keysToReadWithLock
     ) {
-        return new LocalAttributeReadRequest(lockingType, keysToReadNoLock, keysToReadWithLock);
+        return new LocalAttributeReadRequest(lockType, keysToReadNoLock, keysToReadWithLock);
     }
 
     /**
      * Create a local attribute read request.
      *
-     * @param lockingType           locking type applied to the keysToReadWithLock.
+     * @param lockType              locking type applied to the keysToReadWithLock.
      * @param keysToReadNoLock      keys to read without locking.
      * @return the created local attribute read request.
      */
-    public static LocalAttributeReadRequest create(
-        final DatabaseLockingType lockingType,
-        final String... keysToReadNoLock
-    ) {
+    public static LocalAttributeReadRequest create(final LockType lockType, final String... keysToReadNoLock) {
         return LocalAttributeReadRequest.create(
-            lockingType,
+            lockType,
             Arrays.stream(keysToReadNoLock).collect(Collectors.toSet()),
             ImmutableSet.of()
         );
@@ -59,7 +56,7 @@ public class LocalAttributeReadRequest {
 
     public io.xcherry.gen.models.LoadLocalAttributesRequest toApiModel() {
         return new io.xcherry.gen.models.LoadLocalAttributesRequest()
-            .lockType(lockingType)
+            .lockType(lockType)
             .keysToLoadNoLock(new ArrayList<>(keysToReadNoLock))
             .keysToLoadWithLock(new ArrayList<>(keysToReadWithLock));
     }

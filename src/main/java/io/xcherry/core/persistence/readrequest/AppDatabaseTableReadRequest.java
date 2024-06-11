@@ -1,6 +1,6 @@
 package io.xcherry.core.persistence.readrequest;
 
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -12,25 +12,25 @@ import lombok.RequiredArgsConstructor;
 public class AppDatabaseTableReadRequest {
 
     private final String tableName;
-    private final DatabaseLockingType lockingType;
+    private final LockType lockType;
     private final Set<String> columnNames;
 
     /**
      * Create an app database table read request.
      *
      * @param tableName     table name.
-     * @param lockingType   locking type.
+     * @param lockType      lock type.
      * @param columnNames   a set to column names to read from the table.
      * @return  the created app database table read request.
      */
     public static AppDatabaseTableReadRequest create(
         final String tableName,
-        final DatabaseLockingType lockingType,
+        final LockType lockType,
         final String... columnNames
     ) {
         return AppDatabaseTableReadRequest.create(
             tableName,
-            lockingType,
+            lockType,
             Arrays.stream(columnNames).collect(Collectors.toSet())
         );
     }
@@ -39,16 +39,16 @@ public class AppDatabaseTableReadRequest {
      * Create an app database table read request.
      *
      * @param tableName     table name.
-     * @param lockingType   locking type.
+     * @param lockType      lock type.
      * @param columnNames   a set to column names to read from the table.
      * @return  the created app database table read request.
      */
     public static AppDatabaseTableReadRequest create(
         final String tableName,
-        final DatabaseLockingType lockingType,
+        final LockType lockType,
         final Set<String> columnNames
     ) {
-        return new AppDatabaseTableReadRequest(tableName, lockingType, columnNames);
+        return new AppDatabaseTableReadRequest(tableName, lockType, columnNames);
     }
 
     public String getTableName() {
@@ -62,7 +62,7 @@ public class AppDatabaseTableReadRequest {
     public io.xcherry.gen.models.AppDatabaseTableReadRequest toApiModel() {
         return new io.xcherry.gen.models.AppDatabaseTableReadRequest()
             .tableName(tableName)
-            .lockType(lockingType)
+            .lockType(lockType)
             .columns(new ArrayList<>(columnNames));
     }
 }

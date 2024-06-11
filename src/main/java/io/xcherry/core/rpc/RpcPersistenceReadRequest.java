@@ -2,7 +2,7 @@ package io.xcherry.core.rpc;
 
 import io.xcherry.core.persistence.readrequest.AppDatabaseReadRequest;
 import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class RpcPersistenceReadRequest {
         return RpcPersistenceReadRequest.create(
             name,
             appDatabaseReadRequest,
-            LocalAttributeReadRequest.create(DatabaseLockingType.NO_LOCKING)
+            LocalAttributeReadRequest.create(LockType.NO_LOCKING)
         );
     }
 }

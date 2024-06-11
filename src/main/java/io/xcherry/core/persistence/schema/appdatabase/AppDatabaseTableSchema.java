@@ -2,7 +2,7 @@ package io.xcherry.core.persistence.schema.appdatabase;
 
 import io.xcherry.core.exception.persistence.AppDatabaseSchemaNotMatchException;
 import io.xcherry.core.persistence.readrequest.AppDatabaseTableReadRequest;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class AppDatabaseTableSchema {
 
     private final String tableName;
-    private final DatabaseLockingType lockingType;
+    private final LockType lockType;
     private final AppDatabasePrimaryKeySchema primaryKeySchema;
     /**
      * column name: schema
@@ -25,14 +25,14 @@ public class AppDatabaseTableSchema {
      * Define an app database table schema.
      *
      * @param tableName             table name.
-     * @param lockingType           locking type.
+     * @param lockType              lock type.
      * @param primaryKeySchema      primary key that contains column(s).
      * @param otherColumnSchemas    non-primary-key columns
      * @return  the created app database table schema.
      */
     public static AppDatabaseTableSchema define(
         final String tableName,
-        final DatabaseLockingType lockingType,
+        final LockType lockType,
         final AppDatabasePrimaryKeySchema primaryKeySchema,
         final AppDatabaseColumnSchema... otherColumnSchemas
     ) {
@@ -42,7 +42,7 @@ public class AppDatabaseTableSchema {
             otherColumnSchemaMap.put(columnSchema.getColumnName(), columnSchema);
         }
 
-        return new AppDatabaseTableSchema(tableName, lockingType, primaryKeySchema, otherColumnSchemaMap);
+        return new AppDatabaseTableSchema(tableName, lockType, primaryKeySchema, otherColumnSchemaMap);
     }
 
     public String getTableName() {
@@ -86,6 +86,6 @@ public class AppDatabaseTableSchema {
             }
         });
 
-        return AppDatabaseTableReadRequest.create(tableName, lockingType, columnsToRead);
+        return AppDatabaseTableReadRequest.create(tableName, lockType, columnsToRead);
     }
 }

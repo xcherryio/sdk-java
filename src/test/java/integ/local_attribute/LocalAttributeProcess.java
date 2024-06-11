@@ -26,7 +26,7 @@ import io.xcherry.core.state.AsyncState;
 import io.xcherry.core.state.AsyncStateOptions;
 import io.xcherry.core.state.StateDecision;
 import io.xcherry.core.state.StateSchema;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -101,11 +101,7 @@ class LocalAttributeProcessNextState1 implements AsyncState<Void> {
         return AsyncStateOptions
             .builder(LocalAttributeProcessNextState1.class)
             .localAttributeReadRequest(
-                LocalAttributeReadRequest.create(
-                    DatabaseLockingType.NO_LOCKING,
-                    LOCAL_ATTRIBUTE_KEY_2,
-                    LOCAL_ATTRIBUTE_KEY_3
-                )
+                LocalAttributeReadRequest.create(LockType.NO_LOCKING, LOCAL_ATTRIBUTE_KEY_2, LOCAL_ATTRIBUTE_KEY_3)
             )
             .build();
     }
@@ -146,7 +142,7 @@ class LocalAttributeProcessNextState2 implements AsyncState<Void> {
             .builder(LocalAttributeProcessNextState2.class)
             .localAttributeReadRequest(
                 LocalAttributeReadRequest.create(
-                    DatabaseLockingType.NO_LOCKING,
+                    LockType.NO_LOCKING,
                     LOCAL_ATTRIBUTE_KEY_1,
                     LOCAL_ATTRIBUTE_KEY_2,
                     LOCAL_ATTRIBUTE_KEY_3
