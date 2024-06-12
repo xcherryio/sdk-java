@@ -15,6 +15,8 @@ import io.xcherry.gen.models.ProcessExecutionStartRequest;
 import io.xcherry.gen.models.ProcessExecutionStartResponse;
 import io.xcherry.gen.models.ProcessExecutionStopRequest;
 import io.xcherry.gen.models.ProcessExecutionStopType;
+import io.xcherry.gen.models.ProcessExecutionWaitForCompletionRequest;
+import io.xcherry.gen.models.ProcessExecutionWaitForCompletionResponse;
 import io.xcherry.gen.models.PublishToLocalQueueRequest;
 
 /**
@@ -23,6 +25,8 @@ import io.xcherry.gen.models.PublishToLocalQueueRequest;
  * However, it can also be utilized directly if there is a compelling reason, allowing you to invoke APIs on the server with no type validation checks, such as process type, queue names, and so forth.
  */
 public class BasicClient {
+
+    public static final int DEFAULT_WAIT_FOR_TIMEOUT = 30;
 
     private final ClientOptions clientOptions;
     private final DefaultApi defaultApi;
@@ -122,6 +126,40 @@ public class BasicClient {
         }
 
         return clientOptions.getObjectEncoder().decodeFromEncodedObject(response.getOutput(), returnType);
+    }
+
+    /**
+     * Wait for a process execution to complete within the specified timeout seconds.
+     *  1. If the process execution is still running after the timeout seconds, the response will be returned with the timeout field being true.
+     *  2. If the process execution has stopped by system (e.g., due to re-balancing after increasing/decreasing the shards in the server), the response will be returned with the stopBySystem field being true.
+     *  3. In other cases, the current status of the process execution will be returned.
+     *
+     * @param namespace         the namespace in which the operation should be performed.
+     * @param processId         a unique identifier used to differentiate between different executions of the same process type.
+     * @param timeoutInSeconds  a value less than or equal to 30.
+     */
+    public ProcessExecutionWaitForCompletionResponse waitForProcessCompletion(
+        final String namespace,
+        final String processId,
+        final int timeoutInSeconds
+    ) {
+        final int timeout;
+        if (timeoutInSeconds <= 0 || timeoutInSeconds > DEFAULT_WAIT_FOR_TIMEOUT) {
+            timeout = DEFAULT_WAIT_FOR_TIMEOUT;
+        } else {
+            timeout = timeoutInSeconds;
+        }
+
+        final ProcessExecutionWaitForCompletionRequest request = new ProcessExecutionWaitForCompletionRequest()
+            .namespace(namespace)
+            .processId(processId)
+            .timeoutSeconds(timeout);
+
+        try {
+            return defaultApi.apiV1XcherryServiceProcessExecutionWaitForProcessCompletionPost(request);
+        } catch (final FeignException.FeignClientException e) {
+            throw HttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
+        }
     }
 
     private DefaultApi buildDefaultApi() {
