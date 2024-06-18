@@ -3,6 +3,8 @@ package io.xcherry.core.client;
 import static io.xcherry.core.client.BasicClient.DEFAULT_WAIT_FOR_TIMEOUT;
 
 import io.xcherry.core.exception.RpcException;
+import io.xcherry.core.exception.ServerRuntimeException;
+import io.xcherry.core.exception.WaitTimeoutException;
 import io.xcherry.core.persistence.schema.PersistenceSchema;
 import io.xcherry.core.process.Process;
 import io.xcherry.core.process.ProcessStartConfig;
@@ -15,7 +17,7 @@ import io.xcherry.gen.models.LocalQueueMessage;
 import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
 import io.xcherry.gen.models.ProcessExecutionStartRequest;
 import io.xcherry.gen.models.ProcessExecutionStopType;
-import io.xcherry.gen.models.ProcessExecutionWaitForCompletionResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import io.xcherry.gen.models.PublishToLocalQueueRequest;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -339,30 +341,27 @@ public class Client {
     }
 
     /**
-     * Wait for a process execution to complete within the specified timeout seconds.
-     *  1. If the process execution is still running after the timeout seconds, the response will be returned with the timeout field being true.
-     *  2. If the process execution has stopped by system (e.g., due to re-balancing after increasing/decreasing the shards in the server), the response will be returned with the stopBySystem field being true.
+     * Wait for a process execution to complete within the DEFAULT_WAIT_FOR_TIMEOUT seconds.
+     *  1. If the process execution is still running after the timeout seconds, {@link WaitTimeoutException} will be thrown.
+     *  2. If the process execution has stopped by system (e.g., due to re-balancing in the server), {@link ServerRuntimeException} will be thrown.
      *  3. In other cases, the current status of the process execution will be returned.
      *
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      */
-    public ProcessExecutionWaitForCompletionResponse waitForProcessCompletion(final String processId) {
+    public ProcessStatus waitForProcessCompletion(final String processId) {
         return this.waitForProcessCompletion(processId, DEFAULT_WAIT_FOR_TIMEOUT);
     }
 
     /**
      * Wait for a process execution to complete within the specified timeout seconds.
-     *  1. If the process execution is still running after the timeout seconds, the response will be returned with the timeout field being true.
-     *  2. If the process execution has stopped by system (e.g., due to re-balancing after increasing/decreasing the shards in the server), the response will be returned with the stopBySystem field being true.
+     *  1. If the process execution is still running after the timeout seconds, {@link WaitTimeoutException} will be thrown.
+     *  2. If the process execution has stopped by system (e.g., due to re-balancing in the server), {@link ServerRuntimeException} will be thrown.
      *  3. In other cases, the current status of the process execution will be returned.
      *
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      * @param timeoutInSeconds  a value less than or equal to 30.
      */
-    public ProcessExecutionWaitForCompletionResponse waitForProcessCompletion(
-        final String processId,
-        final int timeoutInSeconds
-    ) {
+    public ProcessStatus waitForProcessCompletion(final String processId, final int timeoutInSeconds) {
         return basicClient.waitForProcessCompletion(clientOptions.getNamespace(), processId, timeoutInSeconds);
     }
 }

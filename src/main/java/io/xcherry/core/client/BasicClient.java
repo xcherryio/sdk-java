@@ -5,6 +5,8 @@ import feign.FeignException;
 import feign.Retryer;
 import io.xcherry.core.ServerErrorDecoder;
 import io.xcherry.core.exception.HttpException;
+import io.xcherry.core.exception.ServerRuntimeException;
+import io.xcherry.core.exception.WaitTimeoutException;
 import io.xcherry.gen.api.ApiClient;
 import io.xcherry.gen.api.DefaultApi;
 import io.xcherry.gen.models.ProcessExecutionDescribeRequest;
@@ -17,6 +19,7 @@ import io.xcherry.gen.models.ProcessExecutionStopRequest;
 import io.xcherry.gen.models.ProcessExecutionStopType;
 import io.xcherry.gen.models.ProcessExecutionWaitForCompletionRequest;
 import io.xcherry.gen.models.ProcessExecutionWaitForCompletionResponse;
+import io.xcherry.gen.models.ProcessStatus;
 import io.xcherry.gen.models.PublishToLocalQueueRequest;
 
 /**
@@ -130,36 +133,47 @@ public class BasicClient {
 
     /**
      * Wait for a process execution to complete within the specified timeout seconds.
-     *  1. If the process execution is still running after the timeout seconds, the response will be returned with the timeout field being true.
-     *  2. If the process execution has stopped by system (e.g., due to re-balancing after increasing/decreasing the shards in the server), the response will be returned with the stopBySystem field being true.
+     *  1. If the process execution is still running after the timeout seconds, {@link WaitTimeoutException} will be thrown.
+     *  2. If the process execution has stopped by system (e.g., due to re-balancing in the server), {@link ServerRuntimeException} will be thrown.
      *  3. In other cases, the current status of the process execution will be returned.
      *
      * @param namespace         the namespace in which the operation should be performed.
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      * @param timeoutInSeconds  a value less than or equal to 30.
      */
-    public ProcessExecutionWaitForCompletionResponse waitForProcessCompletion(
+    public ProcessStatus waitForProcessCompletion(
         final String namespace,
         final String processId,
         final int timeoutInSeconds
     ) {
-        final int timeout;
         if (timeoutInSeconds <= 0 || timeoutInSeconds > DEFAULT_WAIT_FOR_TIMEOUT) {
-            timeout = DEFAULT_WAIT_FOR_TIMEOUT;
-        } else {
-            timeout = timeoutInSeconds;
+            throw new RuntimeException(
+                "timeoutInSeconds must be a value greater than 0 and less than or equal to " + DEFAULT_WAIT_FOR_TIMEOUT
+            );
         }
 
         final ProcessExecutionWaitForCompletionRequest request = new ProcessExecutionWaitForCompletionRequest()
             .namespace(namespace)
             .processId(processId)
-            .timeoutSeconds(timeout);
+            .timeoutSeconds(timeoutInSeconds);
 
+        final ProcessExecutionWaitForCompletionResponse waitForCompletionResponse;
         try {
-            return defaultApi.apiV1XcherryServiceProcessExecutionWaitForProcessCompletionPost(request);
+            waitForCompletionResponse =
+                defaultApi.apiV1XcherryServiceProcessExecutionWaitForProcessCompletionPost(request);
         } catch (final FeignException.FeignClientException e) {
             throw HttpException.fromFeignException(clientOptions.getObjectEncoder(), e);
         }
+
+        if (Boolean.TRUE.equals(waitForCompletionResponse.getTimeout())) {
+            throw new WaitTimeoutException("waitForProcessCompletion times out in " + timeoutInSeconds + " seconds");
+        }
+
+        if (Boolean.TRUE.equals(waitForCompletionResponse.getStopBySystem())) {
+            throw new ServerRuntimeException("waitForProcessCompletion stops by system");
+        }
+
+        return waitForCompletionResponse.getStatus();
     }
 
     private DefaultApi buildDefaultApi() {

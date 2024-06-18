@@ -1,14 +1,15 @@
 package integ.wait_for_process_completion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import integ.TestUtils;
 import integ.spring.IntegConfig;
 import integ.spring.WorkerServiceForTesting;
 import io.xcherry.core.client.Client;
+import io.xcherry.core.exception.WaitTimeoutException;
 import io.xcherry.gen.models.ProcessExecutionDescribeResponse;
-import io.xcherry.gen.models.ProcessExecutionWaitForCompletionResponse;
 import io.xcherry.gen.models.ProcessStatus;
 import java.time.Instant;
 import java.util.concurrent.Callable;
@@ -43,11 +44,7 @@ public class TestWaitForProcessCompletion {
 
         // Timeout
         final long startTime = Instant.now().toEpochMilli();
-        final ProcessExecutionWaitForCompletionResponse waitForCompletionResponse = client.waitForProcessCompletion(
-            processId,
-            10
-        );
-        assertEquals(Boolean.TRUE, waitForCompletionResponse.getTimeout());
+        assertThrows(WaitTimeoutException.class, () -> client.waitForProcessCompletion(processId, 10));
         assertTrue(Instant.now().toEpochMilli() - startTime >= 10 * 1000);
 
         final ProcessExecutionDescribeResponse response2 = client.describeCurrentProcessExecution(processId);
@@ -72,19 +69,16 @@ public class TestWaitForProcessCompletion {
         // Call the waitForProcessCompletion first, then complete the process and let the waitForProcessCompletion response return with the correct status
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        final Callable<ProcessExecutionWaitForCompletionResponse> waitForProcessCompletion = () ->
-            client.waitForProcessCompletion(processId, 10);
+        final Callable<ProcessStatus> waitForProcessCompletion = () -> client.waitForProcessCompletion(processId, 10);
 
         final Runnable completeProcess = () -> client.publishToLocalQueue(processId, QUEUE_1);
 
-        final Future<ProcessExecutionWaitForCompletionResponse> waitForProcessCompletionFeature = executorService.submit(
-            waitForProcessCompletion
-        );
+        final Future<ProcessStatus> waitForProcessCompletionFeature = executorService.submit(waitForProcessCompletion);
         executorService.submit(completeProcess);
 
         try {
-            final ProcessExecutionWaitForCompletionResponse waitForCompletionResponse = waitForProcessCompletionFeature.get();
-            assertEquals(ProcessStatus.COMPLETED, waitForCompletionResponse.getStatus());
+            final ProcessStatus processStatus = waitForProcessCompletionFeature.get();
+            assertEquals(ProcessStatus.COMPLETED, processStatus);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -113,25 +107,20 @@ public class TestWaitForProcessCompletion {
         // Call the waitForProcessCompletion twice first, then complete the process and let the waitForProcessCompletion responses return with the correct status
         final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-        final Callable<ProcessExecutionWaitForCompletionResponse> waitForProcessCompletion = () ->
-            client.waitForProcessCompletion(processId, 10);
+        final Callable<ProcessStatus> waitForProcessCompletion = () -> client.waitForProcessCompletion(processId, 10);
 
         final Runnable completeProcess = () -> client.publishToLocalQueue(processId, QUEUE_1);
 
-        final Future<ProcessExecutionWaitForCompletionResponse> waitForProcessCompletionFeature1 = executorService.submit(
-            waitForProcessCompletion
-        );
-        final Future<ProcessExecutionWaitForCompletionResponse> waitForProcessCompletionFeature2 = executorService.submit(
-            waitForProcessCompletion
-        );
+        final Future<ProcessStatus> waitForProcessCompletionFeature1 = executorService.submit(waitForProcessCompletion);
+        final Future<ProcessStatus> waitForProcessCompletionFeature2 = executorService.submit(waitForProcessCompletion);
         executorService.submit(completeProcess);
 
         try {
-            final ProcessExecutionWaitForCompletionResponse waitForCompletionResponse1 = waitForProcessCompletionFeature1.get();
-            assertEquals(ProcessStatus.COMPLETED, waitForCompletionResponse1.getStatus());
+            final ProcessStatus processStatus1 = waitForProcessCompletionFeature1.get();
+            assertEquals(ProcessStatus.COMPLETED, processStatus1);
 
-            final ProcessExecutionWaitForCompletionResponse waitForCompletionResponse2 = waitForProcessCompletionFeature2.get();
-            assertEquals(ProcessStatus.COMPLETED, waitForCompletionResponse2.getStatus());
+            final ProcessStatus processStatus2 = waitForProcessCompletionFeature2.get();
+            assertEquals(ProcessStatus.COMPLETED, processStatus2);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         } finally {
