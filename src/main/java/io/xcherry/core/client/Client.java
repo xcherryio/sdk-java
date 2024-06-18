@@ -347,6 +347,7 @@ public class Client {
      *  3. In other cases, the current status of the process execution will be returned.
      *
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
+     * @return the process status
      */
     public ProcessStatus waitForProcessCompletion(final String processId) {
         return this.waitForProcessCompletion(processId, DEFAULT_WAIT_FOR_TIMEOUT);
@@ -360,6 +361,7 @@ public class Client {
      *
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      * @param timeoutInSeconds  a value less than or equal to 30.
+     * @return the process status
      */
     public ProcessStatus waitForProcessCompletion(final String processId, final int timeoutInSeconds) {
         return basicClient.waitForProcessCompletion(clientOptions.getNamespace(), processId, timeoutInSeconds);

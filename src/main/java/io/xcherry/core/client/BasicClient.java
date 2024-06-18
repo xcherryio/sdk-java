@@ -140,6 +140,7 @@ public class BasicClient {
      * @param namespace         the namespace in which the operation should be performed.
      * @param processId         a unique identifier used to differentiate between different executions of the same process type.
      * @param timeoutInSeconds  a value less than or equal to 30.
+     * @return the process status
      */
     public ProcessStatus waitForProcessCompletion(
         final String namespace,
