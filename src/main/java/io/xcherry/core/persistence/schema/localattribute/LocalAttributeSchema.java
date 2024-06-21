@@ -2,7 +2,7 @@ package io.xcherry.core.persistence.schema.localattribute;
 
 import io.xcherry.core.exception.persistence.LocalAttributeSchemaNotMatchException;
 import io.xcherry.core.persistence.readrequest.LocalAttributeReadRequest;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalAttributeSchema {
 
-    private final DatabaseLockingType lockingType;
+    private final LockType lockType;
     /**
      * key: schema
      */
@@ -36,7 +36,7 @@ public class LocalAttributeSchema {
             keySchemaMap.put(keySchema.getKey(), keySchema);
         }
 
-        return new LocalAttributeSchema(DatabaseLockingType.NO_LOCKING, keySchemaMap);
+        return new LocalAttributeSchema(LockType.NO_LOCKING, keySchemaMap);
     }
 
     public Set<String> getKeys() {
@@ -77,6 +77,6 @@ public class LocalAttributeSchema {
             }
         });
 
-        return LocalAttributeReadRequest.create(lockingType, keysToReadNoLock, keysToReadWithLock);
+        return LocalAttributeReadRequest.create(lockType, keysToReadNoLock, keysToReadWithLock);
     }
 }

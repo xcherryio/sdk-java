@@ -34,7 +34,7 @@ public class LocalAttributeKeySchema {
      * @param key               key name.
      * @param valueType         value type.
      * @param loadByDefault     set true to load this local attribute by default in the {@link io.xcherry.core.state.AsyncState#execute(Context, Object, CommandResults, Persistence, Communication)} and {@link io.xcherry.core.rpc.RPC}.
-     * @param isLocking         set true to load this local attribute with {@link io.xcherry.gen.models.DatabaseLockingType}.
+     * @param isLocking         set true to load this local attribute with {@link io.xcherry.gen.models.LockType}.
      * @return  the defined local attribute key schema.
      */
     public static LocalAttributeKeySchema define(

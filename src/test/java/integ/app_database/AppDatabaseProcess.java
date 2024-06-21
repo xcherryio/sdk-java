@@ -45,7 +45,7 @@ import io.xcherry.core.state.AsyncState;
 import io.xcherry.core.state.AsyncStateOptions;
 import io.xcherry.core.state.StateDecision;
 import io.xcherry.core.state.StateSchema;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +67,7 @@ public class AppDatabaseProcess implements Process {
             AppDatabaseSchema.define(
                 AppDatabaseTableSchema.define(
                     SAMPLE_USER_TABLE,
-                    DatabaseLockingType.NO_LOCKING,
+                    LockType.NO_LOCKING,
                     AppDatabasePrimaryKeySchema.define(
                         AppDatabaseColumnSchema.define(USER_ID_1, String.class),
                         AppDatabaseColumnSchema.define(USER_ID_2, String.class)
@@ -78,7 +78,7 @@ public class AppDatabaseProcess implements Process {
                 ),
                 AppDatabaseTableSchema.define(
                     SAMPLE_ORDER_TABLE,
-                    DatabaseLockingType.NO_LOCKING,
+                    LockType.NO_LOCKING,
                     AppDatabasePrimaryKeySchema.define(AppDatabaseColumnSchema.define(ORDER_ID, Integer.class)),
                     AppDatabaseColumnSchema.define(USER_ID, Integer.class, true)
                 )
@@ -158,11 +158,11 @@ class AppDatabaseProcessNextState1 implements AsyncState<Void> {
                     // Primary key columns will always be loaded.
                     AppDatabaseTableReadRequest.create(
                         SAMPLE_USER_TABLE,
-                        DatabaseLockingType.NO_LOCKING,
+                        LockType.NO_LOCKING,
                         LAST_NAME,
                         CREATE_TIMESTAMP
                     ),
-                    AppDatabaseTableReadRequest.create(SAMPLE_ORDER_TABLE, DatabaseLockingType.NO_LOCKING, USER_ID)
+                    AppDatabaseTableReadRequest.create(SAMPLE_ORDER_TABLE, LockType.NO_LOCKING, USER_ID)
                 )
             )
             .build();
@@ -216,7 +216,7 @@ class AppDatabaseProcessNextState2 implements AsyncState<Void> {
             .builder(AppDatabaseProcessNextState2.class)
             .appDatabaseReadRequest(
                 AppDatabaseReadRequest.create(
-                    AppDatabaseTableReadRequest.create(SAMPLE_ORDER_TABLE, DatabaseLockingType.NO_LOCKING)
+                    AppDatabaseTableReadRequest.create(SAMPLE_ORDER_TABLE, LockType.NO_LOCKING)
                 )
             )
             .build();

@@ -38,7 +38,7 @@ import io.xcherry.core.state.AsyncState;
 import io.xcherry.core.state.AsyncStateOptions;
 import io.xcherry.core.state.StateDecision;
 import io.xcherry.core.state.StateSchema;
-import io.xcherry.gen.models.DatabaseLockingType;
+import io.xcherry.gen.models.LockType;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -62,7 +62,7 @@ public class RpcProcessWithPersistence implements Process {
             AppDatabaseSchema.define(
                 AppDatabaseTableSchema.define(
                     SAMPLE_USER_TABLE,
-                    DatabaseLockingType.NO_LOCKING,
+                    LockType.NO_LOCKING,
                     AppDatabasePrimaryKeySchema.define(
                         AppDatabaseColumnSchema.define(USER_ID_1, String.class),
                         AppDatabaseColumnSchema.define(USER_ID_2, String.class)
@@ -79,7 +79,7 @@ public class RpcProcessWithPersistence implements Process {
                     // Primary key columns will always be loaded.
                     AppDatabaseTableReadRequest.create(
                         SAMPLE_USER_TABLE,
-                        DatabaseLockingType.NO_LOCKING,
+                        LockType.NO_LOCKING,
                         FIRST_NAME,
                         LAST_NAME,
                         CREATE_TIMESTAMP
@@ -187,7 +187,7 @@ class RpcProcessWithPersistenceNextState1 implements AsyncState<String> {
                     // Primary key columns will always be loaded.
                     AppDatabaseTableReadRequest.create(
                         SAMPLE_USER_TABLE,
-                        DatabaseLockingType.NO_LOCKING,
+                        LockType.NO_LOCKING,
                         FIRST_NAME,
                         LAST_NAME,
                         CREATE_TIMESTAMP
